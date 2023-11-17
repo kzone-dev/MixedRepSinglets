@@ -1,0 +1,23 @@
+module MixedRepSinglets
+
+    using Statistics
+    using LinearAlgebra
+    using Plots
+    using LsqFit
+    using Roots
+    using HDF5
+
+    include("unbiased_estimator.jl")
+    export unbiased_estimator, read_hdf5_diagrams
+    include("variational_analysis.jl")
+    export correlation_matrix, eigenvalues, eigenvalues_jackknife_samples
+    include("effective_mass.jl")
+    export implicit_meff_jackknife, implicit_meff, meff_from_jackknife
+    include("plotting.jl")
+    export add_mass_band!, plot_correlator!
+    include("correlator_derivative.jl")
+    export correlator_derivative
+    include("fitcorr.jl")
+    export fit_corr, fit_corr_bars
+
+end # module MixedRepSinglets
