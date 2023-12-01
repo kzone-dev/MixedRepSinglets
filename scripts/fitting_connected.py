@@ -119,7 +119,7 @@ def fit_from_file(hdf5file,channel,tmin=0,delta_tmax=0,Nmax=10):
     print("T,L,m0,beta,m_meson,chi2/dof")
     print( T,",",L,",",mass,",",beta,",",E[0],",",E[1],",",E[2],",",chi2/dof)
 
-def fit_eigenvalues_file(hdf5file,tmin=0,delta_tmax=10,Nmax=10):
+def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
     f = h5py.File(hdf5file)
     T    = get_hdf5_value(f,"lattice")[0]
     L    = get_hdf5_value(f,"lattice")[1]
@@ -132,9 +132,8 @@ def fit_eigenvalues_file(hdf5file,tmin=0,delta_tmax=10,Nmax=10):
     eig2 = dict(Gab=gv.gvar(ev[:,1],Delta_ev[:,1]))
 
     # renormalization from lattice perturbation theory 
-    tmax = T/2 - delta_tmax    
-    E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin,tmax,Nmax,plotting=True,printing=True)
-    E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin,tmax,Nmax,plotting=True,printing=True)
+    E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin,tmax1,Nmax,plotting=True,printing=False)
+    E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin,tmax2,Nmax,plotting=True,printing=False)
     
     print("T,L,m0,beta,m_meson,chi2/dof")
     print( T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
@@ -144,5 +143,11 @@ def fit_eigenvalues_file(hdf5file,tmin=0,delta_tmax=10,Nmax=10):
 #infile = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/h5files/Lt64Ls20beta6.5mf0.71mas1.01FUN/out_spectrum.h5"
 #fit_from_file(infile,"g5",tmin=2,delta_tmax=2,Nmax=10)
 
-infile = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/eigenvalues/eigenvalues_Lt48Ls20beta6.5mf0.71mas1.01.h5"
-fit_eigenvalues_file(infile,tmin=0,delta_tmax=0,Nmax=10)
+path = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/eigenvalues/"
+
+infile = path+"eigenvalues_Lt48Ls20beta6.5mf0.71mas1.01.h5"
+fit_eigenvalues_file(infile,tmin=1,tmax1=10,tmax2=12,Nmax=10)
+infile = path+"eigenvalues_Lt64Ls20beta6.5mf0.71mas1.01.h5"
+fit_eigenvalues_file(infile,tmin=1,tmax1=11,tmax2=17,Nmax=10)
+infile = path+"eigenvalues_Lt64Ls20beta6.5mf0.70mas1.01.h5"
+fit_eigenvalues_file(infile,tmin=1,tmax1=12,tmax2=15,Nmax=10)
