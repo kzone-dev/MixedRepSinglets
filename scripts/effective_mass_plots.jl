@@ -49,12 +49,14 @@ ensembles = [
     "Lt64Ls20beta6.5mf0.70mas1.01",
     "Lt48Ls20beta6.5mf0.71mas1.01"
 ]
+swaps = [6, 6, 6]
 
-for name in ensembles
+for (i,name) in enumerate(ensembles)
     file = joinpath(basepath,"correlation_matrix_$name.h5")
     corr = h5read(file,"singlet_correlation_matrix_g5")
 
-    ev, Δev = eigenvalues(corr)
+    swap = swaps[i]
+    ev, Δev = eigenvalues(corr;swap)
 
     # naive diagonal correlators
     c  = dropdims(mean(corr,dims=3),dims=3)
@@ -62,7 +64,7 @@ for name in ensembles
 
     # obtain effective masses from jackknife analysis
     jks = eigenvalues_jackknife_samples(corr)
-    m, Δm = meff_from_jackknife(jks;sign=+1)
+    m, Δm = meff_from_jackknife(jks;sign=+1,swap)
 
     overview_plot(c,Δc,ev,Δev,m,Δm,title=name,save=true,savedir="plots/correlators_effectivmasses/")
 end

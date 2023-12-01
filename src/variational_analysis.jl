@@ -11,10 +11,23 @@ function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,
     @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa
     return corr_matrix 
 end
-function eigenvalues(corr)
+function _swap_at_crossing(val,swap)
+    N_eig, T = size(val)
+    c = swap:T-swap+1
+    @assert N_eig == 2
+    val[1,c], val[2,c] = val[2,c], val[1,c] 
+    return val
+end
+function eigenvalues(corr;swap=nothing)
     eigvals_jk = eigenvalues_jackknife_samples(corr)
     eigvals, Δeigvals = apply_jackknife(eigvals_jk;dims=2)
-    return eigvals, Δeigvals
+    if isnothing(swap)
+        return eigvals, Δeigvals
+    else
+        _swap_at_crossing(eigvals, swap)
+        _swap_at_crossing(Δeigvals,swap)
+        return eigvals, Δeigvals
+    end
 end
 function eigenvalues_jackknife_samples(corr)
     sample = delete1_resample(corr)
@@ -24,7 +37,7 @@ function eigenvalues_jackknife_samples(corr)
         t0 = 1
         # smaller values correspond to a faster decay, and thus correspond to a larger masses
         # use sortby to sort the eigenvalues by ascending eigen-energy of the meson state
-        eigvals_jk[:,s,t] = eigen(sample[:,:,s,t],sample[:,:,s,t0],sortby=x -> -abs(x)).values
+        eigvals_jk[:,s,t] = eigen(sample[:,:,s,t],sample[:,:,s,t0]).values
     end
     return eigvals_jk
 end

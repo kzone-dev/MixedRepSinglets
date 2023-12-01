@@ -53,13 +53,17 @@ function _meff_at_t(c::AbstractVector,t,T;sign=+1)
     # multiply by overall sign that has been previously extracted
     return m*s
 end
-function meff_from_jackknife(eigenvalues_jk;sign=+1)
+function meff_from_jackknife(eigenvalues_jk;sign=+1,swap=nothing)
     nops, nsamples, T = size(eigenvalues_jk)
     meff_jk = similar(eigenvalues_jk)
     for op in 1:nops, sample in 1:nsamples
         meff_jk[op,sample,:] = implicit_meff(eigenvalues_jk[op,sample,:];sign) 
     end
     meff, Δmeff = apply_jackknife(meff_jk;dims=2)
+    if !isnothing(swap)
+        _swap_at_crossing(meff, swap)
+        _swap_at_crossing(Δmeff,swap)    
+    end
     return meff, Δmeff
 end
 """

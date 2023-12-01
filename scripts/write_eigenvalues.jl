@@ -12,8 +12,9 @@ ensembles = [
     "Lt64Ls20beta6.5mf0.70mas1.01",
     "Lt48Ls20beta6.5mf0.71mas1.01"
 ]
+swaps = [6, 6, 6]
 
-for name in ensembles
+for (i,name) in enumerate(ensembles)
 
     Γ    = "g5"
     file = joinpath(basepath,"correlation_matrix_$name.h5")
@@ -28,7 +29,8 @@ for name in ensembles
     end
 
     # get eigenvalues
-    ev, Δev = eigenvalues(corr)
+    swap = swaps[i]
+    ev, Δev = eigenvalues(corr;swap)
     h5write(h5file,"singlet_eigenvalues_$Γ",ev)
     h5write(h5file,"Delta_singlet_eigenvalues_$Γ",Δev)
 end
