@@ -1,0 +1,34 @@
+using Pkg; Pkg.activate(".")
+using MixedRepSinglets
+using HDF5
+using HiRepParsing
+
+# In these correlators the periodicity is such that c[2] = c[T]
+basepath = "./output/correlation_matrix/"
+savepath = "./output/eigenvalues/"
+
+ensembles = [
+    "Lt64Ls20beta6.5mf0.71mas1.01",
+    "Lt64Ls20beta6.5mf0.70mas1.01",
+    "Lt48Ls20beta6.5mf0.71mas1.01"
+]
+
+for name in ensembles
+
+    Γ    = "g5"
+    file = joinpath(basepath,"correlation_matrix_$name.h5")
+    corr = h5read(file,"singlet_correlation_matrix_$Γ")
+    h5file = joinpath(savepath,"eigenvalues_$name.h5")
+
+    ispath(savepath) || mkpath(savepath)
+
+    # write lattice parameters
+    for key in ["plaquette","configurations","gauge group","quarkmasses","beta","lattice"]
+        h5write(h5file,key,h5read(file,key))
+    end
+
+    # get eigenvalues
+    ev, Δev = eigenvalues(corr)
+    h5write(h5file,"singlet_eigenvalues_$Γ",ev)
+    h5write(h5file,"Delta_singlet_eigenvalues_$Γ",Δev)
+end

@@ -4,7 +4,6 @@ using HDF5
 using Statistics
 using Plots
 using LaTeXStrings
-using HiRepParsing
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14)
 
 function overview_plot(c,Δc,ev,Δev,m,Δm;title="effective mass",s=(480, 3*200), xlim=(1,16),save=false, savedir="")

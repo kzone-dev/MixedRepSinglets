@@ -458,7 +458,7 @@ version = "2.8.1+1"
 deps = ["HDF5", "Parsers", "ProgressMeter"]
 git-tree-sha1 = "1bb8a1dcb85f45c8d842a6a1804b545626615ece"
 repo-rev = "main"
-repo-url = "../HiRepParsing"
+repo-url = "https://github.com/fzierler/HiRepParsing"
 uuid = "c7cc7de0-aa5c-4db3-979c-e9fc59cba489"
 version = "0.1.0"
 
