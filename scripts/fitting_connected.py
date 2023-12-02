@@ -101,11 +101,15 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,plotting=False,printin
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_from_file(hdf5file,channel,tmin=0,delta_tmax=0,Nmax=10):
+def fit_vector_from_file(hdf5file,tmin=0,delta_tmax=0,Nmax=10):
     f = h5py.File(hdf5file)
     T    = get_hdf5_value(f,"lattice")[0]
     L    = get_hdf5_value(f,"lattice")[1]
-    corr = get_hdf5_value(f,channel)
+    # HiRep (measure_spectrum) adds a normalization factor of L**3
+    corr1 = get_hdf5_value(f,"g1")*L**3
+    corr2 = get_hdf5_value(f,"g2")*L**3
+    corr3 = get_hdf5_value(f,"g3")*L**3
+    corr = (corr1 + corr2 + corr3)/3
     beta = get_hdf5_value(f,"beta")
     mass = get_hdf5_value(f,"quarkmasses")[0]
 
@@ -114,15 +118,61 @@ def fit_from_file(hdf5file,channel,tmin=0,delta_tmax=0,Nmax=10):
     dset = gv.dataset.bin_data(dset,binsize=2)
     # renormalization from lattice perturbation theory 
     tmax = T/2 - delta_tmax    
-    E, a, E_bs, a_bs, chi2, dof = fit_correlator_with_bootstrap(dset,T,tmin,tmax,Nmax,plotting=True,printing=True)
+    E, a, E_bs, a_bs, chi2, dof = fit_correlator_with_bootstrap(dset,T,tmin,tmax,Nmax,plotting=True,printing=False)
+    
+    print("T, L, m0, beta, m_rho, chi2/dof")
+    print( T,",",L,",",mass,",",beta,",",E[0],",",chi2/dof)
+
+def fit_pion_decay_from_file(hdf5file,tmin=0,delta_tmax=0,Nmax=10):
+    f = h5py.File(hdf5file)
+    T    = get_hdf5_value(f,"lattice")[0]
+    L    = get_hdf5_value(f,"lattice")[1]
+    # HiRep adds a normalization factor of L**3
+    corr = get_hdf5_value(f,"g0g5")*L**3
+    beta = get_hdf5_value(f,"beta")
+    mass = get_hdf5_value(f,"quarkmasses")[0]
+    plaq = get_hdf5_value(f,"plaquette")
+
+    # include binning
+    dset = gv.dataset.Dataset(dict(Gab=np.transpose(corr)))
+    dset = gv.dataset.bin_data(dset,binsize=2)
+    p = gv.dataset.avg_data(plaq)
+
+    # renormalization from lattice perturbation theory 
+    ZA = 1 + (5/4)*(-12.82-3)*8/(16*np.pi**2)/(beta*p)
+    
+    tmax = T/2 - delta_tmax    
+    E, a, E_bs, a_bs, chi2, dof = fit_correlator_with_bootstrap(dset,T,tmin,tmax,Nmax,plotting=True,printing=False)
+    fpi     = a[0]*np.sqrt(2/E[0])
+    fpi_ren = ZA*fpi
+
+    print("T, L, m0, beta, m_pi, f_pi, f_pi_ren , chi2/dof")
+    print( T,",",L,",",mass,",",beta,",",E[0],",",fpi,",",fpi_ren,",",chi2/dof)
+
+def fit_from_file(hdf5file,channel,tmin=0,delta_tmax=0,Nmax=10):
+    f = h5py.File(hdf5file)
+    T    = get_hdf5_value(f,"lattice")[0]
+    L    = get_hdf5_value(f,"lattice")[1]
+    # HiRep adds a normalization factor of L**3
+    corr = get_hdf5_value(f,channel)*L**3
+    beta = get_hdf5_value(f,"beta")
+    mass = get_hdf5_value(f,"quarkmasses")[0]
+
+    dset = gv.dataset.Dataset(dict(Gab=np.transpose(corr)))
+    # include binning
+    dset = gv.dataset.bin_data(dset,binsize=2)
+    # renormalization from lattice perturbation theory 
+    tmax = T/2 - delta_tmax    
+    E, a, E_bs, a_bs, chi2, dof = fit_correlator_with_bootstrap(dset,T,tmin,tmax,Nmax,plotting=True,printing=False)
     
     print("T,L,m0,beta,m_meson,chi2/dof")
-    print( T,",",L,",",mass,",",beta,",",E[0],",",E[1],",",E[2],",",chi2/dof)
+    print( T,",",L,",",mass,",",beta,",",E[0],",",chi2/dof)
 
 def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
     f = h5py.File(hdf5file)
     T    = get_hdf5_value(f,"lattice")[0]
     L    = get_hdf5_value(f,"lattice")[1]
+    # Eigenvalues are normalized at a different t0
     ev = get_hdf5_value(f,"singlet_eigenvalues_g5")[()]
     Delta_ev = get_hdf5_value(f,"Delta_singlet_eigenvalues_g5")[()]
     beta = get_hdf5_value(f,"beta")
@@ -140,12 +190,19 @@ def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
     print( T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
 
 
-#infile = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/h5files/Lt64Ls20beta6.5mf0.71mas1.01FUN/out_spectrum.h5"
-#fit_from_file(infile,"g5",tmin=2,delta_tmax=2,Nmax=10)
+path = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/h5files/"
+
+infile = path+"Lt64Ls20beta6.5mf0.71mas1.01FUN/out_spectrum.h5"
+infile = path+"Lt64Ls20beta6.5mf0.71mas1.01AS/out_spectrum.h5"
+
+fit_from_file(infile,"g5",tmin=1,delta_tmax=0,Nmax=10)
+fit_pion_decay_from_file(infile,tmin=1,delta_tmax=0,Nmax=10)
+fit_vector_from_file(infile,tmin=3,delta_tmax=0,Nmax=10)
 
 path = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/eigenvalues/"
 
 infile = path+"eigenvalues_Lt48Ls20beta6.5mf0.71mas1.01.h5"
+
 fit_eigenvalues_file(infile,tmin=1,tmax1=10,tmax2=12,Nmax=10)
 infile = path+"eigenvalues_Lt64Ls20beta6.5mf0.71mas1.01.h5"
 fit_eigenvalues_file(infile,tmin=1,tmax1=11,tmax2=17,Nmax=10)
