@@ -19,5 +19,7 @@ module MixedRepSinglets
     export correlator_derivative
     include("fitcorr.jl")
     export fit_corr, fit_corr_bars
+    include("pcac.jl")
+    export awi_mass, awi_correlator, awi_fit
 
 end # module MixedRepSinglets
