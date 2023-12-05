@@ -20,6 +20,6 @@ module MixedRepSinglets
     include("fitcorr.jl")
     export fit_corr, fit_corr_bars
     include("pcac.jl")
-    export awi_mass, awi_correlator, awi_fit
+    export awi_corr, awi_fit
 
 end # module MixedRepSinglets
