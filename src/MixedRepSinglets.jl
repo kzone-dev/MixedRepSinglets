@@ -10,7 +10,7 @@ module MixedRepSinglets
     include("unbiased_estimator.jl")
     export unbiased_estimator, read_hdf5_diagrams
     include("variational_analysis.jl")
-    export correlation_matrix, eigenvalues, eigenvalues_jackknife_samples
+    export correlation_matrix, eigenvalues, eigenvalues_jackknife_samples, eigenvalues_eigenvectors
     include("effective_mass.jl")
     export implicit_meff_jackknife, implicit_meff, meff_from_jackknife
     include("plotting.jl")

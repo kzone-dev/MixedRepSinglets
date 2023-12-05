@@ -27,10 +27,11 @@ for (i,name) in enumerate(ensembles)
     for key in ["plaquette","configurations","gauge group","quarkmasses","beta","lattice"]
         h5write(h5file,key,h5read(file,key))
     end
-
+   
     # get eigenvalues
-    swap = swaps[i]
-    ev, Δev = eigenvalues(corr;swap)
+    ev, Δev, vecs, Δvecs = eigenvalues_eigenvectors(corr;swap=swaps[i],t0=1)
     h5write(h5file,"singlet_eigenvalues_$Γ",ev)
+    h5write(h5file,"singlet_eigenvectors_$Γ",vecs)
     h5write(h5file,"Delta_singlet_eigenvalues_$Γ",Δev)
+    h5write(h5file,"Delta_singlet_eigenvectors_$Γ",Δvecs)
 end
