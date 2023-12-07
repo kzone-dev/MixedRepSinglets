@@ -19,8 +19,13 @@ names = [
 ]
 tcut = [10, 8, 12, 8, 12, 10, 15, 10, 20, 20]
 
+io = Base.stdout
+io = open("output/PCACmasses.csv","w")
+println(io,"ensemble,T,L,beta,m0,mPCAC,ΔmPCAC")
 for (i,name) in enumerate(names)
     file = joinpath(path,name,"out_spectrum_mixed.h5")
+
+    Nf = contains(name,"FUN") ? 2 : 3
     corr = awi_corr(file)
         
     N,T = size(corr)
@@ -34,5 +39,13 @@ for (i,name) in enumerate(names)
     plt = scatter(c,yerr=Δc,label="data: AWI quark mass")
     plot!(plt,tmin:tmax,m*ones(tmax-tmin+1),ribbon=Δm,label="fit")
     plot!(plt,xlims=(5,T-5),ylims=(m - 5Δm,m + 5Δm))
-    display(plt)
+    #display(plt)
+
+
+    T, L = h5read(file,"lattice")[1:2]
+    beta = h5read(file,"beta")[]
+    mass = h5read(file,"quarkmasses")[]
+
+    println(io,"$name,$T,$L,$beta,$mass,$m,$Δm")
 end
+close(io)

@@ -145,7 +145,10 @@ def fit_pion_decay_from_file(hdf5file,tmin=0,delta_tmax=0,Nmax=10):
     fpi     = a[0]*np.sqrt(2/E[0])
     fpi_ren = ZA*fpi
 
-    print( T,",",L,",",mass,",",beta,",",E[0],",",fpi,",",fpi_ren,",",chi2/dof)
+    GMOR = (fpi_ren*E[0])**2
+
+    #print( T,",",L,",",mass,",",beta,",",E[0],",",fpi,",",fpi_ren,",",chi2/dof)
+    print( T,",",L,",",mass,",",beta,",",E[0].mean,",",E[0].sdev,",",fpi.mean,",",fpi.sdev,",",fpi_ren.mean,",",fpi_ren.sdev,",",GMOR.mean,",",GMOR.sdev,",",chi2/dof)
 
 def fit_from_file(hdf5file,channel,tmin=0,delta_tmax=0,Nmax=10):
     f = h5py.File(hdf5file)
@@ -171,7 +174,7 @@ def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
     L    = get_hdf5_value(f,"lattice")[1]
     # Eigenvalues are normalized at a different t0
     ev = get_hdf5_value(f,"singlet_eigenvalues_g5")[()]
-    Delta_ev = get_hdf5_value(f,"Delta_singlet_eigenvalues_g5")[()]
+    Delta_ev = get_hdf5_value(f,"Delta_singlet_eigenvalues_g5_folded")[()]
     beta = get_hdf5_value(f,"beta")
     mass = get_hdf5_value(f,"quarkmasses")[0]
 
@@ -204,28 +207,37 @@ names = [
     "Lt96Ls20beta6.5mf0.71mas1.01FUN"
 ]
 
-print("T,L,m0,beta,m_meson,chi2/dof")
-for name in names:
-    infile = path+name+"/out_spectrum.h5"
-    fit_from_file(infile,"g5",tmin=1,delta_tmax=0,Nmax=10)
 
-print("T, L, m0, beta, m_pi, f_pi, f_pi_ren , chi2/dof")
+#print("T, L, m0, beta, m_pi, f_pi, f_pi_ren , chi2/dof")
+print("T, L, m0, beta, m_pi, Delta_m_pi, f_pi, Delta_f_pi, f_pi_ren, Delta_f_pi_ren, GMOR, Delta_GMOR, chi2/dof")
 for name in names:
     infile = path+name+"/out_spectrum.h5"
     fit_pion_decay_from_file(infile,tmin=1,delta_tmax=0,Nmax=10)
 
-print("T, L, m0, beta, m_rho, chi2/dof")
+"""
+print("T,L,m0,beta,m_meson,chi2/dof")
+for name in names:
+    infile = path+name+"/out_spectrum.h5"
+    fit_from_file(infile,"g5",tmin=1,delta_tmax=0,Nmax=10)
+    print("T, L, m0, beta, m_rho, chi2/dof")
+
 for name in names:
     infile = path+name+"/out_spectrum.h5"
     fit_vector_from_file(infile,tmin=3,delta_tmax=0,Nmax=10)
+"""
 
-""" 
+"""
 path = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/eigenvalues/"
-infile = path+"eigenvalues_Lt48Ls20beta6.5mf0.71mas1.01.h5"
 
+infile = path+"eigenvalues_Lt48Ls20beta6.5mf0.71mas1.01.h5"
 fit_eigenvalues_file(infile,tmin=1,tmax1=10,tmax2=12,Nmax=10)
 infile = path+"eigenvalues_Lt64Ls20beta6.5mf0.71mas1.01.h5"
-fit_eigenvalues_file(infile,tmin=1,tmax1=11,tmax2=17,Nmax=10)
+fit_eigenvalues_file(infile,tmin=1,tmax1=10,tmax2=17,Nmax=10)
 infile = path+"eigenvalues_Lt64Ls20beta6.5mf0.70mas1.01.h5"
-fit_eigenvalues_file(infile,tmin=1,tmax1=12,tmax2=15,Nmax=10)
+fit_eigenvalues_file(infile,tmin=1,tmax1=11,tmax2=17,Nmax=10)
+infile = path+"eigenvalues_Lt80Ls20beta6.5mf0.71mas1.01.h5"
+fit_eigenvalues_file(infile,tmin=2,tmax1=11,tmax2=17,Nmax=10)
+infile = path+"eigenvalues_Lt96Ls20beta6.5mf0.71mas1.01.h5"
+fit_eigenvalues_file(infile,tmin=1,tmax1=11,tmax2=17,Nmax=10)
+
 """
