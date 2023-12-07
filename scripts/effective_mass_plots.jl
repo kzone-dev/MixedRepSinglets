@@ -56,6 +56,7 @@ swaps = [nothing, nothing, nothing, nothing, nothing]
 for (i,name) in enumerate(ensembles)
     file = joinpath(basepath,"correlation_matrix_$name.h5")
     corr = h5read(file,"singlet_correlation_matrix_g5")
+    corr = _bin_correlator_matrix(corr;binsize=2) 
 
     swap = swaps[i]
     ev, Δev = eigenvalues(corr;swap)

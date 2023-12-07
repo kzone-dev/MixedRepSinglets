@@ -16,6 +16,17 @@ function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,
     @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa[1:N,1:T]
     return corr_matrix 
 end
+function _bin_correlator_matrix(corr;binsize=2)
+    nop, nop, N, T = size(corr)
+    corr_binned = zeros(eltype(corr), nop, nop, N÷binsize, T)
+    for i in 1:N÷binsize
+        for j in 1:binsize
+            offset = (i-1)*binsize
+            corr_binned[:,:,i,:] += corr[:,:,offset+j,:]/binsize
+        end 
+    end
+    return corr_binned
+end
 function _swap_at_crossing(val,swap)
     N_eig, T = size(val)
     c = swap:T-swap+1

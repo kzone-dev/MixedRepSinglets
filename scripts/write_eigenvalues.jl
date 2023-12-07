@@ -17,10 +17,11 @@ ensembles = [
 swaps = [6, 6, 6, 6, 6]
 
 for (i,name) in enumerate(ensembles)
-
     Γ    = "g5"
     file = joinpath(basepath,"correlation_matrix_$name.h5")
     corr = h5read(file,"singlet_correlation_matrix_$Γ")
+    
+    corr = _bin_correlator_matrix(corr;binsize=2) 
     h5file = joinpath(savepath,"eigenvalues_$name.h5")
 
     ispath(savepath) || mkpath(savepath)
