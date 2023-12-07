@@ -27,7 +27,7 @@ function overview_plot(c,Δc,ev,Δev,m,Δm;title="effective mass",s=(480, 3*200)
     # choose limits for effective masses
     skip = 3
     data = m[1,skip:maximum(xlim)]
-    ylim = extrema(filter(x-> x > 0 && isfinite(x),data))
+    ylim = extrema(filter(x-> x >= 0 && isfinite(x),data))
     ylim = (0.67*ylim[1],1.33*ylim[2])
     plot!(plt3,ylims=ylim, xlabel=L"t")
 
@@ -47,9 +47,11 @@ basepath = "./output/correlation_matrix/"
 ensembles = [
     "Lt64Ls20beta6.5mf0.71mas1.01",
     "Lt64Ls20beta6.5mf0.70mas1.01",
-    "Lt48Ls20beta6.5mf0.71mas1.01"
+    "Lt48Ls20beta6.5mf0.71mas1.01",
+    "Lt80Ls20beta6.5mf0.71mas1.01",
+    "Lt96Ls20beta6.5mf0.71mas1.01"
 ]
-swaps = [6, 6, 6]
+swaps = [nothing, nothing, nothing, nothing, nothing]
 
 for (i,name) in enumerate(ensembles)
     file = joinpath(basepath,"correlation_matrix_$name.h5")
@@ -66,5 +68,5 @@ for (i,name) in enumerate(ensembles)
     jks = eigenvalues_jackknife_samples(corr)
     m, Δm = meff_from_jackknife(jks;sign=+1,swap)
 
-    overview_plot(c,Δc,ev,Δev,m,Δm,title=name,save=true,savedir="plots/correlators_effectivmasses/")
+    overview_plot(c,Δc,ev,Δev,m,Δm,title=name,save=false,savedir="plots/correlators_effectivmasses/")
 end

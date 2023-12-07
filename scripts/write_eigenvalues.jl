@@ -8,11 +8,13 @@ basepath = "./output/correlation_matrix/"
 savepath = "./output/eigenvalues/"
 
 ensembles = [
+    "Lt48Ls20beta6.5mf0.71mas1.01",
     "Lt64Ls20beta6.5mf0.71mas1.01",
     "Lt64Ls20beta6.5mf0.70mas1.01",
-    "Lt48Ls20beta6.5mf0.71mas1.01"
+    "Lt80Ls20beta6.5mf0.71mas1.01", 
+    "Lt96Ls20beta6.5mf0.71mas1.01"
 ]
-swaps = [6, 6, 6]
+swaps = [6, 6, 6, 6, 6]
 
 for (i,name) in enumerate(ensembles)
 

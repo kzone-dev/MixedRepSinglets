@@ -23,7 +23,14 @@ function writehdf5_correlationmatrix(ensemble_name;savedir="",kws...)
 end
 
 basepath = "./output/h5files/"
-ensembles = ["Lt64Ls20beta6.5mf0.71mas1.01", "Lt64Ls20beta6.5mf0.70mas1.01", "Lt48Ls20beta6.5mf0.71mas1.01"]
+ensembles = [
+    "Lt48Ls20beta6.5mf0.71mas1.01",
+    "Lt64Ls20beta6.5mf0.71mas1.01",
+    "Lt64Ls20beta6.5mf0.70mas1.01",
+    "Lt80Ls20beta6.5mf0.71mas1.01", 
+    "Lt96Ls20beta6.5mf0.71mas1.01"
+]
+
 for name in ensembles
     writehdf5_correlationmatrix(name,savedir="output/correlation_matrix")
 end
