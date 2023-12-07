@@ -57,8 +57,8 @@ function eigenvalues_eigenvectors(corr;swap=nothing,t0=1)
         # TODO: Sort eigenvectors accordingly
         # TODO: Make it work in this notation
         for i in 1:2
-            @views _swap_at_crossing(eigvecs[i,:,:] ,swap)
-            @views _swap_at_crossing(Δeigvecs[i,:,:],swap)    
+            eigvecs[i,:,:]  = _swap_at_crossing(eigvecs[i,:,:] ,swap)
+            Δeigvecs[i,:,:] = _swap_at_crossing(Δeigvecs[i,:,:],swap)    
         end
         # Although: The matrix of eigenvectors should be time-independent
         return eigvals, Δeigvals, eigvecs, Δeigvecs
