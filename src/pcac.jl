@@ -22,7 +22,25 @@ function _bin_corr(corr;binsize=2)
     end
     return corr_binned
 end
-function awi_corr(file)
+# generate a resample of the original correlator matrix
+function _resample_awi(corr)
+    nconf,T = size(corr)
+    samples = similar(corr)
+    # temporary array for jackknife sampling
+    tmp = zeros(eltype(corr),(nconf-1,T))
+    for index in 1:nconf    
+        for i in 1:index-1
+            tmp[i,:] = corr[i,:]
+        end
+        for i in 1+index:nconf
+            tmp[i-1,:] = corr[i,:]
+        end
+        # perform average after deleting one sample
+        samples[index,:] = dropdims(mean(tmp,dims=1),dims=1)
+    end
+    return samples
+end
+function awi_corr(file;binsize=2)
     AP = h5read(file,"g0g5_g5")
     g5 = h5read(file,"g5")
 
@@ -32,13 +50,8 @@ function awi_corr(file)
     
     dAP = correlator_derivative(AP;t_dim=2)
     awi_corr = dAP ./ g5 ./ 2
-    awi_binned = _bin_corr(awi_corr;binsize=2)
-
-    N, T = size(awi_binned)
-
-    AWI  = dropdims(mean(awi_binned,dims=1),dims=1)
-    ΔAWI = dropdims(std(awi_binned,dims=1),dims=1)/sqrt(N)
-    return AWI, ΔAWI
+    awi_binned = _bin_corr(awi_corr;binsize)
+    return awi_binned
 end
 @. constfit(x,p) = p[1] + 0*x
 function awi_fit(AWI,ΔAWI::Vector;tmin,tmax)
@@ -51,4 +64,15 @@ function awi_fit(AWI,ΔAWI::Vector;tmin,tmax)
     mAWI = fit.param[1]
     ΔmAWI = stderror(fit)[1]
     return mAWI, ΔmAWI
+end
+function awi_fit_jackknife(file;tmin,tmax,binsize=2)
+    awi_binned = awi_corr(file;binsize)
+    awi_jackknife = _resample_awi(awi_binned)
+    
+    N, T = size(awi_jackknife)
+    mq_jackknife = zeros(N)
+    for i in 1:N
+        mq_jackknife[i] = first(awi_fit(awi_jackknife[i,:],ones(T);tmin,tmax))
+    end
+    return apply_jackknife(mq_jackknife)
 end

@@ -1,7 +1,8 @@
 using MixedRepSinglets
 using HDF5
 using Plots
-plotlyjs()
+using Statistics
+gr()
 
 path = "./output/h5files/"
 names = [ 
@@ -16,19 +17,22 @@ names = [
     "Lt96Ls20beta6.5mf0.71mas1.01AS",
     "Lt96Ls20beta6.5mf0.71mas1.01FUN"
 ]
+tcut = [10, 8, 12, 8, 12, 10, 15, 10, 20, 20]
 
-for name in names
+for (i,name) in enumerate(names)
     file = joinpath(path,name,"out_spectrum_mixed.h5")
-    c, Δc = awi_corr(file)
+    corr = awi_corr(file)
+        
+    N,T = size(corr)
+    c  = dropdims(mean(corr,dims=1),dims=1)
+    Δc = dropdims(std(corr,dims=1),dims=1)/sqrt(N)
 
-    T = length(c)
+    tmin= T÷2 - tcut[i]
+    tmax= T÷2 + tcut[i] + 1
 
-    tmin= 20
-    tmax= T -  20
-
-    mq1, Δmq1 = awi_fit(c,Δc;tmin,tmax)
-    plt = scatter(c,yerr=Δc)
-    plot!(plt,tmin:tmax,mq1*ones(tmax-tmin+1),ribbon=Δmq1)
-    plot!(plt,xlims=(tmin-4,tmax+4),ylims=(0.05,0.07))
+    m, Δm = MixedRepSinglets.awi_fit_jackknife(file;tmin,tmax,binsize=2)
+    plt = scatter(c,yerr=Δc,label="data: AWI quark mass")
+    plot!(plt,tmin:tmax,m*ones(tmax-tmin+1),ribbon=Δm,label="fit")
+    plot!(plt,xlims=(5,T-5),ylims=(m - 5Δm,m + 5Δm))
     display(plt)
 end
