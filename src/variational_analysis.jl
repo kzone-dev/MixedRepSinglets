@@ -1,14 +1,19 @@
-# choose two sets of operators which shoud lead to identical results. 
-# CASE A: η_f: (uΓu + dΓd)/√2 
-#         η_a: (UΓU + DΓD + SΓS)/√3
 function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,Nf_as=3)
-    #@assert size(conn_f) == size(conn_as) == size(disc_aa) == size(disc_ff) == size(disc_fa) 
-    corr_matrix = zeros(eltype(conn_f),(2,2,size(conn_f)...))
-    # create the correlators and cross-correlators of CASE 1
-    @. corr_matrix[1,1,:,:] = conn_f  - Nf_fun*disc_ff
-    @. corr_matrix[2,2,:,:] = conn_as - Nf_as *disc_aa
-    @. corr_matrix[1,2,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa
-    @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa
+    N1,T1 = size(conn_f)
+    N2,T2 = size(conn_as)
+    N3,T3 = size(disc_aa)
+    N4,T4 = size(disc_ff)
+    N5,T5 = size(disc_fa)
+    N = minimum((N1,N2,N3,N4,N5))
+    @assert T1 == T2 == T3 == T4 == T5 
+    T = T1
+    
+    corr_matrix = zeros(eltype(conn_f),(2,2,N,T))
+
+    @. corr_matrix[1,1,:,:] = conn_f[1:N,1:T]  - Nf_fun*disc_ff[1:N,1:T]
+    @. corr_matrix[2,2,:,:] = conn_as[1:N,1:T] - Nf_as *disc_aa[1:N,1:T]
+    @. corr_matrix[1,2,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa[1:N,1:T]
+    @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa[1:N,1:T]
     return corr_matrix 
 end
 function _swap_at_crossing(val,swap)

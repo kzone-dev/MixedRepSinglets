@@ -25,9 +25,9 @@ function unbiased_estimator(discon1,discon2;rescale=1)
     # (1) average over different hits
     # (2) average over all time separations
     # (3) normalize wrt. time and hit average
-    nhits1 = size(discon1)[2]
-    nhits2 = size(discon2)[2] 
-    nconf, nhits1, T = size(discon1)
+    nconf1, nhits1, T = size(discon1)
+    nconf2, nhits2, T = size(discon2)
+    nconf = min(nconf1,nconf2)
     timavg = zeros(eltype(discon1),(nconf,T))
     norm   = T*nhits1*nhits2
     for t in 1:T
