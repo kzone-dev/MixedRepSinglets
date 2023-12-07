@@ -28,7 +28,7 @@ function overview_plot(c,Δc,ev,Δev,m,Δm;title="effective mass",s=(480, 3*200)
     skip = 3
     data = m[1,skip:maximum(xlim)]
     ylim = extrema(filter(x-> x >= 0 && isfinite(x),data))
-    ylim = (0.67*ylim[1],1.33*ylim[2])
+    ylim = (0.25*ylim[1],1.33*ylim[2])
     plot!(plt3,ylims=ylim, xlabel=L"t")
 
     # meake full plot
@@ -56,6 +56,7 @@ swaps = [nothing, nothing, nothing, nothing, nothing]
 for (i,name) in enumerate(ensembles)
     file = joinpath(basepath,"correlation_matrix_$name.h5")
     corr = h5read(file,"singlet_correlation_matrix_g5")
+    corr = h5read(file,"singlet_correlation_matrix_g5_folded")
     corr = _bin_correlator_matrix(corr;binsize=2) 
 
     swap = swaps[i]

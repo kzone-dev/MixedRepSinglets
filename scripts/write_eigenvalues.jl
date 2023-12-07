@@ -19,10 +19,12 @@ swaps = [6, 6, 6, 6, 6]
 for (i,name) in enumerate(ensembles)
     Γ    = "g5"
     file = joinpath(basepath,"correlation_matrix_$name.h5")
-    corr = h5read(file,"singlet_correlation_matrix_$Γ")
-    
-    corr = _bin_correlator_matrix(corr;binsize=2) 
     h5file = joinpath(savepath,"eigenvalues_$name.h5")
+
+    corr = h5read(file,"singlet_correlation_matrix_$Γ")
+    corr = _bin_correlator_matrix(corr;binsize=2) 
+    corr_folded = h5read(file,"singlet_correlation_matrix_$(Γ)_folded")
+    corr_folded = _bin_correlator_matrix(corr_folded;binsize=2) 
 
     ispath(savepath) || mkpath(savepath)
 
@@ -33,8 +35,13 @@ for (i,name) in enumerate(ensembles)
    
     # get eigenvalues
     ev, Δev, vecs, Δvecs = eigenvalues_eigenvectors(corr;swap=swaps[i],t0=1)
+    evF, ΔevF, vecsF, ΔvecsF = eigenvalues_eigenvectors(corr_folded;swap=swaps[i],t0=1)
     h5write(h5file,"singlet_eigenvalues_$Γ",ev)
     h5write(h5file,"singlet_eigenvectors_$Γ",vecs)
     h5write(h5file,"Delta_singlet_eigenvalues_$Γ",Δev)
     h5write(h5file,"Delta_singlet_eigenvectors_$Γ",Δvecs)
+    h5write(h5file,"singlet_eigenvalues_$(Γ)_folded",evF)
+    h5write(h5file,"singlet_eigenvectors_$(Γ)_folded",vecsF)
+    h5write(h5file,"Delta_singlet_eigenvalues_$(Γ)_folded",ΔevF)
+    h5write(h5file,"Delta_singlet_eigenvectors_$(Γ)_folded",ΔvecsF)
 end
