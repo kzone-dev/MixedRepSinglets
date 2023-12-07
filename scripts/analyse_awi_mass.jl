@@ -23,11 +23,12 @@ for name in names
 
     T = length(c)
 
-    tmin= 15
-    tmax= T -  15
+    tmin= 20
+    tmax= T -  20
 
-    mq, Δmq = awi_fit(c,Δc;tmin,tmax)
+    mq1, Δmq1 = awi_fit(c,Δc;tmin,tmax)
     plt = scatter(c,yerr=Δc)
-    plot!(plt,tmin:tmax,mq*ones(tmax-tmin+1),ribbon=Δmq)
+    plot!(plt,tmin:tmax,mq1*ones(tmax-tmin+1),ribbon=Δmq1)
+    plot!(plt,xlims=(tmin-4,tmax+4),ylims=(0.05,0.07))
     display(plt)
 end

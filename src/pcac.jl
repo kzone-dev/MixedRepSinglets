@@ -11,6 +11,17 @@ function _fold_corr!(corr;sign=+1)
         corr[:,t2] = tmp2
     end
 end
+function _bin_corr(corr;binsize=2)
+    N, T = size(corr)
+    corr_binned = zeros(eltype(corr), N÷binsize, T)
+    for i in 1:N÷binsize
+        for j in 1:binsize
+            offset = (i-1)*binsize
+            corr_binned[i,:] += corr[offset+j,:]/binsize
+        end 
+    end
+    return corr_binned
+end
 function awi_corr(file)
     AP = h5read(file,"g0g5_g5")
     g5 = h5read(file,"g5")
@@ -18,18 +29,19 @@ function awi_corr(file)
     # symmetrise the correlator
     _fold_corr!(AP;sign=-1)
     _fold_corr!(g5)
-
+    
     dAP = correlator_derivative(AP;t_dim=2)
     awi_corr = dAP ./ g5 ./ 2
+    awi_binned = _bin_corr(awi_corr;binsize=2)
 
-    N, T = size(AP)
+    N, T = size(awi_binned)
 
-    AWI  = dropdims(mean(awi_corr,dims=1),dims=1)
-    ΔAWI = dropdims(std(awi_corr,dims=1),dims=1)/sqrt(N)
+    AWI  = dropdims(mean(awi_binned,dims=1),dims=1)
+    ΔAWI = dropdims(std(awi_binned,dims=1),dims=1)/sqrt(N)
     return AWI, ΔAWI
 end
 @. constfit(x,p) = p[1] + 0*x
-function awi_fit(AWI,ΔAWI;tmin,tmax)
+function awi_fit(AWI,ΔAWI::Vector;tmin,tmax)
     T  = length(AWI)
     t0 = tmin:tmax
     # initial guess at T/2
