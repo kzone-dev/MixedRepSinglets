@@ -1,4 +1,4 @@
-function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,Nf_as=3)
+function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,Nf_as=3,disc_sign=+1)
     N1,T1 = size(conn_f)
     N2,T2 = size(conn_as)
     N3,T3 = size(disc_aa)
@@ -10,10 +10,10 @@ function correlation_matrix(conn_f, conn_as, disc_ff, disc_aa, disc_fa;Nf_fun=2,
     
     corr_matrix = zeros(eltype(conn_f),(2,2,N,T))
 
-    @. corr_matrix[1,1,:,:] = conn_f[1:N,1:T]  - Nf_fun*disc_ff[1:N,1:T]
-    @. corr_matrix[2,2,:,:] = conn_as[1:N,1:T] - Nf_as *disc_aa[1:N,1:T]
-    @. corr_matrix[1,2,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa[1:N,1:T]
-    @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_fa[1:N,1:T]
+    @. corr_matrix[1,1,:,:] = conn_f[1:N,1:T]  - Nf_fun*disc_sign*disc_ff[1:N,1:T]
+    @. corr_matrix[2,2,:,:] = conn_as[1:N,1:T] - Nf_as *disc_sign*disc_aa[1:N,1:T]
+    @. corr_matrix[1,2,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*disc_fa[1:N,1:T]
+    @. corr_matrix[2,1,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*disc_fa[1:N,1:T]
     return corr_matrix 
 end
 function _bin_correlator_matrix(corr;binsize=2)

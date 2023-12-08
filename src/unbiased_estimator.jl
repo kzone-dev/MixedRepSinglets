@@ -1,4 +1,4 @@
-function read_hdf5_diagrams(fileCONN_fun,fileDISC_fun,fileCONN_as,fileDISC_as;Γ="g5")
+function read_hdf5_diagrams(fileCONN_fun,fileDISC_fun,fileCONN_as,fileDISC_as;Γ="g5",subtract_vev=false)
     conn_f  = h5read(fileCONN_fun,Γ)
     disc_f  = h5read(fileDISC_fun,Γ)
     conn_as = h5read(fileCONN_as ,Γ)
@@ -9,9 +9,9 @@ function read_hdf5_diagrams(fileCONN_fun,fileDISC_fun,fileCONN_as,fileDISC_as;Γ
     #rescale disconnected pieces to match the common normalisation
     rescale_disc = (L^3)^2 /L^3
     # use the stochastic estimator of arXiv:1607.06654 eq. (14)
-    disc_ff = unbiased_estimator(disc_f ,rescale=rescale_disc)
-    disc_aa = unbiased_estimator(disc_as,rescale=rescale_disc)
-    disc_fa = unbiased_estimator(disc_f,disc_as,rescale=rescale_disc)
+    disc_ff = unbiased_estimator(disc_f;rescale=rescale_disc,subtract_vev)
+    disc_aa = unbiased_estimator(disc_as;rescale=rescale_disc,subtract_vev)
+    disc_fa = unbiased_estimator(disc_f,disc_as;rescale=rescale_disc,subtract_vev)
     # rescale now the connected pieces appropriately
     rescale_connected!(conn_f ,L)
     rescale_connected!(conn_as,L)
@@ -21,7 +21,7 @@ end
 #       For products of the same flavour I use the stochastic estimator of arXiv:1607.06654 eq. (14)
 #       For products of different flavours we use a simple average over the sources. 
 #       In both cases we need to take care of the relative time slices
-function unbiased_estimator(discon1,discon2;rescale=1)
+function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false)
     # (1) average over different hits
     # (2) average over all time separations
     # (3) normalize wrt. time and hit average
@@ -30,12 +30,21 @@ function unbiased_estimator(discon1,discon2;rescale=1)
     nconf = min(nconf1,nconf2)
     timavg = zeros(eltype(discon1),(nconf,T))
     norm   = T*nhits1*nhits2
+    if subtract_vev
+        vev1 = vev_contribution(discon1)
+        vev2 = vev_contribution(discon2)
+    else
+        vev1 = zeros(eltype(discon1),(nconf,T))
+        vev2 = zeros(eltype(discon2),(nconf,T))
+    end
     for t in 1:T
         for t0 in 1:T
             Δt = mod(t-t0,T)
             @inbounds for hit1 in 1:nhits1, hit2 in 1:nhits2
                 for conf in 1:nconf
-                    timavg[conf,Δt+1] += discon1[conf,hit1,t]*discon2[conf,hit2,t0]
+                    loop1 = discon1[conf,hit1,t]  - vev1[conf,t]
+                    loop2 = discon2[conf,hit2,t0] - vev2[conf,t0]
+                    timavg[conf,Δt+1] += loop1*loop2
                 end
             end
         end
@@ -44,7 +53,7 @@ function unbiased_estimator(discon1,discon2;rescale=1)
     # transpose the matrix so that it has the same layout as the connected pieces
     return timavg
 end
-function unbiased_estimator(discon;rescale=1)
+function unbiased_estimator(discon;rescale=1,subtract_vev=false)
     # (1) average over different hits
     # (2) average over all time separations
     # (3) normalize wrt. time and hit average
@@ -52,18 +61,30 @@ function unbiased_estimator(discon;rescale=1)
     timavg = zeros(eltype(discon),(nconf,T))
     norm   = T*div(nhits,2)^2
     hitsd2 = div(nhits,2)
+    if subtract_vev
+        vev = vev_contribution(discon)
+    else
+        vev = zeros(eltype(discon),(nconf,T))
+    end
     for t in 1:T
         for t0 in 1:T
             Δt = mod(t-t0,T)
             @inbounds for hit1 in 1:hitsd2, hit2 in hitsd2+1:nhits
                 for conf in 1:nconf
-                    timavg[conf,Δt+1] += discon[conf,hit1,t]*discon[conf,hit2,t0]
+                    loop1 = discon[conf,hit1,t]  - vev[conf,t]
+                    loop2 = discon[conf,hit2,t0] - vev[conf,t0]
+                    timavg[conf,Δt+1] += loop1*loop2
                 end
             end
         end
     end
     @. timavg = rescale*timavg/norm
     return timavg
+end
+function vev_contribution(discon;rescale=1)
+    vev = dropdims(mean(discon,dims=2),dims=2) 
+    @. vev = rescale*vev
+    return vev
 end
 function rescale_connected!(corr,L)
     n1 = L^6/2 # from the norm used in HiReo
