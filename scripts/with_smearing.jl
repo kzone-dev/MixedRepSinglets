@@ -5,48 +5,80 @@ using HDF5
 using Plots
 plotlyjs()
 
-file = "/home/fabian/Documents/Lattice/HiRepDIaL/measurements/Lt64Ls20beta6.5mf0.71mas1.01FUN/out/out_spectrum_smeared"
+fileFUN = "/home/fabian/Documents/Lattice/HiRepDIaL/measurements/Lt64Ls20beta6.5mf0.71mas1.01AS/out/out_spectrum_smeared"
+fileAS  = "/home/fabian/Documents/Lattice/HiRepDIaL/measurements/Lt64Ls20beta6.5mf0.71mas1.01FUN/out/out_spectrum_smeared"
 
-N_max = 20
-Nstep = 10
-nhits = 8
+N_max  = 20
+Nstep  = 10
+Nsmear = 0:Nstep:N_max
+nhits  = 8
 
-h5fileCONN= "test_conn.hdf5"
-h5fileDISC= "test_disc.hdf5"
+h5file = "smeared.hdf5"
 
-function write_hdf5_smeared_combined(file,h5fileCONN,h5fileDISC,N_max,Nstep,nhits)
-    typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in 0:Nstep:N_max]
-    typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in 0:Nstep:N_max, N2 in 0:Nstep:N_max]
-    writehdf5_spectrum(file,h5fileCONN,typesCONN)
-    writehdf5_spectrum_disconnected(file,h5fileDISC,typesDISC,nhits)    
-end
-function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel)
+typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
+typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
+#writehdf5_spectrum(fileFUN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
+#writehdf5_spectrum(fileAS ,h5file,typesCONN,h5group="AS/CONN" ,setup=false)
+#writehdf5_spectrum_disconnected(fileFUN,h5file,typesDISC,nhits,h5group="FUN/DISC",setup=false)
+#writehdf5_spectrum_disconnected(fileAS ,h5file,typesDISC,nhits,h5group="AS/DISC" ,setup=false)    
+
+function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep)
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
-    return h5read(h5file,joinpath(group,channel))
+    return h5read(h5file,joinpath(rep,"CONN",group,channel))
 end
-function _get_disconnected_at_smearing_level(h5file,Nsmear,channel)
+function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep)
     group = "DISCON_SEMWALL smear_N$Nsmear SINGLET"
-    return h5read(h5file,joinpath(group,channel))
+    return h5read(h5file,joinpath(rep,"DISC",group,channel))
 end
-function _read_diagrams_smeared_single_repre(h5fileCONN,h5fileDISC,N1,N2;kws...)
-    connN1N2 = _get_connected_at_smearing_level(h5fileCONN,N1,N2,channel)
-    discN1 = _get_disconnected_at_smearing_level(h5fileDISC,N1,channel)
-    discN2 = _get_disconnected_at_smearing_level(h5fileDISC,N2,channel)
+#function correlation_matrix_smeared(h5file,Nsmear,channel)
+#end
+discFUN = [_get_disconnected_at_smearing_level(h5file,N,"g5","FUN") for N in Nsmear]
+discAS  = [_get_disconnected_at_smearing_level(h5file,N,"g5","AS")  for N in Nsmear]
+# first  index: source smearing 
+# second index: sink   smearing
+connFUN = [_get_connected_at_smearing_level(h5file,N1,N2,"g5","FUN") for N1 in Nsmear, N2 in Nsmear ]
+connAS  = [_get_connected_at_smearing_level(h5file,N1,N2,"g5","AS") for N1 in Nsmear, N2 in Nsmear ]
+# choose the smallest value of N for all measurements
+N1 = minimum(first.(size.(discFUN)))
+N2 = minimum(first.(size.(discAS)))
+N3 = minimum(first.(size.(connFUN)))
+N4 = minimum(first.(size.(connAS)))
+N  = minimum((N1,N2,N3,N4))
+T,L = h5read(h5file,"lattice")[1:2]
+rescale_disc = (L^3)^2 /L^3
+# rescale connected pieces
+MixedRepSinglets.rescale_connected!.(connFUN ,L)
+MixedRepSinglets.rescale_connected!.(connAS  ,L)
+# create correlation matrix 
+Nf_fun = 2
+Nf_as  = 3
+disc_sign = +1
+subtract_vev = false
+Nops = 2*length(Nsmear)
+# create block matrices of the full correlation matrix
+block_diag_FUN = zeros((Nops÷2,Nops÷2,N,T))
+block_diag_AS  = zeros((Nops÷2,Nops÷2,N,T))
+# Only the disconnected diagrams appear here. Since they  are symmetric under an interchange of the two individual
+# diagrams, the block-off-diagonals are identical.
+block_mixed    = zeros((Nops÷2,Nops÷2,N,T))
 
-    #rescale disconnected pieces to match the common normalisation
-    T, L  = h5read(h5fileCONN,"lattice")[1:2]
-    rescale_disc = (L^3)^2 /L^3
-    if N1 == N2
-        discN1N2 = unbiased_estimator(discN1;rescale=rescale_disc,kws...)
-    else
-        discN1N2 = unbiased_estimator(discN1,discN2;rescale=rescale_disc,kws...)
+# assemble block matrices
+for ind1 in eachindex(Nsmear)
+    for ind2 in eachindex(Nsmear)
+        if ind1 == ind2
+            discFUN_N1N2 = unbiased_estimator(discFUN[ind1];rescale=rescale_disc,subtract_vev)
+            discAS_N1N2  = unbiased_estimator(discAS[ind1] ;rescale=rescale_disc,subtract_vev)
+        else
+            discFUN_N1N2 = unbiased_estimator(discFUN[ind1],discFUN[ind2];rescale=rescale_disc,subtract_vev) 
+            discAS_N1N2  = unbiased_estimator(discAS[ind1] ,discAS[ind2] ;rescale=rescale_disc,subtract_vev) 
+        end
+        discFUNAS_N1N2   = unbiased_estimator(discFUN[ind1],discAS[ind2] ;rescale=rescale_disc,subtract_vev) 
+        block_diag_FUN[ind1,ind2,:,:] = connFUN[ind1,ind2][1:N,:] - Nf_fun*disc_sign*discFUN_N1N2[1:N,:]
+        block_diag_AS[ind1,ind2,:,:]  = connAS[ind1,ind2][1:N,:]  - Nf_as *disc_sign*discAS_N1N2[1:N,:]
+        block_mixed[ind1,ind2,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS_N1N2[1:N,:]
     end
-    # rescale now the connected piece appropriately
-    MixedRepSinglets.rescale_connected!(connN1N2,L)
-    return connN1N2, discN1N2
 end
-
-N1 = 10
-N2 = 20
-channel = "g5"
-conn, disc = _read_diagrams_smeared_single_repre(h5fileCONN,h5fileDISC,N1,N2)
+block_diag_FUN
+block_row_1 = vcat(block_diag_FUN,block_mixed)
+block_row_2 = vcat(block_mixed,block_diag_AS)
+correlation_matrix = hcat(block_row_1,block_row_2)
