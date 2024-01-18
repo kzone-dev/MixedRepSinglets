@@ -104,22 +104,23 @@ disc_old = h5read(h5data,joinpath(group,file2,channel2))
 corr_disc_old = unbiased_estimator(disc_old;rescale=rescale_disc)
 corr_disc, corr_disc_Delta = stdmean(corr_disc_old,dims=1)
 
-discFUN_noAPE = _get_disconnected_at_smearing_level(h5file,0,"g5","FUN")
-connFUN_noAPE = _get_connected_at_smearing_level(h5file,0,0,"g5","FUN") 
+# get data without APE smearing
+discFUN_noAPE = _get_disconnected_at_smearing_level(h5file_noAPE,0,"g5","FUN")
+connFUN_noAPE = _get_connected_at_smearing_level(h5file_noAPE,0,0,"g5","FUN") 
 discFUN_corr_noAPE = unbiased_estimator(discFUN_noAPE;rescale=rescale_disc)
 corr_disc_noAPE, corr_disc_noAPE_Delta = stdmean(discFUN_corr_noAPE,dims=1)
 corr_conn_noAPE, corr_conn_noAPE_Delta = stdmean(connFUN_noAPE,dims=1)
 
 plt1 = plot()
 plt2 = plot()
-for i in 1:1
-    scatter!(plt1,avgMatCONN[i,i,:],yerr=stdMatCONN[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
-    scatter!(plt2,avgMatDISC[i,i,:],yerr=stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
+for i in 1:3
+    scatter!(plt1,0.5avgMatCONN[i,i,:],yerr=0.5stdMatCONN[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
+    scatter!(plt2,2avgMatDISC[i,i,:],yerr=2stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
 end
 plt1
 scatter!(plt1,corr_conn,yerr=corr_conn_Delta, label="no APE no Wuppertal (old)")
 scatter!(plt2,corr_disc,yerr=corr_disc_Delta, label="no APE no Wuppertal (old)")
-scatter!(plt1,corr_conn_noAPE,yerr=corr_conn_noAPE_Delta, label="no APE no Wuppertal")
+scatter!(plt1,0.5corr_conn_noAPE,yerr=0.5corr_conn_noAPE_Delta, label="no APE no Wuppertal")
 scatter!(plt2,4corr_disc_noAPE,yerr=4corr_disc_noAPE_Delta, label="no APE no Wuppertal")
-plot!(plt2,yscale=:log10)
 plot!(plt1,yscale=:log10)
+plot!(plt2,yscale=:log10)
