@@ -69,12 +69,12 @@ stdMatCONN = dropdims(std(corrMatCONN,dims=3),dims=3)/sqrt(N)
 stdMatDISC = dropdims(std(corrMatDISC,dims=3),dims=3)/sqrt(N)
 
 using Plots
-plt = plot()
-for i in 1:3
-    scatter!(plt,avgMatCONN[i,i,:],yerr=stdMatCONN[i,i,:],label="N=$(Nsmear[i])(conn.)")
-    scatter!(plt,avgMatDISC[i,i,:],yerr=stdMatDISC[i,i,:],label="N=$(Nsmear[i])(disc.)")
+plt1 = plot()
+plt2 = plot()
+for i in 1:1
+    #scatter!(plt1,avgMatCONN[i,i,:],yerr=stdMatCONN[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
+    #scatter!(plt2,avgMatDISC[i,i,:],yerr=stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
 end
-plot!(plt,yscale=:log10)
 
 # add unsmeared data for reference
 h5data = "/home/fabian/Downloads/data.hdf5"
@@ -95,5 +95,29 @@ corr_disc_old = unbiased_estimator(disc_old;rescale=rescale_disc_old)
 corr_disc = dropdims(mean(corr_disc_old,dims=1),dims=1)
 corr_disc_Delta = dropdims(std(corr_disc_old,dims=1),dims=1)/sqrt(N0)
 
-scatter!(plt,corr_conn,yerr=corr_conn_Delta, label="no APE")
-scatter!(plt,corr_disc,yerr=2corr_disc_Delta, label="no APE")
+scatter!(plt1,corr_conn,yerr=corr_conn_Delta, label="no APE no Wuppertal (old)")
+scatter!(plt2,corr_disc,yerr=corr_disc_Delta, label="no APE no Wuppertal (old)")
+
+# add smearing measurements without APE smearing (and no Wuppertal smearing)
+fileCONN_noAPE = "/home/fabian/Downloads/out_spectrum_smeared_noAPE"
+fileDISC_noAPE = "/home/fabian/Downloads/out_spectrum_smeared_discon_noAPE"
+h5file_noAPE = "single_rep_smeared_noAPE.hdf5"
+
+typesDISC_noAPE = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in [0,10]]
+typesCONN_noAPE = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in [0,10], N2 in [0,10]]
+#writehdf5_spectrum(fileCONN_noAPE,h5file_noAPE,typesCONN_noAPE,h5group="FUN/CONN",setup=true)
+#writehdf5_spectrum_disconnected(fileDISC_noAPE,h5file_noAPE,typesDISC_noAPE,nhits,h5group="FUN/DISC",setup=false)
+
+discFUN_noAPE = _get_disconnected_at_smearing_level(h5file,0,"g5","FUN")
+connFUN_noAPE = _get_connected_at_smearing_level(h5file,0,0,"g5","FUN") 
+
+discFUN_corr_noAPE = unbiased_estimator(discFUN_noAPE;rescale=rescale_disc)
+corr_disc_noAPE = dropdims(mean(discFUN_corr_noAPE,dims=1),dims=1)
+corr_disc_noAPE_Delta = dropdims(std(discFUN_corr_noAPE,dims=1),dims=1)/sqrt(N)
+corr_conn_noAPE = dropdims(mean(connFUN_noAPE,dims=1),dims=1)
+corr_conn_noAPE_Delta = dropdims(std(connFUN_noAPE,dims=1),dims=1)/sqrt(N)
+
+scatter!(plt1,corr_conn_noAPE,yerr=corr_conn_noAPE_Delta, label="no APE no Wuppertal")
+scatter!(plt2,4corr_disc_noAPE,yerr=4corr_disc_noAPE_Delta, label="no APE no Wuppertal")
+plot!(plt1,yscale=:log10)
+plot!(plt2,yscale=:log10)
