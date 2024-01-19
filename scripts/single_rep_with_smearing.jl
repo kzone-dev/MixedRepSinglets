@@ -90,6 +90,7 @@ end
 T,L = h5read(h5file,"lattice")[1:2]
 rescale_disc = L^3
 rescale_conn = true
+Nf=2
 
 corrMatCONN, corrMatDISC = _smeared_correlation_matrix(h5file,Nsmear,"g5","FUN";rescale_disc,rescale_conn)
 avgMatCONN, stdMatCONN = stdmean(corrMatCONN;dims=3)
@@ -116,12 +117,35 @@ plt1 = plot()
 plt2 = plot()
 for i in 1:3
     scatter!(plt1,avgMatCONN[i,i,:],yerr=stdMatCONN[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
-    scatter!(plt2,2avgMatDISC[i,i,:],yerr=2stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
+    scatter!(plt2,4*avgMatDISC[i,i,:],yerr=4*stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
 end
 plt1
 scatter!(plt1,corr_conn,yerr=corr_conn_Delta, label="no APE no Wuppertal (old)")
-scatter!(plt2,corr_disc,yerr=corr_disc_Delta, label="no APE no Wuppertal (old)")
+scatter!(plt2,Nf*corr_disc,yerr=Nf*corr_disc_Delta, label="no APE no Wuppertal (old)")
 scatter!(plt1,corr_conn_noAPE,yerr=corr_conn_noAPE_Delta, label="no APE no Wuppertal")
-scatter!(plt2,4corr_disc_noAPE,yerr=4corr_disc_noAPE_Delta, label="no APE no Wuppertal")
-plot!(plt2,yscale=:log10)
+scatter!(plt2,4Nf*corr_disc_noAPE,yerr=4Nf*corr_disc_noAPE_Delta, label="no APE no Wuppertal")
 plot!(plt1,yscale=:log10)
+plot!(plt2,yscale=:log10)
+
+# built full singlet correlator
+# PART 1: Smeared correlators
+#         Factor 2 is missing relative factor (not the Nf factor)
+# PART 2: Smeared correlator s without APE smearing
+# PART 3: Old published data
+corr1 = corrMatCONN - 4Nf*corrMatDISC
+corr2 = connFUN_noAPE - 4Nf*discFUN_corr_noAPE
+corr3 = conn_old' - Nf*corr_disc_old
+c1, Δc1 = stdmean(corr1,dims=3)
+c2, Δc2 = stdmean(corr2,dims=1) 
+c3, Δc3 = stdmean(corr3,dims=1)
+
+# Plot correlator 
+plt3, = plot()
+for i in 1:3
+    scatter!(plt3,c1[i,i,:],yerr=Δc1[i,i,:])
+end
+scatter!(plt3,c2,yerr=Δc2)
+scatter!(plt3,c3,yerr=Δc3)
+plot!(yscale=:log10)
+
+# Plot effective mass
