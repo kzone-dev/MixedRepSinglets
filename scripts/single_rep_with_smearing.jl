@@ -160,7 +160,9 @@ meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign=+1)
 meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign=+1)
 
 plt4 = plot()
-scatter!(meff1[:,1,1],yerr=Δmeff1[:,1,1])
-scatter!(meff2,yerr=Δmeff2)
-scatter!(meff3,yerr=Δmeff3)
-plot!(ylims=(0.4,1))
+for i in 1:3
+    scatter!(plt4,meff1[:,i,i],yerr=Δmeff1[:,i,i])
+end
+scatter!(plt4,meff2,yerr=Δmeff2)
+scatter!(plt4,meff3,yerr=Δmeff3)
+plot!(plt4,ylims=(0.4,1))
