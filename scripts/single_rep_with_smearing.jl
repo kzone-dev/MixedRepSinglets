@@ -135,17 +135,32 @@ plot!(plt2,yscale=:log10)
 corr1 = corrMatCONN - 4Nf*corrMatDISC
 corr2 = connFUN_noAPE - 4Nf*discFUN_corr_noAPE
 corr3 = conn_old' - Nf*corr_disc_old
-c1, Δc1 = stdmean(corr1,dims=3)
-c2, Δc2 = stdmean(corr2,dims=1) 
-c3, Δc3 = stdmean(corr3,dims=1)
+# permute dimensions so that the first index corresponds to Euclidean time
+#                            the second index refers to the Monte-Carlo time
+corr1 = permutedims(corr1,(4,3,1,2))
+corr2 = permutedims(corr2,(2,1))
+corr3 = permutedims(corr3,(2,1))
+
+c1, Δc1 = stdmean(corr1,dims=2)
+c2, Δc2 = stdmean(corr2,dims=2) 
+c3, Δc3 = stdmean(corr3,dims=2)
 
 # Plot correlator 
 plt3, = plot()
 for i in 1:3
-    scatter!(plt3,c1[i,i,:],yerr=Δc1[i,i,:])
+    scatter!(plt3,c1[:,i,i],yerr=Δc1[:,i,i])
 end
 scatter!(plt3,c2,yerr=Δc2)
 scatter!(plt3,c3,yerr=Δc3)
 plot!(yscale=:log10)
 
 # Plot effective mass
+meff1, Δmeff1 = implicit_meff_jackknife(corr1;sign=+1)
+meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign=+1)
+meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign=+1)
+
+plt4 = plot()
+scatter!(meff1[:,1,1],yerr=Δmeff1[:,1,1])
+scatter!(meff2,yerr=Δmeff2)
+scatter!(meff3,yerr=Δmeff3)
+plot!(ylims=(0.4,1))
