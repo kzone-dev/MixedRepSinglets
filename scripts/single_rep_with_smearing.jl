@@ -112,11 +112,19 @@ MixedRepSinglets.rescale_connected!(conn_old,L)
 # PART 3: Old published data 
 corr1 = conn_matrix - 4Nf * disc_matrix
 corr2 = conn_noAPE  - 4Nf * disc_noAPE
-corr3 = conn_old'   -  Nf * corr_disc_old
+corr3 = conn_old'   -  Nf * disc_old
+
+# TODO: Numerical derivative 
+corr1 = correlator_folding(corr1;t_dim=4)
+corr2 = correlator_folding(corr2;t_dim=2)
+corr3 = correlator_folding(corr3;t_dim=2)
+
+# symmetry sign of correlators
+sign = +1
 
 # Perform GEVP
 samples = eigenvalues_jackknife_samples(corr1)
-m, Δm = meff_from_jackknife(samples;sign=+1)
+m, Δm = meff_from_jackknife(samples;sign)
 
 # permute dimensions so that the first index corresponds to Euclidean time
 # and the second index refers to the Monte-Carlo time
@@ -129,9 +137,9 @@ c2, Δc2 = stdmean(corr2,dims=2)
 c3, Δc3 = stdmean(corr3,dims=2)
 
 # Plot effective mass
-meff1, Δmeff1 = implicit_meff_jackknife(corr1;sign=+1)
-meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign=+1)
-meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign=+1)
+meff1, Δmeff1 = implicit_meff_jackknife(corr1;sign)
+meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign)
+meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign)
 
 plt1 = plot()
 plt2 = plot()

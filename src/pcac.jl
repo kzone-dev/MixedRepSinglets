@@ -1,16 +1,3 @@
-function _fold_corr!(corr;sign=+1)
-    N, T = size(corr)
-    # Skip first entry since it does not to be averaged
-    # Add 1 to all indices: julia is one-indexed
-    for t in 1:div(T,2)
-        t1 = t+1
-        t2 = T-t+1
-        tmp1 = (corr[:,t1] + sign*corr[:,t2])/2
-        tmp2 = (sign*corr[:,t1] + corr[:,t2])/2
-        corr[:,t1] = tmp1
-        corr[:,t2] = tmp2
-    end
-end
 function _bin_corr(corr;binsize=2)
     N, T = size(corr)
     corr_binned = zeros(eltype(corr), N÷binsize, T)
@@ -45,8 +32,8 @@ function awi_corr(file;binsize=2)
     g5 = h5read(file,"g5")
 
     # symmetrise the correlator
-    _fold_corr!(AP;sign=-1)
-    _fold_corr!(g5)
+    AP = correlator_folding(AP;t_dim=2,sign=-1)
+    g5 = correlator_folding(g5;t_dim=2,sign=+1)
     
     dAP = correlator_derivative(AP;t_dim=2)
     awi_corr = dAP ./ g5 ./ 2

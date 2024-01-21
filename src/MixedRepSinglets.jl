@@ -21,5 +21,7 @@ module MixedRepSinglets
     export fit_corr, fit_corr_bars
     include("pcac.jl")
     export awi_corr, awi_fit
+    include("folding.jl")
+    export correlator_folding
 
 end # module MixedRepSinglets
