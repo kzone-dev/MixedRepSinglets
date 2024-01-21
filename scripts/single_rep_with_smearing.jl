@@ -90,6 +90,7 @@ end
 T,L = h5read(h5file,"lattice")[1:2]
 rescale_disc = L^3
 rescale_conn = true
+sign=+1
 Nf=2
 
 # read data with and without APE smearing
@@ -114,13 +115,15 @@ corr1 = conn_matrix - 4Nf * disc_matrix
 corr2 = conn_noAPE  - 4Nf * disc_noAPE
 corr3 = conn_old'   -  Nf * disc_old
 
-# TODO: Numerical derivative 
-corr1 = correlator_folding(corr1;t_dim=4)
-corr2 = correlator_folding(corr2;t_dim=2)
-corr3 = correlator_folding(corr3;t_dim=2)
-
 # symmetry sign of correlators
-sign = +1
+corr1 = correlator_derivative(corr1;t_dim=4)
+corr2 = correlator_derivative(corr2;t_dim=2)
+corr3 = correlator_derivative(corr3;t_dim=2)
+sign = -1
+
+corr1 = correlator_folding(corr1;t_dim=4,sign)
+corr2 = correlator_folding(corr2;t_dim=2,sign)
+corr3 = correlator_folding(corr3;t_dim=2,sign)
 
 # Perform GEVP
 samples = eigenvalues_jackknife_samples(corr1)
