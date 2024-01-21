@@ -24,14 +24,6 @@ typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
 typesDISC_noAPE = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in [0,10]]
 typesCONN_noAPE = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in [0,10], N2 in [0,10]]
 
-# add data from publication as reference
-h5data = "/home/fabian/Downloads/data.hdf5"
-group = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90"
-file1 = "out_spectrum"
-file2 = "out_spectrum_discon"
-channel1 = "DEFAULT_SEMWALL TRIPLET_g5"
-channel2 = "DISCON_SEMWALL SINGLET_g5_disc_re"
-
 writehdf5 = false
 if writehdf5
     writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
@@ -39,7 +31,6 @@ if writehdf5
     writehdf5_spectrum(fileCONN_noAPE,h5file_noAPE,typesCONN_noAPE,h5group="FUN/CONN",setup=true)
     writehdf5_spectrum_disconnected(fileDISC_noAPE,h5file_noAPE,typesDISC_noAPE,nhits,h5group="FUN/DISC",setup=false)
 end
-
 function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep)
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
     return h5read(h5file,joinpath(rep,"CONN",group,channel))
@@ -48,7 +39,7 @@ function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep)
     group = "DISCON_SEMWALL smear_N$Nsmear SINGLET"
     return h5read(h5file,joinpath(rep,"DISC",group,channel))
 end
-function _smeared_correlation_matrix(h5file,Nsmear,channel,rep;Nf_fun=2, disc_sign=+1, rescale_disc=1, rescale_conn = false)
+function _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep; rescale_disc=1, rescale_conn = false)
     discFUN = [_get_disconnected_at_smearing_level(h5file,N,channel,rep) for N in Nsmear]
     connFUN = [_get_connected_at_smearing_level(h5file,N1,N2,channel,rep) for N1 in Nsmear, N2 in Nsmear ]
 
@@ -75,10 +66,19 @@ function _smeared_correlation_matrix(h5file,Nsmear,channel,rep;Nf_fun=2, disc_si
                 discFUN_N1N2 = unbiased_estimator(discFUN[ind1],discFUN[ind2];rescale=rescale_disc) 
             end
             corrMatCONN[ind1,ind2,:,:] = connFUN[ind1,ind2][1:N,:]
-            corrMatDISC[ind1,ind2,:,:] = Nf_fun*disc_sign*discFUN_N1N2[1:N,:]
+            corrMatDISC[ind1,ind2,:,:] = discFUN_N1N2[1:N,:]
         end
     end
     return corrMatCONN, corrMatDISC
+end
+function _smeared_singlet_correlator(h5file,N,channel,rep;kws...)
+    # get data without APE smearing
+    loop = _get_disconnected_at_smearing_level(h5file,N,channel,rep)
+    conn = _get_connected_at_smearing_level(h5file,N,N,channel,rep) 
+    disc = unbiased_estimator(loop;kws...)
+    # rescale 
+    MixedRepSinglets.rescale_connected!(conn,L)
+    return conn, disc
 end
 function stdmean(X;dims)
     N = size(X)[dims]
@@ -92,55 +92,32 @@ rescale_disc = L^3
 rescale_conn = true
 Nf=2
 
-corrMatCONN, corrMatDISC = _smeared_correlation_matrix(h5file,Nsmear,"g5","FUN";rescale_disc,rescale_conn)
-avgMatCONN, stdMatCONN = stdmean(corrMatCONN;dims=3)
-avgMatDISC, stdMatDISC = stdmean(corrMatDISC;dims=3)
+conn_matrix, disc_matrix = _smeared_singlet_correlation_matrix(h5file,Nsmear,"g5","FUN";rescale_disc,rescale_conn)
+conn_noAPE,  disc_noAPE  = _smeared_singlet_correlator(h5file_noAPE,0,"g5","FUN";rescale=rescale_disc)
 
 # add data from publication as reference
+h5data = "/home/fabian/Downloads/data.hdf5"
+group  = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90"
+file1  = "out_spectrum"
+file2  = "out_spectrum_discon"
+channel1 = "DEFAULT_SEMWALL TRIPLET_g5"
+channel2 = "DISCON_SEMWALL SINGLET_g5_disc_re"
+
 conn_old = h5read(h5data,joinpath(group,file1,channel1))
-MixedRepSinglets.rescale_connected!(conn_old,L)
-corr_conn, corr_conn_Delta = stdmean(conn_old;dims=2)
-
 disc_old = h5read(h5data,joinpath(group,file2,channel2))
+MixedRepSinglets.rescale_connected!(conn_old,L)
 corr_disc_old = unbiased_estimator(disc_old;rescale=rescale_disc)
+corr_conn, corr_conn_Delta = stdmean(conn_old;dims=2)
 corr_disc, corr_disc_Delta = stdmean(corr_disc_old,dims=1)
-
-# get data without APE smearing
-discFUN_noAPE = _get_disconnected_at_smearing_level(h5file_noAPE,0,"g5","FUN")
-connFUN_noAPE = _get_connected_at_smearing_level(h5file_noAPE,0,0,"g5","FUN") 
-discFUN_corr_noAPE = unbiased_estimator(discFUN_noAPE;rescale=rescale_disc)
-MixedRepSinglets.rescale_connected!(connFUN_noAPE,L)
-corr_disc_noAPE, corr_disc_noAPE_Delta = stdmean(discFUN_corr_noAPE,dims=1)
-corr_conn_noAPE, corr_conn_noAPE_Delta = stdmean(connFUN_noAPE,dims=1)
-
-
-#TODO: Check correct prefactor of off-diagonals
-#TODO: Read PhD Thesis of Simeth. Do I need to apply smearing to the solution vector?
-#TODO: Ask Paul: Is the HiRep smearing_function() generic enough to be applied t the solution vector?
-
-plt1 = plot()
-plt2 = plot()
-for i in 1:3
-    scatter!(plt1,avgMatCONN[i,i,:],yerr=stdMatCONN[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
-    scatter!(plt2,4*avgMatDISC[i,i,:],yerr=4*stdMatDISC[i,i,:],label="N=$(Nsmear[i]) (with APE)(disc.)")
-end
-plt1
-scatter!(plt1,corr_conn,yerr=corr_conn_Delta, label="no APE no Wuppertal (old)")
-scatter!(plt1,corr_conn_noAPE,yerr=corr_conn_noAPE_Delta, label="no APE no Wuppertal")
-scatter!(plt2,Nf*corr_disc,yerr=Nf*corr_disc_Delta, label="no APE no Wuppertal (old)")
-scatter!(plt2,4Nf*corr_disc_noAPE,yerr=4Nf*corr_disc_noAPE_Delta, label="no APE no Wuppertal")
-plot!(plt1,yscale=:log10)
-plot!(plt2,yscale=:log10)
 
 # built full singlet correlator
 # PART 1: Smeared correlators
 #         Factor 2 is missing relative factor (not the Nf factor)
-# PART 2: Smeared correlator s without APE smearing
-# PART 3: Old published data
-# TODO: Check normalisation again
-corr1 = corrMatCONN - 4*corrMatDISC
-corr2 = connFUN_noAPE - 4Nf*discFUN_corr_noAPE
-corr3 = conn_old' - Nf*corr_disc_old
+# PART 2: Smeared correlators without APE smearing (Nf included)
+# PART 3: Old published data 
+corr1 = conn_matrix   - 4Nf * disc_matrix
+corr2 = conn_noAPE    - 4Nf * disc_noAPE
+corr3 = conn_old'     -  Nf * corr_disc_old
 # permute dimensions so that the first index corresponds to Euclidean time
 #                            the second index refers to the Monte-Carlo time
 corr1 = permutedims(corr1,(4,3,1,2))
@@ -151,27 +128,10 @@ c1, Δc1 = stdmean(corr1,dims=2)
 c2, Δc2 = stdmean(corr2,dims=2) 
 c3, Δc3 = stdmean(corr3,dims=2)
 
-# Plot correlator 
-plt3, = plot()
-for i in 1:3
-    scatter!(plt3,c1[:,i,i],yerr=Δc1[:,i,i])
-end
-scatter!(plt3,c2,yerr=Δc2)
-scatter!(plt3,c3,yerr=Δc3)
-plot!(yscale=:log10)
-
 # Plot effective mass
 meff1, Δmeff1 = implicit_meff_jackknife(corr1;sign=+1)
 meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign=+1)
 meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign=+1)
-
-plt4 = plot()
-for i in 1:3
-    scatter!(plt4,meff1[:,i,i],yerr=Δmeff1[:,i,i])
-end
-scatter!(plt4,meff2,yerr=Δmeff2)
-scatter!(plt4,meff3,yerr=Δmeff3)
-plot!(plt4,ylims=(0.4,1))
 
 # Perform GEVP
 # transform to the old inidces
@@ -179,7 +139,15 @@ corr1 = permutedims(corr1,(3,4,2,1))
 jks = eigenvalues_jackknife_samples(corr1)
 m, Δm = meff_from_jackknife(jks;sign=+1)
 
-plt5 = plot()
-scatter!(plt5,meff3,yerr=Δmeff3)
-scatter!(plt5,m[3,:],yerr=Δm[3,:])
+plt1 = plot()
+for i in 1:3
+    scatter!(plt1,c1[i,i,:],yerr=Δc1[i,i,:],label="N=$(Nsmear[i]) (with APE)(conn.)")
+end
+scatter!(plt1,c2,yerr=Δc2, label="no APE no Wuppertal (old)")
+scatter!(plt1,c3,yerr=Δc3, label="no APE no Wuppertal")
+plot!(plt1,yscale=:log10)
+
+plt3 = plot()
+scatter!(plt3,meff3 ,yerr=Δmeff3)
+scatter!(plt3,m[3,:],yerr=Δm[3,:])
 plot!(xlims=(0,12),ylims=(0.3,1.1))
