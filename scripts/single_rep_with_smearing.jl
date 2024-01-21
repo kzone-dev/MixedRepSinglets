@@ -113,6 +113,11 @@ MixedRepSinglets.rescale_connected!(connFUN_noAPE,L)
 corr_disc_noAPE, corr_disc_noAPE_Delta = stdmean(discFUN_corr_noAPE,dims=1)
 corr_conn_noAPE, corr_conn_noAPE_Delta = stdmean(connFUN_noAPE,dims=1)
 
+
+#TODO: Check correct prefactor of off-diagonals
+#TODO: Read PhD Thesis of Simeth. Do I need to apply smearing to the solution vector?
+#TODO: Ask Paul: Is the HiRep smearing_function() generic enough to be applied t the solution vector?
+
 plt1 = plot()
 plt2 = plot()
 for i in 1:3
@@ -121,8 +126,8 @@ for i in 1:3
 end
 plt1
 scatter!(plt1,corr_conn,yerr=corr_conn_Delta, label="no APE no Wuppertal (old)")
-scatter!(plt2,Nf*corr_disc,yerr=Nf*corr_disc_Delta, label="no APE no Wuppertal (old)")
 scatter!(plt1,corr_conn_noAPE,yerr=corr_conn_noAPE_Delta, label="no APE no Wuppertal")
+scatter!(plt2,Nf*corr_disc,yerr=Nf*corr_disc_Delta, label="no APE no Wuppertal (old)")
 scatter!(plt2,4Nf*corr_disc_noAPE,yerr=4Nf*corr_disc_noAPE_Delta, label="no APE no Wuppertal")
 plot!(plt1,yscale=:log10)
 plot!(plt2,yscale=:log10)
@@ -132,7 +137,8 @@ plot!(plt2,yscale=:log10)
 #         Factor 2 is missing relative factor (not the Nf factor)
 # PART 2: Smeared correlator s without APE smearing
 # PART 3: Old published data
-corr1 = corrMatCONN - 4Nf*corrMatDISC
+# TODO: Check normalisation again
+corr1 = corrMatCONN - 4*corrMatDISC
 corr2 = connFUN_noAPE - 4Nf*discFUN_corr_noAPE
 corr3 = conn_old' - Nf*corr_disc_old
 # permute dimensions so that the first index corresponds to Euclidean time
@@ -166,3 +172,14 @@ end
 scatter!(plt4,meff2,yerr=Δmeff2)
 scatter!(plt4,meff3,yerr=Δmeff3)
 plot!(plt4,ylims=(0.4,1))
+
+# Perform GEVP
+# transform to the old inidces
+corr1 = permutedims(corr1,(3,4,2,1))
+jks = eigenvalues_jackknife_samples(corr1)
+m, Δm = meff_from_jackknife(jks;sign=+1)
+
+plt5 = plot()
+scatter!(plt5,meff3,yerr=Δmeff3)
+scatter!(plt5,m[3,:],yerr=Δm[3,:])
+plot!(xlims=(0,12),ylims=(0.3,1.1))
