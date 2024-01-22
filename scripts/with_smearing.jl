@@ -14,14 +14,17 @@ Nsmear = 0:Nstep:N_max
 nhits  = 8
 
 h5file = "smeared.hdf5"
+writehdf = false
 
 typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
 typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
-#writehdf5_spectrum(fileFUN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
-#writehdf5_spectrum(fileAS ,h5file,typesCONN,h5group="AS/CONN" ,setup=false)
-#writehdf5_spectrum_disconnected(fileFUN,h5file,typesDISC,nhits,h5group="FUN/DISC",setup=false)
-#writehdf5_spectrum_disconnected(fileAS ,h5file,typesDISC,nhits,h5group="AS/DISC" ,setup=false)    
 
+if writehdf
+    writehdf5_spectrum(fileFUN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
+    writehdf5_spectrum(fileAS ,h5file,typesCONN,h5group="AS/CONN" ,setup=false)
+    writehdf5_spectrum_disconnected(fileFUN,h5file,typesDISC,nhits,h5group="FUN/DISC",setup=false)
+    writehdf5_spectrum_disconnected(fileAS ,h5file,typesDISC,nhits,h5group="AS/DISC" ,setup=false)    
+end
 function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep)
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
     return h5read(h5file,joinpath(rep,"CONN",group,channel))
@@ -45,7 +48,9 @@ N3 = minimum(first.(size.(connFUN)))
 N4 = minimum(first.(size.(connAS)))
 N  = minimum((N1,N2,N3,N4))
 T,L = h5read(h5file,"lattice")[1:2]
-rescale_disc = (L^3)^2 /L^3
+
+# Compared to the old code, there is another factor of 2 per loop missing
+rescale_disc = 4*L^3
 # rescale connected pieces
 MixedRepSinglets.rescale_connected!.(connFUN ,L)
 MixedRepSinglets.rescale_connected!.(connAS  ,L)
@@ -55,6 +60,8 @@ Nf_as  = 3
 disc_sign = +1
 subtract_vev = false
 Nops = 2*length(Nsmear)
+
+#TODO: Write everything in a single matrix
 # create block matrices of the full correlation matrix
 block_diag_FUN = zeros((Nops÷2,Nops÷2,N,T))
 block_diag_AS  = zeros((Nops÷2,Nops÷2,N,T))
@@ -78,7 +85,7 @@ for ind1 in eachindex(Nsmear)
         block_mixed[ind1,ind2,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS_N1N2[1:N,:]
     end
 end
-block_diag_FUN
+
 block_row_1 = vcat(block_diag_FUN,block_mixed)
 block_row_2 = vcat(block_mixed,block_diag_AS)
 correlation_matrix = hcat(block_row_1,block_row_2)

@@ -4,32 +4,27 @@ using HiRepParsing
 using HDF5
 using Plots
 using Statistics
-plotlyjs()
+#plotlyjs(frame=:box)
+pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
-N_max  = 20
+N_max  = 10
 Nstep  = 10
 Nsmear = 0:Nstep:N_max
 nhits  = 32
 
-fileCONN = "/home/fabian/Downloads/out_spectrum_smeared"
-fileDISC = "/home/fabian/Downloads/out_spectrum_smeared_discon"
-fileCONN_noAPE = "/home/fabian/Downloads/out_spectrum_smeared_noAPE"
-fileDISC_noAPE = "/home/fabian/Downloads/out_spectrum_smeared_discon_noAPE"
+fileCONN = "/home/fabian/Downloads/out_spectrum_smeared_single"
+fileDISC = "/home/fabian/Downloads/out_spectrum_smeared_discon_single"
 
 h5file = "single_rep_smeared.hdf5"
-h5file_noAPE = "single_rep_smeared_noAPE.hdf5"
+h5file = "single_rep_smeared_single_inversion.hdf5"
 
 typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
 typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
-typesDISC_noAPE = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in [0,10]]
-typesCONN_noAPE = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in [0,10], N2 in [0,10]]
 
 writehdf5 = false
 if writehdf5
     writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
     writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="FUN/DISC",setup=false)
-    writehdf5_spectrum(fileCONN_noAPE,h5file_noAPE,typesCONN_noAPE,h5group="FUN/CONN",setup=true)
-    writehdf5_spectrum_disconnected(fileDISC_noAPE,h5file_noAPE,typesDISC_noAPE,nhits,h5group="FUN/DISC",setup=false)
 end
 function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep)
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
@@ -92,10 +87,10 @@ rescale_disc = L^3
 rescale_conn = true
 sign=+1
 Nf=2
+Ns=length(Nsmear)
 
 # read data with and without APE smearing
 conn_matrix, disc_matrix = _smeared_singlet_correlation_matrix(h5file,Nsmear,"g5","FUN";rescale_disc,rescale_conn)
-conn_noAPE,  disc_noAPE  = _smeared_singlet_correlator(h5file_noAPE,0,"g5","FUN";rescale=rescale_disc)
 
 # add data from publication as reference
 h5data = "/home/fabian/Downloads/data.hdf5"
@@ -107,22 +102,15 @@ disc_old = unbiased_estimator(loop_old;rescale=rescale_disc)
 MixedRepSinglets.rescale_connected!(conn_old,L)
 
 # built full singlet correlator
-# PART 1: Smeared correlators
-#         Factor 2 is missing relative factor (not the Nf factor)
-# PART 2: Smeared correlators without APE smearing (Nf included)
-# PART 3: Old published data 
 corr1 = conn_matrix - 4Nf * disc_matrix
-corr2 = conn_noAPE  - 4Nf * disc_noAPE
 corr3 = conn_old'   -  Nf * disc_old
 
 # symmetry sign of correlators
 corr1 = correlator_derivative(corr1;t_dim=4)
-corr2 = correlator_derivative(corr2;t_dim=2)
 corr3 = correlator_derivative(corr3;t_dim=2)
 sign = -1
 
 corr1 = correlator_folding(corr1;t_dim=4,sign)
-corr2 = correlator_folding(corr2;t_dim=2,sign)
 corr3 = correlator_folding(corr3;t_dim=2,sign)
 
 # Perform GEVP
@@ -132,31 +120,26 @@ m, Δm = meff_from_jackknife(samples;sign)
 # permute dimensions so that the first index corresponds to Euclidean time
 # and the second index refers to the Monte-Carlo time
 corr1 = permutedims(corr1,(4,3,1,2))
-corr2 = permutedims(corr2,(2,1))
 corr3 = permutedims(corr3,(2,1))
 
 c1, Δc1 = stdmean(corr1,dims=3)
-c2, Δc2 = stdmean(corr2,dims=2) 
 c3, Δc3 = stdmean(corr3,dims=2)
 
 # Plot effective mass
 meff1, Δmeff1 = implicit_meff_jackknife(corr1;sign)
-meff2, Δmeff2 = implicit_meff_jackknife(corr2;sign)
 meff3, Δmeff3 = implicit_meff_jackknife(corr3;sign)
 
-plt1 = plot()
-plt2 = plot()
-scatter!(plt2,m[3,:],yerr=Δm[3,:], label="GEVP N=0,10,20 (with APE)")
-for i in 1:3
-    scatter!(plt1,c1[i,i,:]    ,yerr=Δc1[i,i,:]   ,label="N=$(Nsmear[i]) (with APE)")
-    #scatter!(plt2,meff1[:,i,i] ,yerr=Δmeff1[:,i,i],label="N=$(Nsmear[i]) (with APE)")
-end
-scatter!(plt1,c3,yerr=Δc3, label="N=0 (no APE)")
-scatter!(plt1,c2,yerr=Δc2, label="N=0 (no APE) (old)")
-#scatter!(plt2,meff3 ,yerr=Δmeff3, label="N=0 (no APE)")
-scatter!(plt2,meff2 ,yerr=Δmeff2, label="N=0 (no APE) (old)")
-plot!(plt1,yscale=:log10)
-plot!(plt2,xlims=(0,12),ylims=(0.3,1.1))
+xlabel = "Euclidean time"
+ylabel = "effective mass"
+title  = "pseudoscalar singlet: with numerical derivative"
 
-display(plt1)
+plt2 = plot(;xlabel,ylabel,title)
+scatter!(plt2,m[Ns,:],yerr=Δm[Ns,:], label="GEVP N=0,10 (with APE)")
+#scatter!(plt2,meff3 ,yerr=Δmeff3, label="N=0 (no APE)")
+#for i in 1:Ns
+#    scatter!(plt2,meff1[:,i,i] ,yerr=Δmeff1[:,i,i],label="N=$(Nsmear[i]) (with APE)")
+#end
+hspan!(plt2,[0.604,0.616],alpha=0.5,label="published result")
+plot!(plt2,xlims=(0,12),ylims=(0.3,1.1))
 display(plt2)
+#savefig("smeared_with_derivative.pdf")
