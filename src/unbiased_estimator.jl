@@ -81,9 +81,8 @@ function unbiased_estimator(discon;rescale=1,subtract_vev=false)
     @. timavg = rescale*timavg/norm
     return timavg
 end
-function vev_contribution(discon;rescale=1)
+function vev_contribution(discon)
     vev = dropdims(mean(discon,dims=2),dims=2) 
-    @. vev = rescale*vev
     return vev
 end
 function rescale_connected!(corr,L)

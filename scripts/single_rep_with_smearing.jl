@@ -7,7 +7,7 @@ using Statistics
 #plotlyjs(frame=:box)
 pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
-N_max  = 80
+N_max  = 10
 Nstep  = 10
 Nsmear = 0:Nstep:N_max
 nhits  = 128
@@ -37,7 +37,7 @@ function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep)
     group = "DISCON_SEMWALL smear_N$Nsmear SINGLET"
     return h5read(h5file,joinpath(rep,"DISC",group,channel))
 end
-function _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep; rescale_disc=1, rescale_conn = false)
+function _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep; subtract_vev = false, rescale_disc=1, rescale_conn = false)
     discFUN = [_get_disconnected_at_smearing_level(h5file,N,channel,rep) for N in Nsmear]
     connFUN = [_get_connected_at_smearing_level(h5file,N1,N2,channel,rep) for N1 in Nsmear, N2 in Nsmear ]
 
@@ -59,24 +59,15 @@ function _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep; rescale_
     for ind1 in eachindex(Nsmear)
         for ind2 in eachindex(Nsmear)
             if ind1 == ind2
-                discFUN_N1N2 = unbiased_estimator(discFUN[ind1];rescale=rescale_disc)
+                discFUN_N1N2 = unbiased_estimator(discFUN[ind1];subtract_vev,rescale=rescale_disc)
             else
-                discFUN_N1N2 = unbiased_estimator(discFUN[ind1],discFUN[ind2];rescale=rescale_disc) 
+                discFUN_N1N2 = unbiased_estimator(discFUN[ind1],discFUN[ind2];subtract_vev,rescale=rescale_disc) 
             end
             corrMatCONN[ind1,ind2,:,:] = connFUN[ind1,ind2][1:N,:]
             corrMatDISC[ind1,ind2,:,:] = discFUN_N1N2[1:N,:]
         end
     end
     return corrMatCONN, corrMatDISC
-end
-function _smeared_singlet_correlator(h5file,N,channel,rep;kws...)
-    # get data without APE smearing
-    loop = _get_disconnected_at_smearing_level(h5file,N,channel,rep)
-    conn = _get_connected_at_smearing_level(h5file,N,N,channel,rep) 
-    disc = unbiased_estimator(loop;kws...)
-    # rescale 
-    MixedRepSinglets.rescale_connected!(conn,L)
-    return conn, disc
 end
 function stdmean(X;dims)
     N = size(X)[dims]
@@ -88,12 +79,13 @@ end
 T,L = h5read(h5file,"lattice")[1:2]
 rescale_disc = L^3
 rescale_conn = true
+subtract_vev = true
 sign=+1
 Nf=2
 Ns=length(Nsmear)
 
 # read data with and without APE smearing
-conn_matrix, disc_matrix = _smeared_singlet_correlation_matrix(h5file,Nsmear,"g5","FUN";rescale_disc,rescale_conn)
+conn_matrix, disc_matrix = _smeared_singlet_correlation_matrix(h5file,Nsmear,"g5","FUN";subtract_vev,rescale_disc,rescale_conn)
 
 # add data from publication as reference
 h5data = "/home/fabian/Downloads/data.hdf5"
@@ -101,7 +93,7 @@ data_conn = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out_spectrum/DEFAULT_SEMWALL 
 data_disc = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out_spectrum_discon/DISCON_SEMWALL SINGLET_g5_disc_re"
 conn_old = h5read(h5data,data_conn)
 loop_old = h5read(h5data,data_disc)
-disc_old = unbiased_estimator(loop_old;rescale=rescale_disc)
+disc_old = unbiased_estimator(loop_old;subtract_vev, rescale=rescale_disc)
 MixedRepSinglets.rescale_connected!(conn_old,L)
 
 # built full singlet correlator
