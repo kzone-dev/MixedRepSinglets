@@ -64,14 +64,17 @@ function eigenvalues_eigenvectors(corr;swap=nothing,t0=1)
         return eigvals, Δeigvals, eigvecs, Δeigvecs
     end
 end
-function eigenvalues_jackknife_samples(corr;t0 = 1)
+function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 2E-15)
     sample = delete1_resample(corr)
     nops, nconf, T = size(sample)[2:4]
     eigvals_jk = zeros(eltype(sample),(nops,nconf,T))
     for s in 1:nconf, t in 1:T
         # smaller values correspond to a faster decay, and thus correspond to a larger masses
         # use sortby to sort the eigenvalues by ascending eigen-energy of the meson state
-        eigvals_jk[:,s,t] = eigen(sample[:,:,s,t],sample[:,:,s,t0]).values
+        vals = eigen(sample[:,:,s,t],sample[:,:,s,t0]).values
+        max_imag = maximum(imag.(vals)) 
+        max_imag > imag_thresh && @warn "imaginary part of $max_imag exceeds threshold of $imag_thresh"
+        eigvals_jk[:,s,t] = real.(vals)
     end
     return eigvals_jk
 end

@@ -7,16 +7,19 @@ using Statistics
 #plotlyjs(frame=:box)
 pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
-N_max  = 10
+N_max  = 80
 Nstep  = 10
 Nsmear = 0:Nstep:N_max
-nhits  = 32
+nhits  = 128
 
-fileCONN = "/home/fabian/Downloads/out_spectrum_smeared_single"
-fileDISC = "/home/fabian/Downloads/out_spectrum_smeared_discon_single"
+path = "/home/fabian/Downloads/smearedVSC/"
+path = "/media/fabian/HDD#3/rsyncout/rsyncVSC/runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out"
+
+fileCONN = joinpath(path,"out_spectrum_smeared_more")
+fileDISC = joinpath(path,"out_spectrum_smeared_discon_h128")
 
 h5file = "single_rep_smeared.hdf5"
-h5file = "single_rep_smeared_single_inversion.hdf5"
+h5file = "single_rep_smeared_h128.hdf5"
 
 typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
 typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
@@ -105,16 +108,16 @@ MixedRepSinglets.rescale_connected!(conn_old,L)
 corr1 = conn_matrix - 4Nf * disc_matrix
 corr3 = conn_old'   -  Nf * disc_old
 
+corr1 = correlator_folding(corr1;t_dim=4,sign)
+corr3 = correlator_folding(corr3;t_dim=2,sign)
+
 # symmetry sign of correlators
 corr1 = correlator_derivative(corr1;t_dim=4)
 corr3 = correlator_derivative(corr3;t_dim=2)
 sign = -1
 
-corr1 = correlator_folding(corr1;t_dim=4,sign)
-corr3 = correlator_folding(corr3;t_dim=2,sign)
-
 # Perform GEVP
-samples = eigenvalues_jackknife_samples(corr1)
+samples = eigenvalues_jackknife_samples(corr1,t0=1)
 m, Δm = meff_from_jackknife(samples;sign)
 
 # permute dimensions so that the first index corresponds to Euclidean time
@@ -134,12 +137,9 @@ ylabel = "effective mass"
 title  = "pseudoscalar singlet: with numerical derivative"
 
 plt2 = plot(;xlabel,ylabel,title)
-scatter!(plt2,m[Ns,:],yerr=Δm[Ns,:], label="GEVP N=0,10 (with APE)")
-#scatter!(plt2,meff3 ,yerr=Δmeff3, label="N=0 (no APE)")
-#for i in 1:Ns
-#    scatter!(plt2,meff1[:,i,i] ,yerr=Δmeff1[:,i,i],label="N=$(Nsmear[i]) (with APE)")
-#end
+plot!(plt2,xlims=(0,12),ylims=(0.4,0.9))
+scatter!(plt2,m[Ns,1:10],yerr=Δm[Ns,1:10], label="GEVP N=0...$N_max (with APE)")
+scatter!(plt2,meff3 ,yerr=Δmeff3, label="N=0 (no APE)")
 hspan!(plt2,[0.604,0.616],alpha=0.5,label="published result")
-plot!(plt2,xlims=(0,12),ylims=(0.3,1.1))
 display(plt2)
-#savefig("smeared_with_derivative.pdf")
+savefig("smeared_single_rep.pdf")
