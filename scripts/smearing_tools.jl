@@ -6,15 +6,16 @@ function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep)
     group = "DISCON_SEMWALL smear_N$Nsmear SINGLET"
     return h5read(h5file,joinpath(rep,"DISC",group,channel))
 end
-function _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep; subtract_vev = false, rescale_disc=1, rescale_conn = false)
-    discFUN = [_get_disconnected_at_smearing_level(h5file,N,channel,rep) for N in Nsmear]
-    connFUN = [_get_connected_at_smearing_level(h5file,N1,N2,channel,rep) for N1 in Nsmear, N2 in Nsmear ]
+_smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep;kws...) = _smeared_singlet_correlation_matrix(h5file,h5file,Nsmear,channel,rep;kws...) 
+function _smeared_singlet_correlation_matrix(h5file_conn,h5file_disc,Nsmear,channel,rep; subtract_vev = false, rescale_disc=1, rescale_conn = false)
+    discFUN = [_get_disconnected_at_smearing_level(h5file_disc,N,channel,rep) for N in Nsmear]
+    connFUN = [_get_connected_at_smearing_level(h5file_conn,N1,N2,channel,rep) for N1 in Nsmear, N2 in Nsmear ]
 
     # choose the smallest value of N for all measurements
     N1 = minimum(first.(size.(discFUN)))
     N2 = minimum(first.(size.(connFUN)))
     N  = minimum((N1,N2))
-    T,L = h5read(h5file,"lattice")[1:2]
+    T,L = h5read(h5file_conn,"lattice")[1:2]
     
     # rescale connected
     if rescale_conn 
