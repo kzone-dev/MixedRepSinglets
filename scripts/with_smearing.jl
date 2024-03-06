@@ -67,9 +67,13 @@ block_row_1 = vcat(block_diag_FUN,block_mixed)
 block_row_2 = vcat(block_mixed,block_diag_AS)
 correlation_matrix = hcat(block_row_1,block_row_2)
 
-corr = correlation_matrix[1,1,:,:]
-c, Δc = stdmean(corr,dims=1)
-m, Δm = implicit_meff_jackknife(corr';sign=+1)
+plt = plot()
+for i in eachindex(Nsmear)
+    corr = correlation_matrix[i,i,:,:]
+    c, Δc = stdmean(corr,dims=1)
+    m, Δm = implicit_meff_jackknife(corr';sign=+1)
 
-scatter(c,yerr=Δc,yscale=:log10)
-scatter(m, yerr= Δm)
+    #scatter(c,yerr=Δc,yscale=:log10)
+    scatter!(plt,m, yerr= Δm)
+end
+plt
