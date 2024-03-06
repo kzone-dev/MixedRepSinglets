@@ -74,10 +74,9 @@ Nsmear = 0:40:80
 h5file = "/home/fabian/Downloads/smeared_singlets.hdf5"
 h5file = "/home/fabian/Downloads/smeared_singlets_M4.hdf5"
 
-correlation_matrix = _write_smeared_correlation_matrix_g5(h5file,ensemble,Nsmear)
-@profview _write_smeared_correlation_matrix_g5(h5file,ensemble,Nsmear)
-#correlation_matrix = _write_smeared_correlation_matrix_g5(h5file,ensemble,Nsmear)
-#correlation_matrix_deriv = correlator_derivative(correlation_matrix;t_dim=4)
+correlation_matrix = _write_smeared_correlation_matrix_g5(h5file,"M4",Nsmear)
+@profview _write_smeared_correlation_matrix_g5(h5file,"M4",Nsmear)
+correlation_matrix_deriv = correlator_derivative(correlation_matrix;t_dim=4)
 
 plt = plot()
 for i in 1:3 #eachindex(Nsmear)

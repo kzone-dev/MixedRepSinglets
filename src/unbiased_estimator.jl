@@ -33,17 +33,20 @@ function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false)
     if subtract_vev
         vev1 = vev_contribution(discon1)
         vev2 = vev_contribution(discon2)
-    else
-        vev1 = zeros(eltype(discon1),(nconf,T))
-        vev2 = zeros(eltype(discon2),(nconf,T))
+        @inbounds for h in 1:nhits1, t in 1:T, conf in 1:nconf
+            discon1[conf,h,t] = discon1[conf,h,t] - vev1[conf,t]
+        end
+        @inbounds for h in 1:nhits1, t in 1:T, conf in 1:nconf
+            discon2[conf,h,t] = discon2[conf,h,t] - vev2[conf,t]
+        end
     end
     for t in 1:T
         for t0 in 1:T
             Δt = mod(t-t0,T)
             @inbounds for hit1 in 1:nhits1, hit2 in 1:nhits2
                 for conf in 1:nconf
-                    loop1 = discon1[conf,hit1,t]  - vev1[conf,t]
-                    loop2 = discon2[conf,hit2,t0] - vev2[conf,t0]
+                    loop1 = discon1[conf,hit1,t]
+                    loop2 = discon2[conf,hit2,t0]
                     timavg[conf,Δt+1] += loop1*loop2
                 end
             end
@@ -63,16 +66,17 @@ function unbiased_estimator(discon;rescale=1,subtract_vev=false)
     hitsd2 = div(nhits,2)
     if subtract_vev
         vev = vev_contribution(discon)
-    else
-        vev = zeros(eltype(discon),(nconf,T))
+        @inbounds for h in 1:nhits1, t in 1:T, conf in 1:nconf
+            discon[conf,h,t] = discon[conf,h,t] - vev[conf,t]
+        end
     end
     for t in 1:T
         for t0 in 1:T
             Δt = mod(t-t0,T)
             @inbounds for hit1 in 1:hitsd2, hit2 in hitsd2+1:nhits
                 for conf in 1:nconf
-                    loop1 = discon[conf,hit1,t]  - vev[conf,t]
-                    loop2 = discon[conf,hit2,t0] - vev[conf,t0]
+                    loop1 = discon[conf,hit1,t]
+                    loop2 = discon[conf,hit2,t0]
                     timavg[conf,Δt+1] += loop1*loop2
                 end
             end
