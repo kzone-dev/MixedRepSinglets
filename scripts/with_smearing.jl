@@ -5,7 +5,7 @@ using ProgressMeter
 plotlyjs()
 include("smearing_tools.jl")
 
-function _write_smeared_correlation_matrix_g5(h5file,ensemble,Nsmear)
+function _write_smeared_mixed_correlation_matrix_g5(h5file,ensemble,Nsmear)
 
     discFUN = [_get_disconnected_at_smearing_level(h5file,N,"g5","FUN";ensemble) for N in Nsmear]
     discAS  = [_get_disconnected_at_smearing_level(h5file,N,"g5","AS";ensemble)  for N in Nsmear]
@@ -91,17 +91,12 @@ h5file = "/home/fabian/Downloads/smeared_singlets.hdf5"
 h5file = "/home/fabian/Downloads/smeared_singlets_M4.hdf5"
 
 correlation_matrix = _write_smeared_correlation_matrix_g5(h5file,"M4",Nsmear)
-@profview _write_smeared_correlation_matrix_g5(h5file,"M4",Nsmear)
 correlation_matrix_deriv = correlator_derivative(correlation_matrix;t_dim=4)
 
 plt = plot()
-for i in 1:3 #eachindex(Nsmear)
-    corr = correlation_matrix[i,i,:,:]
+for i in eachindex(Nsmear)
     corr = correlation_matrix_deriv[i,i,:,:]
-    c, Δc = stdmean(corr,dims=1)
     m, Δm = implicit_meff_jackknife(corr';sign=-1)
-
-    #scatter(c,yerr=Δc,yscale=:log10)
     scatter!(plt,m[1:16], yerr= Δm[1:16])
 end
 plt
