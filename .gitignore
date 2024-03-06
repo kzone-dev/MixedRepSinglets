@@ -3,3 +3,5 @@
 *.hdf5
 *.csv
 *.code-workspace
+!input/parameters.csv
+!input/parameters_smeared.csv
