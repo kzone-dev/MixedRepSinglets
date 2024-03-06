@@ -7,13 +7,21 @@ using Statistics
 gr(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 include("smearing_tools.jl")
 
-Nsmear = 0:10:80
+Nsmear = 0:40:80
 markershape = :rect
-h5file_conn = "out_spectrum_smeared_more_N10N80.hdf5"
+h5file_conn = "out_spectrum_smeared_more.hdf5"
 
 Nsmear = 0:40:80
 markershape = :circle
-h5file_conn = "out_spectrum_smeared_N40N80.hdf5"
+h5file_conn = "out_spectrum_smeared_single.hdf5"
+
+Nsmear = 0:40:80
+markershape = :pentagon
+h5file_conn = "out_spectrum_smeared_git_51bc222fd.hdf5"
+
+Nsmear = 0:40:80
+markershape = :pentagon
+h5file_conn = "out_spectrum_smeared_git_0bcb8163c.hdf5"
 
 h5data = "/home/fabian/Downloads/data.hdf5"
 data_conn = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out_spectrum/DEFAULT_SEMWALL TRIPLET_g5"
