@@ -1,10 +1,12 @@
-function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep)
+using HDF5
+using Statistics
+function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep;ensemble="")
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
-    return h5read(h5file,joinpath(rep,"CONN",group,channel))
+    return h5read(h5file,joinpath(ensemble,rep,"CONN",group,channel))
 end
-function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep)
+function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep;ensemble="")
     group = "DISCON_SEMWALL smear_N$Nsmear SINGLET"
-    return h5read(h5file,joinpath(rep,"DISC",group,channel))
+    return h5read(h5file,joinpath(ensemble,rep,"DISC",group,channel))
 end
 _smeared_singlet_correlation_matrix(h5file,Nsmear,channel,rep;kws...) = _smeared_singlet_correlation_matrix(h5file,h5file,Nsmear,channel,rep;kws...) 
 function _smeared_singlet_correlation_matrix(h5file_conn,h5file_disc,Nsmear,channel,rep; subtract_vev = false, rescale_disc=1, rescale_conn = false)
