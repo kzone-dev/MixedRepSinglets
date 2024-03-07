@@ -1,5 +1,6 @@
 using HDF5
 using Statistics
+using ProgressMeter
 function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep;ensemble="")
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
     return h5read(h5file,joinpath(ensemble,rep,"CONN",group,channel))
@@ -32,7 +33,8 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",
     MixedRepSinglets.rescale_connected!.(connAS  ,L)
 
     # model specific parameters
-    Nf_fun = 2, Nf_as  = 3
+    Nf_fun = 2
+    Nf_as  = 3
     
     # number of operators in correlation matrix
     S = length(Nsmear)
@@ -87,7 +89,7 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
     conn = [_get_connected_at_smearing_level(h5file,N1,N2,channel,rep;ensemble) for N1 in Nsmear, N2 in Nsmear ]
 
     # number of configurations and lattice size
-    N   = size(first(discFUN))[1]
+    N   = size(first(disc))[1]
     T,L = h5read(h5file,joinpath(ensemble,rep,"CONN","lattice"))[1:2]
 
     # make sure that there are no NaNs in the data
@@ -103,8 +105,9 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
     Nops = length(Nsmear)
 
     # create block matrices of the full correlation matrix
-    correlation_matrix_CONN = zeros((Nops÷2,Nops÷2,N,T))
-    correlation_matrix_DISC = zeros((Nops÷2,Nops÷2,N,T))
+    correlation_matrix_CONN = zeros((Nops,Nops,N,T))
+    correlation_matrix_DISC = zeros((Nops,Nops,N,T))
+    correlation_matrix_FULL = zeros((Nops,Nops,N,T))
     
     p = Progress( (Nops^2 + Nops) ÷ 2 )
     # assemble block matrices for disconnected pieces
@@ -116,8 +119,8 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
             else
                 disc_N1N2 = unbiased_estimator(disc[i],disc[j];rescale=rescale_disc,subtract_vev) 
             end
-            correlation_matrix_DISC[i,j,:,:] = Nf_fun*disc_sign*disc_N1N2
-            correlation_matrix_DISC[j,i,:,:] = Nf_fun*disc_sign*disc_N1N2
+            correlation_matrix_DISC[i,j,:,:] = Nf*disc_sign*disc_N1N2
+            correlation_matrix_DISC[j,i,:,:] = Nf*disc_sign*disc_N1N2
             next!(p) # update progress meter
         end
     end
