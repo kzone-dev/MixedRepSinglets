@@ -37,16 +37,16 @@ end
 
 for ensemble in ["M3","M4"]
 
-    kws = (t0 = 1, binsize = 1, deriv = true)
+    kws = (t0 = 1, binsize = 2, deriv = true)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;kws...)
     
     write = false
     if write
         _copy_lattice_parameters(h5eigenvals,h5corrs,ensemble)
-        h5write(h5eigenvals,joinpath(ensemble,"eigvals"),eigvals)
-        h5write(h5eigenvals,joinpath(ensemble,"Delta_eigvals"),Δeigvals)
-        h5write(h5eigenvals,joinpath(ensemble,"meff"),meff)
-        h5write(h5eigenvals,joinpath(ensemble,"Delta_meff"),Δmeff)
+        h5write(h5eigenvals,joinpath(ensemble,"eigvals_g5_singlet"),eigvals)
+        h5write(h5eigenvals,joinpath(ensemble,"Delta_eigvals_g5_singlet"),Δeigvals)
+        h5write(h5eigenvals,joinpath(ensemble,"meff_g5_singlet"),meff)
+        h5write(h5eigenvals,joinpath(ensemble,"Delta_meff_g5_singlet"),Δmeff)
         h5write(h5eigenvals,joinpath(ensemble,"t0"),kws.t0)
         h5write(h5eigenvals,joinpath(ensemble,"deriv"),kws.deriv)
         h5write(h5eigenvals,joinpath(ensemble,"binsize"),kws.binsize)
@@ -55,6 +55,11 @@ for ensemble in ["M3","M4"]
     range1 = 2:8
     range0 = 2:11
     Nops   = 18
+
+    plt0 = plot()
+    scatter!(plt0,eigvals[Nops-0,:],yerr=Δeigvals[Nops-0,:],yscale=:log10)
+    scatter!(plt0,eigvals[Nops-1,:],yerr=Δeigvals[Nops-1,:],yscale=:log10)
+    display(plt0)
     
     plt = plot()
     scatter!(plt,range0, meff[Nops-0,range0], yerr= Δmeff[Nops-0,range0])
