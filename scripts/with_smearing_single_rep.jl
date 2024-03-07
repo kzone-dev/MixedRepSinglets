@@ -1,19 +1,15 @@
 using Pkg; Pkg.activate(".")
 using MixedRepSinglets
-using HiRepParsing
-using HDF5
 using Plots
-using Statistics
-#plotlyjs(frame=:box)
-pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 include("smearing_tools.jl")
+pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
 h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
 h5data = "/home/fabian/Downloads/data.hdf5"
 
 N_max  = 80
-Nsmear = 0:10:N_max
-T,L    = 24, 12 #h5read(h5file,"lattice")[1:2]
+Nsmear = 0:40:N_max
+T,L    = h5read(h5file,"FUN/CONN/lattice")[1:2]
 Ns     = length(Nsmear)
 sign   = +1
 Nf     = 2

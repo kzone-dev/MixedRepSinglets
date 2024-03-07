@@ -5,11 +5,11 @@ using HDF5
 using Statistics
 include("smearing_tools.jl")
 
-path   = "/home/fabian/Downloads/smearedVSC"
+path   = "/home/fabian/Downloads/"
 h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
 
-Nsmear_conn = 0:10:80
-Nsmear_disc = 0:10:80
+Nsmear_conn = 0:40:80
+Nsmear_disc = 0:40:80
 nhits  = 128
 
 name_conn = "out_spectrum_smeared"
