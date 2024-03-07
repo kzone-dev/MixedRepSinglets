@@ -1,6 +1,7 @@
 module MixedRepSinglets
 
     using Statistics
+    using NaNStatistics
     using LinearAlgebra
     using Plots
     using LsqFit

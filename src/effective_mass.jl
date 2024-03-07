@@ -46,7 +46,7 @@ function _meff_at_t(c::AbstractVector,t,T;sign=+1)
     # find_zero() has more overhead and fails if the algorithm does not converged
     # Here we just use two simple, derivative free methods. If they do not converge
     # they return NaN. If that is the case then we try a slightly more robust algorithm.
-    m = Roots.secant_method(x->g(x,T,t,t0)-r0,m0;maxevals=5000)
+    m = Roots.secant_method(x->g(x,T,t,t0)-r0,m0;maxevals=10000)
     if isnan(m)
        m = Roots.dfree(x->g(x,T,t,t0)-r0,m0)
     end
@@ -59,7 +59,7 @@ function meff_from_jackknife(eigenvalues_jk;sign=+1,swap=nothing)
     for op in 1:nops, sample in 1:nsamples
         meff_jk[op,sample,:] = implicit_meff(eigenvalues_jk[op,sample,:];sign) 
     end
-    meff, Δmeff = apply_jackknife(meff_jk;dims=2)
+    meff, Δmeff = nan_apply_jackknife(meff_jk;dims=2)
     if !isnothing(swap)
         _swap_at_crossing(meff, swap)
         _swap_at_crossing(Δmeff,swap)    
@@ -96,7 +96,7 @@ function implicit_meff_jackknife(corrs::AbstractMatrix;sign=+1)
         C = reshape(mean(corrs_delete1,dims=2),T)
         meff[i,:] = implicit_meff(C;sign)
     end
-    return apply_jackknife(meff,dims=1)
+    return nan_apply_jackknife(meff,dims=1)
 end
 # This function takes care of arrays with additional inidces. The additional 
 # indices are collected as ind by the use of the `axes(corr)` function. This 

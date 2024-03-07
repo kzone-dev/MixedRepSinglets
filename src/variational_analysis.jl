@@ -64,7 +64,7 @@ function eigenvalues_eigenvectors(corr;swap=nothing,t0=1)
         return eigvals, Δeigvals, eigvecs, Δeigvecs
     end
 end
-function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 2E-15)
+function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 2E-14)
     sample = delete1_resample(corr)
     nops, nconf, T = size(sample)[2:4]
     eigvals_jk = zeros(eltype(sample),(nops,nconf,T))
@@ -124,5 +124,18 @@ function apply_jackknife(obs::AbstractVector)
     N  = length(obs)
     O  = mean(obs)
     ΔO = sqrt(N-1)*std(obs,corrected=false)
+    return O, ΔO
+end
+# apply jackknife while ignoring NaNs
+function nan_apply_jackknife(obs::AbstractArray;dims::Integer)
+    N  = size(obs)[dims]
+    O  = dropdims(nanmean(obs;dims);dims)
+    ΔO = dropdims(sqrt(N-1)*nanstd(obs;dims,corrected=false);dims)
+    return O, ΔO
+end
+function nan_apply_jackknife(obs::AbstractVector)
+    N  = length(obs)
+    O  = nanmean(obs)
+    ΔO = sqrt(N-1)*nanstd(obs,corrected=false)
     return O, ΔO
 end
