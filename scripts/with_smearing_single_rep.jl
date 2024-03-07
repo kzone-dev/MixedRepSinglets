@@ -8,47 +8,24 @@ using Statistics
 pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 include("smearing_tools.jl")
 
-N_max  = 80
-Nstep  = 40
+h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
+h5data = "/home/fabian/Downloads/data.hdf5"
+
 Nsmear = 0:Nstep:N_max
-nhits  = 128
-
-path = "/media/fabian/HDD#3/rsyncout/rsyncVSC/runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out"
-path = "/home/fabian/Downloads/smearedVSC/"
-
-fileCONN = joinpath(path,"out_spectrum_smeared")
-fileDISC = joinpath(path,"out_spectrum_smeared_discon_h128")
-
-h5file = "single_rep_smeared.hdf5"
-
-typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
-typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
-
-writehdf5 = false
-if writehdf5
-    writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="FUN/CONN",setup=true)
-    writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="FUN/DISC",setup=false)
-end
-
-T,L = h5read(h5file,"lattice")[1:2]
-rescale_disc = L^3
-rescale_conn = true
-subtract_vev = false
-sign=+1
-Nf=2
-Ns=length(Nsmear)
+T,L    = h5read(h5file,"lattice")[1:2]
+Ns     = length(Nsmear)
+sign   = +1
+Nf     = 2
 
 # read data with and without APE smearing
-conn_matrix, disc_matrix = _smeared_singlet_correlation_matrix(h5file,Nsmear,"g5","FUN";subtract_vev,rescale_disc,rescale_conn)
-conn_matrix
+conn_matrix, disc_matrix = _assemble_correlation_matrix_rep(h5file,"",Nsmear,"FUN";channel="g5",Nf)
 
 # add data from publication as reference
-h5data = "/home/fabian/Downloads/data.hdf5"
 data_conn = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out_spectrum/DEFAULT_SEMWALL TRIPLET_g5"
 data_disc = "runsSp4/Lt24Ls12beta6.9m1-0.90m2-0.90/out_spectrum_discon/DISCON_SEMWALL SINGLET_g5_disc_re"
 conn_old = h5read(h5data,data_conn)
 loop_old = h5read(h5data,data_disc)
-disc_old = unbiased_estimator(loop_old;subtract_vev, rescale=rescale_disc)
+disc_old = unbiased_estimator(loop_old;subtract_vev, rescale=L^3)
 MixedRepSinglets.rescale_connected!(conn_old,L)
 
 # built full singlet correlator
