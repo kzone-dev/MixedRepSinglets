@@ -2,10 +2,9 @@ using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using Plots
 using HDF5
+using LaTeXStrings
 plotlyjs()
-
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M34.hdf5"
-h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M34.hdf5"
+pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=12, labelfontsize=16, markersize=5)
 
 function _copy_lattice_parameters(outfile,infile,ensemble)
     file = h5open(infile)[ensemble]
@@ -35,7 +34,16 @@ function eigenvalues_meff_mixed_rep(h5corrs,ensemble;t0 = 1, binsize = 1, deriv 
     return eigvals, Δeigvals, meff, Δmeff
 end
 
-for ensemble in ["M3","M4"]
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1.hdf5"
+
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M2.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M2.hdf5"
+
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M34.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M34.hdf5"
+
+for ensemble in ["M4"]
 
     kws = (t0 = 1, binsize = 2, deriv = true)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;kws...)
@@ -56,16 +64,20 @@ for ensemble in ["M3","M4"]
     range0 = 2:11
     Nops   = 18
 
-    plt0 = plot()
-    scatter!(plt0,eigvals[Nops-0,:],yerr=Δeigvals[Nops-0,:],yscale=:log10)
-    scatter!(plt0,eigvals[Nops-1,:],yerr=Δeigvals[Nops-1,:],yscale=:log10)
-    display(plt0)
-    
-    plt = plot()
-    scatter!(plt,range0, meff[Nops-0,range0], yerr= Δmeff[Nops-0,range0])
-    scatter!(plt,range1, meff[Nops-1,range1], yerr= Δmeff[Nops-1,range1])
-    plot!(plt, ylims=(0.25,1))
+    β   = h5read(h5corrs,joinpath(ensemble,"beta"))
+    T,L = h5read(h5corrs,joinpath(ensemble,"lattice"))[1:2]
+    mf  = h5read(h5corrs,joinpath(ensemble,"quarkmasses"))[1]
+    mas = "-1.01" #h5read(h5corrs,joinpath(ensemble,"quarkmasses"))[1]
+    title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"
+
+    plt = plot(title=title, xlabel="t", ylabel="effective mass")
+    scatter!(plt,range0, meff[Nops-0,range0], yerr= Δmeff[Nops-0,range0],label=L"$m _{\rm eff}: a $")
+    scatter!(plt,range1, meff[Nops-1,range1], yerr= Δmeff[Nops-1,range1],label=L"$m _{\rm eff}: \eta'$")
+    plot!(plt, ylims=(0.2,1))
     display(plt)
+
+    isdir("plots/singlet_meff_smeared") || mkdir("plots/singlet_meff_smeared")
+    savefig(plt,"plots/singlet_meff_smeared/$(ensemble).pdf")
 
 end
 

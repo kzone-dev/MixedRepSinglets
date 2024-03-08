@@ -7,6 +7,13 @@ plotlyjs()
 include("smearing_tools.jl")
 
 Nsmear = collect(0:10:80)
+
+h5file = "/home/fabian/Downloads/smeared_singlets_M2.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M2.hdf5"
+
+h5file = "/home/fabian/Downloads/smeared_singlets_M1.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1.hdf5"
+
 h5file = "/home/fabian/Downloads/smeared_singlets_M34.hdf5"
 h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M34.hdf5"
 

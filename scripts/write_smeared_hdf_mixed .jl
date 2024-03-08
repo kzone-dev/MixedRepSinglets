@@ -4,10 +4,12 @@ using DelimitedFiles
 
 path = "/home/fabian/Documents/Physics/Lattice/HiRepDIaL/measurements"
 path = "/media/fabian/External SSD/DataDiaL/measurements"
-path = "/home/fabian/Bilder/measurements"
+path = "/home/fabian/Downloads/DiaL Data/measurements"
 
 input = readdlm("input/parameters_smeared.csv",';',skipstart=1)
 h5file = "/home/fabian/Downloads/smeared_singlets_M34.hdf5"
+h5file = "/home/fabian/Downloads/smeared_singlets_M2.hdf5"
+h5file = "/home/fabian/Downloads/smeared_singlets_M1.hdf5"
 
 for prm in eachrow(input)
 
