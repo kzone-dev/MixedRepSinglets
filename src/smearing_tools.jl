@@ -1,6 +1,3 @@
-using HDF5
-using Statistics
-using ProgressMeter
 function _get_connected_at_smearing_level(h5file,Nsource,Nsink,channel,rep;ensemble="")
     group = "source_N$(Nsource)_sink_N$(Nsink) TRIPLET"
     return h5read(h5file,joinpath(ensemble,rep,"CONN",group,channel))

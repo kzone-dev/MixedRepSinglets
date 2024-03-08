@@ -3,7 +3,6 @@ using MixedRepSinglets
 using HiRepParsing
 using HDF5
 using Statistics
-include("smearing_tools.jl")
 
 path   = "/home/fabian/Downloads/"
 h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"

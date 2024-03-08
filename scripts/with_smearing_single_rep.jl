@@ -1,7 +1,6 @@
 using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using Plots
-include("smearing_tools.jl")
 pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
 h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"

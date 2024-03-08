@@ -1,5 +1,6 @@
 module MixedRepSinglets
 
+    using ProgressMeter
     using Statistics
     using NaNStatistics
     using LinearAlgebra
@@ -24,5 +25,9 @@ module MixedRepSinglets
     export awi_corr, awi_fit
     include("folding.jl")
     export correlator_folding
+    include("smearing_tools.jl")
+    export _get_connected_at_smearing_level, _get_disconnected_at_smearing_level
+    export _assemble_correlation_matrix_mixed, _assemble_correlation_matrix_rep
+    export stdmean
 
 end # module MixedRepSinglets

@@ -4,7 +4,6 @@ using HiRepParsing
 using Plots
 using HDF5
 plotlyjs()
-include("smearing_tools.jl")
 
 Nsmear = collect(0:10:80)
 
