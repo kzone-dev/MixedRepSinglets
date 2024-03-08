@@ -25,3 +25,14 @@ function eigenvalues_meff_mixed_rep(h5corrs,ensemble;t0 = 1, binsize = 1, deriv 
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff
 end
+function write_eigenvalues_and_effective_masses(outputfile,inputfile,ensemble; t0 = 1, binsize = 2, deriv = true)
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(inputfile,ensemble;t0,binsize,deriv)
+    _copy_lattice_parameters(outputfile,inputfile,ensemble)
+    h5write(outputfile,joinpath(ensemble,"eigvals_g5_singlet"),eigvals)
+    h5write(outputfile,joinpath(ensemble,"Delta_eigvals_g5_singlet"),Δeigvals)
+    h5write(outputfile,joinpath(ensemble,"meff_g5_singlet"),meff)
+    h5write(outputfile,joinpath(ensemble,"Delta_meff_g5_singlet"),Δmeff)
+    h5write(outputfile,joinpath(ensemble,"t0"),t0)
+    h5write(outputfile,joinpath(ensemble,"deriv"),deriv)
+    h5write(outputfile,joinpath(ensemble,"binsize"),binsize)
+end

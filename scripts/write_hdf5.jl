@@ -2,14 +2,11 @@ using Pkg; Pkg.activate(".")
 using HiRepParsing
 using DelimitedFiles
 
-path = "/home/fabian/Documents/Physics/Lattice/HiRepDIaL/measurements"
-path = "/media/fabian/External SSD/DataDiaL/measurements"
 path = "/home/fabian/Downloads/DiaL Data/measurements"
+path = "/media/fabian/External SSD/DataDiaL/measurements"
 
-input = readdlm("input/parameters_smeared.csv",';',skipstart=1)
-h5file = "/home/fabian/Downloads/smeared_singlets_M34.hdf5"
-h5file = "/home/fabian/Downloads/smeared_singlets_M2.hdf5"
-h5file = "/home/fabian/Downloads/smeared_singlets_M1.hdf5"
+input = readdlm("input/parameters_smeared_test.csv",';',skipstart=1)
+h5file = "/home/fabian/Downloads/smeared_singlets_M1234.hdf5"
 
 for prm in eachrow(input)
 
@@ -23,7 +20,7 @@ for prm in eachrow(input)
     typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
     
     @show fileCONN   
-    writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="$name/$rep/CONN")
+    writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="$name/$rep/CONN",mixed_rep=true)
     @show fileDISC   
-    writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="$name/$rep/DISC")
+    writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="$name/$rep/DISC",mixed_rep=true)
 end    

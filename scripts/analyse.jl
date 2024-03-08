@@ -17,21 +17,14 @@ h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M34.hdf5"
 h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M34.hdf5"
 
 for ensemble in ["M4"]
-
-    kws = (t0 = 1, binsize = 2, deriv = true)
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;kws...)
     
+    t0      = 1
+    binsize = 2
+    deriv   = true
+
     write = false
-    if write
-        _copy_lattice_parameters(h5eigenvals,h5corrs,ensemble)
-        h5write(h5eigenvals,joinpath(ensemble,"eigvals_g5_singlet"),eigvals)
-        h5write(h5eigenvals,joinpath(ensemble,"Delta_eigvals_g5_singlet"),Δeigvals)
-        h5write(h5eigenvals,joinpath(ensemble,"meff_g5_singlet"),meff)
-        h5write(h5eigenvals,joinpath(ensemble,"Delta_meff_g5_singlet"),Δmeff)
-        h5write(h5eigenvals,joinpath(ensemble,"t0"),kws.t0)
-        h5write(h5eigenvals,joinpath(ensemble,"deriv"),kws.deriv)
-        h5write(h5eigenvals,joinpath(ensemble,"binsize"),kws.binsize)
-    end
+    write && write_eigenvalues_and_effective_masses(h5eigenvals,h5corrs,ensemble;t0binsize,deriv)
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;t0,binsize,deriv)
 
     range1 = 2:8
     range0 = 2:11
