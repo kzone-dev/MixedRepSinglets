@@ -1,9 +1,7 @@
 using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using HiRepParsing
-using Plots
 using HDF5
-plotlyjs()
 
 Nsmear = collect(0:10:80)
 
