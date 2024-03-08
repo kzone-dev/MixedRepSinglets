@@ -5,7 +5,6 @@ using HDF5
 using Plots
 using Statistics
 gr(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
-include("smearing_tools.jl")
 
 Nsmear = 0:40:80
 markershape = :rect

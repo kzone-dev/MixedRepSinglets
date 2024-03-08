@@ -1,7 +1,7 @@
 using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using Plots
-pgfplotsx(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
+gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=6)
 
 h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
 h5data = "/home/fabian/Downloads/data.hdf5"

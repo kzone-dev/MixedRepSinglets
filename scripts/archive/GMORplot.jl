@@ -1,7 +1,7 @@
 using Plots
 using DelimitedFiles
 using LaTeXStrings
-pgfplotsx(legend=:topleft,frame=:box)
+gr(legend=:topleft,frame=:box)
 
 dat2, header2 = readdlm("./output/decayconstants.csv",',',header=true)
 dat3, header3 = readdlm("./output/PCACmasses.csv",',',header=true)
