@@ -2,13 +2,14 @@ import gvar as gv
 import corrfitter as cf
 import h5py
 import numpy as np
+import matplotlib.pyplot as plt
 
 def get_hdf5_value(hdf5file,key):
     return hdf5file[key][()]
 
 def make_models(T,tmin,tmax):
     """ Create corrfitter model for G(t). """
-    return [cf.Corr2(datatag='Gab', tp=T, tmin=tmin, tmax=tmax, a='a', b='a', dE='dE')]
+    return [cf.Corr2(datatag='Gab', tp=-T, tmin=tmin, tmax=tmax, a='a', b='a', dE='dE')]
 
 def make_prior(N):
     prior = gv.BufferDict()
@@ -61,21 +62,21 @@ def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
     ev = get_hdf5_value(f,"M4/eigvals_g5_singlet")[()]
     Delta_ev = get_hdf5_value(f,"M4/Delta_eigvals_g5_singlet")[()]
 
-    eig1 = dict(Gab=gv.gvar(ev[:,0],Delta_ev[:,0]))
-    eig2 = dict(Gab=gv.gvar(ev[:,1],Delta_ev[:,1]))
+    eig1 = dict(Gab=gv.gvar(ev[:,17],Delta_ev[:,17]))
+    eig2 = dict(Gab=gv.gvar(ev[:,16],Delta_ev[:,16]))
 
     E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin,tmax1,Nmax,plotting=PLOT,printing=PRINT)
     E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin,tmax2,Nmax,plotting=PLOT,printing=PRINT)
     
     beta = get_hdf5_value(f,"M4/beta")
-    mass = get_hdf5_value(f,"M4/quarkmasses")[0]
+    mass = get_hdf5_value(f,"M4/quarkmasses_fundamental")[0]
 
     print("T,L,m0,beta,m_meson,chi2/dof")
     print( T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
     print( T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
 
 PLOT=False
-PRINT=True
+PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M34.hdf5"
-fit_eigenvalues_file(filename,2,10,10,2)
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+fit_eigenvalues_file(filename,3,10,10,2)
