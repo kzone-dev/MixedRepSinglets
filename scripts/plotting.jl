@@ -44,6 +44,7 @@ for row in 1:nrows
     add_fit_range!(plt1,tmin1,tmax1,E0,ΔE0;label="")
     add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
     
+    plot!(plt1, ylims=(0.8*E0,1.2*E0))
     plot!(plt1, ylims=(0.3,1.2))
     display(plt1)
 end
