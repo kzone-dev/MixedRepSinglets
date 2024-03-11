@@ -88,7 +88,7 @@ def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,N
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
 
 with open('input/parameters_corrfitter.csv') as csvfile:
     reader = csv.DictReader(csvfile,delimiter=';')
