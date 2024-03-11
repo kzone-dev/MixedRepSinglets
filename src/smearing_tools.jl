@@ -134,6 +134,29 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
 
     return correlation_matrix_CONN, correlation_matrix_DISC
 end
+function _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,rep;channel="g5")
+
+    conn = [_get_connected_at_smearing_level(h5file,N1,N2,channel,rep;ensemble) for N1 in Nsmear, N2 in Nsmear ]
+
+    # number of configurations and lattice size
+    N   = size(first(conn))[1]
+    T,L = h5read(h5file,joinpath(ensemble,rep,"CONN","lattice"))[1:2]
+    MixedRepSinglets.rescale_connected!.(conn ,L)
+    Nops = length(Nsmear)
+
+    # make sure that there are no NaNs in the data
+    @assert 0 == sum(any.(isnan, conn))
+    correlation_matrix_CONN = zeros((Nops,Nops,N,T))
+    
+    # add connected pieces
+    for i in eachindex(Nsmear)
+        for j in eachindex(Nsmear)
+            correlation_matrix_CONN[i,j,:,:] = conn[i,j] 
+        end
+    end
+
+    return correlation_matrix_CONN
+end
 function stdmean(X;dims)
     N = size(X)[dims]
     m = dropdims(mean(X;dims);dims)

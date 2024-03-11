@@ -192,7 +192,7 @@ def fit_eigenvalues_file(hdf5file,tmin,tmax1,tmax2,Nmax=10):
 PLOT=False
 PRINT=False
 
-path = "/home/fabian/Documents/Analysis/MixedRepSinglets/output/h5files/"
+path = "/home/fabian/Documents/Physics/Analysis/MixedRepSinglets/output/h5files/"
 
 names = [
     "Lt48Ls20beta6.5mf0.71mas1.01AS",

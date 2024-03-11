@@ -28,6 +28,7 @@ module MixedRepSinglets
     include("smearing_tools.jl")
     export _get_connected_at_smearing_level, _get_disconnected_at_smearing_level
     export _assemble_correlation_matrix_mixed, _assemble_correlation_matrix_rep
+    export _assemble_correlation_matrix_rep_nonsinglet
     export stdmean
 
 end # module MixedRepSinglets
