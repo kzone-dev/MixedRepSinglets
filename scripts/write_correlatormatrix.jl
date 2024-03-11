@@ -6,7 +6,7 @@ using HDF5
 Nsmear = collect(0:10:80)
 
 h5file = "/home/fabian/Downloads/smeared_singlets_M1234.hdf5"
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234_with_conn.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234_with_conn_v2.hdf5"
 
 # get names of ensembles from hdf5 file
 fid = h5open(h5file, "r")
@@ -18,8 +18,15 @@ for ensemble in ensembles
     correlation_matrix_singlet_g5 = _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",disc_sign=+1,subtract_vev=false)
     correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g5")
     correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g1")
+    correlation_matrix_nonsinglet_FUN_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g2")
+    correlation_matrix_nonsinglet_FUN_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g3")
     correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"AS";channel="g5")
     correlation_matrix_nonsinglet_AS_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"AS";channel="g1")
+    correlation_matrix_nonsinglet_AS_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"AS";channel="g2")
+    correlation_matrix_nonsinglet_AS_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"AS";channel="g3")
+
+    correlation_matrix_nonsinglet_FUN_g1 = @. (correlation_matrix_nonsinglet_FUN_g1 + correlation_matrix_nonsinglet_FUN_g2 + correlation_matrix_nonsinglet_FUN_g3)/3
+    correlation_matrix_nonsinglet_AS_g1  = @. (correlation_matrix_nonsinglet_AS_g1  + correlation_matrix_nonsinglet_AS_g2  + correlation_matrix_nonsinglet_AS_g3 )/3
 
     function _copy_lattice_parameters(outfile,infile,ensemble)
         fileFUN = h5open(infile)[joinpath(ensemble,"FUN","CONN")]
