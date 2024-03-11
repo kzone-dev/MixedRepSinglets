@@ -6,9 +6,8 @@ using LaTeXStrings
 include("utils.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=5)
 
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234.hdf5"
 h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234_with_conn.hdf5"
-h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn.hdf5"
 
 function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing)
     Nops = first(size(meff))
@@ -36,8 +35,7 @@ for ensemble in ["M1","M2","M3","M4"]
     binsize = 2
     deriv   = true
 
-    write = false
-    write && write_eigenvalues_and_effective_masses(h5eigenvals,h5corrs,ensemble,"correlation_matrix_g5_singlet";t0,binsize,deriv)
+    write = true
 
     β   = h5read(h5corrs,joinpath(ensemble,"beta"))
     T,L = h5read(h5corrs,joinpath(ensemble,"lattice"))[1:2]
@@ -51,6 +49,7 @@ for ensemble in ["M1","M2","M3","M4"]
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"))
     correlation_matrix = correlation_matrix[keep_levels_singlet,keep_levels_singlet,:,:]
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+    write && write_eigenvalues_and_effective_masses(correlation_matrix,h5eigenvals,h5corrs,ensemble,"correlation_matrix_g5_singlet";t0,binsize,deriv,setup=true)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2)
     display(plt1)
 
@@ -58,11 +57,13 @@ for ensemble in ["M1","M2","M3","M4"]
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"))
     correlation_matrix = correlation_matrix[keep_levels_nonsinglet,keep_levels_nonsinglet,:,:]
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
+    write && write_eigenvalues_and_effective_masses(correlation_matrix,h5eigenvals,h5corrs,ensemble,"correlation_matrix_g5_nonsinglet_FUN";t0,binsize,deriv=false,setup=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tmax=T÷2)
     display(plt1)
     
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"))
     correlation_matrix = correlation_matrix[keep_levels_nonsinglet,keep_levels_nonsinglet,:,:]
+    write && write_eigenvalues_and_effective_masses(correlation_matrix,h5eigenvals,h5corrs,ensemble,"correlation_matrix_g1_nonsinglet_FUN";t0,binsize,deriv=false,setup=false)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tmax=T÷2)
     display(plt1)
@@ -70,12 +71,14 @@ for ensemble in ["M1","M2","M3","M4"]
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"))
     correlation_matrix = correlation_matrix[keep_levels_nonsinglet,keep_levels_nonsinglet,:,:]
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
+    write && write_eigenvalues_and_effective_masses(correlation_matrix,h5eigenvals,h5corrs,ensemble,"correlation_matrix_g5_nonsinglet_AS";t0,binsize,deriv=false,setup=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tmax=T÷2)
     display(plt1)
     
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_AS"))
     correlation_matrix = correlation_matrix[keep_levels_nonsinglet,keep_levels_nonsinglet,:,:]
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
+    write && write_eigenvalues_and_effective_masses(correlation_matrix,h5eigenvals,h5corrs,ensemble,"correlation_matrix_g1_nonsinglet_AS";t0,binsize,deriv=false,setup=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tmax=T÷2)
     display(plt1)
         

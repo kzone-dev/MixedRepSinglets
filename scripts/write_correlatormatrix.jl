@@ -15,7 +15,7 @@ close(fid)
 
 for ensemble in ensembles
 
-    correlation_matrix = _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",disc_sign=+1,subtract_vev=false)
+    correlation_matrix_singlet_g5 = _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",disc_sign=+1,subtract_vev=false)
     correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g5")
     correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"FUN";channel="g1")
     correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,"AS";channel="g5")
@@ -37,7 +37,8 @@ for ensemble in ensembles
         h5write(outfile,joinpath(ensemble,"quarkmasses_antisymmetric"),read(fileAS, "quarkmasses"))
     end
     _copy_lattice_parameters(h5corrs,h5file,ensemble)
-    h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix)
+    # NOTE: Note that the entries of the correlation matrix always need to contain the substring "correlation_matrix" 
+    h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix_singlet_g5)
     h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g5)
     h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g1)
     h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g5)
