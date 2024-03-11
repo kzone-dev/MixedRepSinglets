@@ -44,23 +44,28 @@ for ensemble in ["M1"] #,"M2","M3","M4"]
     mf  = h5read(h5corrs,joinpath(ensemble,"quarkmasses_fundamental"))[1]
     mas = h5read(h5corrs,joinpath(ensemble,"quarkmasses_antisymmetric"))[1]
 
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble,"correlation_matrix_g5_singlet";t0,binsize,deriv)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2)
     display(plt1)
     
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble,"correlation_matrix_g5_nonsinglet_FUN";t0,binsize,deriv=false)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=T÷2)
     display(plt1)
     
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble,"correlation_matrix_g1_nonsinglet_FUN";t0,binsize,deriv=false)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=T÷2)
     display(plt1)
     
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble,"correlation_matrix_g5_nonsinglet_AS";t0,binsize,deriv=false)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=T÷2)
     display(plt1)
     
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble,"correlation_matrix_g1_nonsinglet_AS";t0,binsize,deriv=false)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_AS"))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv=false)
     plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=T÷2)
     display(plt1)
 

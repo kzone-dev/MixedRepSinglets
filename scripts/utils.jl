@@ -5,9 +5,7 @@ function _copy_lattice_parameters(outfile,infile,ensemble)
         h5write(outfile,joinpath(ensemble,entry),read(file,entry))
     end
 end
-function eigenvalues_meff_mixed_rep(h5corrs,ensemble,name;t0 = 1, binsize = 1, deriv = true)
-    correlation_matrix = h5read(h5corrs,joinpath(ensemble,name))
-    
+function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deriv = true)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
     correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
@@ -15,7 +13,7 @@ function eigenvalues_meff_mixed_rep(h5corrs,ensemble,name;t0 = 1, binsize = 1, d
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
     end
-
+    
     # use correlator binning
     eigvals, Δeigvals = eigenvalues(correlation_matrix;t0)
     eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0 ,imag_thresh = 2E-14)
@@ -23,7 +21,8 @@ function eigenvalues_meff_mixed_rep(h5corrs,ensemble,name;t0 = 1, binsize = 1, d
     return eigvals, Δeigvals, meff, Δmeff
 end
 function write_eigenvalues_and_effective_masses(outputfile,inputfile,ensemble,name; t0 = 1, binsize = 2, deriv = true)
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(inputfile,ensemble,name;t0,binsize,deriv)
+    correlation_matrix = h5read(h5corrs,joinpath(ensemble,name))
+    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     _copy_lattice_parameters(outputfile,inputfile,ensemble)
     h5write(outputfile,joinpath(ensemble,"eigvals_g5_singlet"),eigvals)
     h5write(outputfile,joinpath(ensemble,"Delta_eigvals_g5_singlet"),Δeigvals)
