@@ -4,6 +4,7 @@ import h5py
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
+import os
 
 def get_hdf5_value(hdf5file,key):
     return hdf5file[key][()]
@@ -14,8 +15,6 @@ def make_models(T,tmin,tmax,tp):
 
 def make_prior(N):
     prior = gv.BufferDict()
-    # NOTE: use a log-Gaussion distrubtion for forcing positive energies
-    # NOTE: Even with this code they can be recovered by providing loose priors of 0.1(1) for both
     prior['log(a)']  = gv.log(gv.gvar(N * ['1(1)']))
     prior['log(dE)'] = gv.log(gv.gvar(N * ['1(1)']))
     return prior
@@ -54,7 +53,7 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
+def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
     f = h5py.File(hdf5file)
     T = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[0]
     L = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[1]
@@ -75,14 +74,21 @@ def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,chann
 
     if header: 
         print("ensemble,channel,T,L,m0,beta,m_meson,chi2/dof")
-    
     print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
     print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
+    
+    out = open(outfile, "a")
+    outHR = open(outfileHR, "a")
+    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mass,beta,gv.mean(E1[0]),gv.sdev(E1[0]),gv.mean(E2[0]),gv.sdev(E2[0]),chi2A/dofA,chi2B/dofB))
+    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mass,beta,E1[0],E2[0],chi2A/dofA,chi2B/dofB))
+    out.close()
+    outHR.close()
+
 
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn_v2.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn.hdf5"
 
 with open('input/parameters_corrfitter.csv') as csvfile:
     reader = csv.DictReader(csvfile,delimiter=';')
@@ -91,4 +97,7 @@ with open('input/parameters_corrfitter.csv') as csvfile:
         tmin1, tmin2 = int(row['tmin1']), int(row['tmin2'])
         tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
         tp, Nmax = int(row['tp']), int(row['Nmax'])
-        fit_eigenvalues_file(filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False)
+
+        outfile   = "output/corrfitter_results.csv"
+        outfileHR = "output/corrfitter_results_HR.csv"
+        fit_eigenvalues_file(outfile,outfileHR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False)
