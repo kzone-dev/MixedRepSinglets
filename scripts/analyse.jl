@@ -3,21 +3,21 @@ using MixedRepSinglets
 using Plots
 using HDF5
 using LaTeXStrings
-plotlyjs()
 include("utils.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=5)
+#plotlyjs()
 
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators.hdf5"
-h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
 
-for ensemble in ["M1","M2","M3","M4","M5"]
+for ensemble in ["M1","M2","M3","M4"]
     
     t0      = 1
     binsize = 2
     deriv   = true
     Nops   = 18
 
-    write = true
+    write = false
     write && write_eigenvalues_and_effective_masses(h5eigenvals,h5corrs,ensemble;t0,binsize,deriv)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;t0,binsize,deriv)
 
@@ -34,14 +34,19 @@ for ensemble in ["M1","M2","M3","M4","M5"]
     mas = h5read(h5corrs,joinpath(ensemble,"quarkmasses_antisymmetric"))[1]
     title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"
 
-    plt = plot(title=title, xlabel="t", ylabel="effective mass")
-    scatter!(plt,range0, meff[Nops-0,range0], yerr= Δmeff[Nops-0,range0],label=L"$m _{\rm eff}: a $")
-    scatter!(plt,range1, meff[Nops-1,range1], yerr= Δmeff[Nops-1,range1],label=L"$m _{\rm eff}: \eta'$")
-    plot!(plt, ylims=(0.2,1))
-    display(plt)
+    plt1 = plot(title=title, xlabel="t", ylabel="effective mass")
+    scatter!(plt1,range0, meff[Nops-0,range0], yerr= Δmeff[Nops-0,range0],label=L"$m _{\rm eff}: a $")
+    scatter!(plt1,range1, meff[Nops-1,range1], yerr= Δmeff[Nops-1,range1],label=L"$m _{\rm eff}: \eta'$")
+    plot!(plt1, ylims=(0.2,1))
+    display(plt1)
+
+    plt2 = plot(title=title, xlabel="t", ylabel="eigenvalues")
+    scatter!(plt2,eigvals[Nops-0,:], yerr= Δeigvals[Nops-0,:],label=L"$m _{\rm eff}: a $")
+    scatter!(plt2,eigvals[Nops-1,:], yerr= Δeigvals[Nops-1,:],label=L"$m _{\rm eff}: \eta'$")
+    #display(plt2)
 
     isdir("plots/singlet_meff_smeared") || mkdir("plots/singlet_meff_smeared")
-    savefig(plt,"plots/singlet_meff_smeared/$(ensemble).pdf")
+    savefig(plt1,"plots/singlet_meff_smeared/$(ensemble).pdf")
 
 end
 

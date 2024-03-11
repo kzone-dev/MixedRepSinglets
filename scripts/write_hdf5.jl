@@ -4,6 +4,7 @@ using DelimitedFiles
 
 path = "/media/fabian/External SSD/DataDiaL/measurements"
 path = "/home/fabian/Downloads/DiaLData/measurements"
+path =  "/home/fabian/Documents/DataDiaL/measurements"
 
 input = readdlm("input/parameters_smeared.csv",';',skipstart=1)
 h5file = "/home/fabian/Downloads/smeared_singlets.hdf5"
