@@ -70,17 +70,18 @@ def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,N
     E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=PLOT,printing=PRINT)
     
     beta = get_hdf5_value(f,ensemble+"/"+channel+"/beta")
-    mass = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
+    mf   = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
+    mas  = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_antisymmetric")[0]
 
     if header: 
         print("ensemble,channel,T,L,m0,beta,m_meson,chi2/dof")
-    print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
-    print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
+    print(ensemble,",",channel,",",T,",",L,",",mf,",",mas,",",beta,",",E1[0],",",chi2A/dofA)
+    print(ensemble,",",channel,",",T,",",L,",",mf,",",mas,",",beta,",",E2[0],",",chi2B/dofB)
     
     out = open(outfile, "a")
     outHR = open(outfileHR, "a")
-    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mass,beta,gv.mean(E1[0]),gv.sdev(E1[0]),gv.mean(E2[0]),gv.sdev(E2[0]),chi2A/dofA,chi2B/dofB))
-    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mass,beta,E1[0],E2[0],chi2A/dofA,chi2B/dofB))
+    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mf,mas,beta,gv.mean(E1[0]),gv.sdev(E1[0]),gv.mean(E2[0]),gv.sdev(E2[0]),chi2A/dofA,chi2B/dofB))
+    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mf,mas,beta,E1[0],E2[0],chi2A/dofA,chi2B/dofB))
     out.close()
     outHR.close()
 
