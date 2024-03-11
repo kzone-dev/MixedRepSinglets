@@ -5,3 +5,5 @@
 *.code-workspace
 !input/parameters.csv
 !input/parameters_smeared.csv
+!input/parameters_corrfitter.csv
+!input/parameters_gevp.csv
