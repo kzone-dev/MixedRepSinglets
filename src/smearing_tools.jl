@@ -17,11 +17,17 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",
     N   = size(first(discFUN))[1]
     T,L = h5read(h5file,joinpath(ensemble,"FUN","CONN","lattice"))[1:2]
 
+    # number of operators in correlation matrix
+    S = length(Nsmear)
+    Nops = 2*S
+
     # make sure that there are no NaNs in the data
     @assert 0 == sum(any.(isnan, connFUN))
     @assert 0 == sum(any.(isnan, connAS))
     @assert 0 == sum(any.(isnan, discFUN))
     @assert 0 == sum(any.(isnan, discAS))
+    @assert size.(connFUN) == size.(connAS)
+    @assert size.(discFUN) == size.(discAS)
 
     # Compared to the old code, there is another factor of 2 per loop missing
     rescale_disc = 4*L^3
@@ -33,10 +39,6 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",
     Nf_fun = 2
     Nf_as  = 3
     
-    # number of operators in correlation matrix
-    S = length(Nsmear)
-    Nops = 2*S
-
     # create block matrices of the full correlation matrix
     block_diag_FUN = zeros((Nops÷2,Nops÷2,N,T))
     block_diag_AS  = zeros((Nops÷2,Nops÷2,N,T))
