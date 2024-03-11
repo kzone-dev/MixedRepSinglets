@@ -13,11 +13,10 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deri
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
     end
-    
     # use correlator binning
     eigvals, Δeigvals = eigenvalues(correlation_matrix;t0)
-    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0 ,imag_thresh = 2E-14)
-    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=0,swap=nothing)
+    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0 ,imag_thresh = 1E-12)
+    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff
 end
 function write_eigenvalues_and_effective_masses(outputfile,inputfile,ensemble,name; t0 = 1, binsize = 2, deriv = true)
