@@ -3,6 +3,7 @@ import corrfitter as cf
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 
 def get_hdf5_value(hdf5file,key):
     return hdf5file[key][()]
@@ -53,10 +54,11 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp=None,Nmax=10,ensemble="M1",channel="g5_singlet",header=False):
+def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
     f = h5py.File(hdf5file)
     T = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[0]
     L = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[1]
+    tp = tp*T if tp != 0 else None
 
     ev = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals")[()]
     Delta_ev = get_hdf5_value(f,ensemble+"/"+channel+"/Delta_eigvals")[()]
@@ -66,43 +68,27 @@ def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp=None,Nmax=10,ensemb
     eig2 = dict(Gab=gv.gvar(ev[:,Nops-2],Delta_ev[:,Nops-2]))
 
     E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
-    #E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=PLOT,printing=PRINT)
+    E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=PLOT,printing=PRINT)
     
     beta = get_hdf5_value(f,ensemble+"/"+channel+"/beta")
     mass = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
 
     if header: 
-        print("T,L,m0,beta,m_meson,chi2/dof")
+        print("ensemble,channel,T,L,m0,beta,m_meson,chi2/dof")
     
-    print( T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
-    #print( T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
+    print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E1[0],",",chi2A/dofA)
+    print(ensemble,",",channel,",",T,",",L,",",mass,",",beta,",",E2[0],",",chi2B/dofB)
 
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn_v3.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn_v2.hdf5"
 
-fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=7,tp=None,Nmax=4,channel="g5_singlet",ensemble="M1",header=True)
-fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=9,tp=None,Nmax=4,channel="g5_singlet",ensemble="M2")
-fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=7,tp=None,Nmax=4,channel="g5_singlet",ensemble="M3")
-fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=8,tp=None,Nmax=4,channel="g5_singlet",ensemble="M4")
-
-fit_eigenvalues_file(filename,tmin1=10,tmin2=8,tmax1=19,tmax2=48/2,tp=48,Nmax=1,channel="g5_nonsinglet_FUN",ensemble="M1",header=True)
-fit_eigenvalues_file(filename,tmin1=10,tmin2=8,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g5_nonsinglet_FUN",ensemble="M2")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=8,tmax1=19,tmax2=96/2,tp=96,Nmax=1,channel="g5_nonsinglet_FUN",ensemble="M3")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=8,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g5_nonsinglet_FUN",ensemble="M4")
-
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=48/2,tp=48,Nmax=1,channel="g1_nonsinglet_FUN",ensemble="M1",header=True)
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g1_nonsinglet_FUN",ensemble="M2")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=96/2,tp=96,Nmax=1,channel="g1_nonsinglet_FUN",ensemble="M3")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g1_nonsinglet_FUN",ensemble="M4")
-
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=48/2,tp=48,Nmax=1,channel="g5_nonsinglet_AS",ensemble="M1",header=True)
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g5_nonsinglet_AS",ensemble="M2")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=96/2,tp=96,Nmax=1,channel="g5_nonsinglet_AS",ensemble="M3")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g5_nonsinglet_AS",ensemble="M4")
-
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=48/2,tp=48,Nmax=1,channel="g1_nonsinglet_AS",ensemble="M1",header=True)
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g1_nonsinglet_AS",ensemble="M2")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=96/2,tp=96,Nmax=1,channel="g1_nonsinglet_AS",ensemble="M3")
-fit_eigenvalues_file(filename,tmin1=10,tmin2=10,tmax1=19,tmax2=64/2,tp=64,Nmax=1,channel="g1_nonsinglet_AS",ensemble="M4")
+with open('input/parameters_corrfitter.csv') as csvfile:
+    reader = csv.DictReader(csvfile,delimiter=';')
+    for row in reader:
+        ensemble, channel = row['ensemble'], row['channel']
+        tmin1, tmin2 = int(row['tmin1']), int(row['tmin2'])
+        tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
+        tp, Nmax = int(row['tp']), int(row['Nmax'])
+        fit_eigenvalues_file(filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False)

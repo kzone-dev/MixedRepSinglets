@@ -2,7 +2,9 @@ function _copy_lattice_parameters(outfile,infile,ensemble;group="")
     file = h5open(infile)[ensemble]
     entries = filter(!contains("correlation_matrix"),keys(file))
     for entry in entries
-        h5write(outfile,joinpath(ensemble,group,entry),read(file,entry))
+        label = joinpath(ensemble,group,entry)
+        @show label
+        h5write(outfile,label,read(file,entry))
     end
 end
 function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deriv = true)
@@ -50,6 +52,5 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=
         scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=L"$m _{\rm eff}$: state %$(state+1)")
         scatter!(plt2,range, eigvals[Nops-state,range], yerr= Δeigvals[Nops-state,range],label="EV: state $(state+1)")
     end
-    plot!(plt1, ylims=(0.2,1))
     return plt1, plt2
 end
