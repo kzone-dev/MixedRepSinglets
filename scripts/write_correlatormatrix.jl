@@ -5,8 +5,8 @@ using HDF5
 
 Nsmear = collect(0:10:80)
 
-h5file = "/home/fabian/Downloads/smeared_singlets_M1234.hdf5"
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234.hdf5"
+h5file = "/home/fabian/Downloads/smeared_singlets.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators.hdf5"
 
 # get names of ensembles from hdf5 file
 fid = h5open(h5file, "r")

@@ -7,17 +7,17 @@ plotlyjs()
 include("utils.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=5)
 
-h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234.hdf5"
-h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues.hdf5"
 
-for ensemble in ["M1","M2","M3","M4"]
+for ensemble in ["M1","M2","M3","M4","M5"]
     
     t0      = 1
     binsize = 2
     deriv   = true
     Nops   = 18
 
-    write = false
+    write = true
     write && write_eigenvalues_and_effective_masses(h5eigenvals,h5corrs,ensemble;t0,binsize,deriv)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(h5corrs,ensemble;t0,binsize,deriv)
 

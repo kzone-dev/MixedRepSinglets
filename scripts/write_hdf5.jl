@@ -3,10 +3,10 @@ using HiRepParsing
 using DelimitedFiles
 
 path = "/media/fabian/External SSD/DataDiaL/measurements"
-path = "/home/fabian/Downloads/DiaL Data/measurements"
+path = "/home/fabian/Downloads/DiaLData/measurements"
 
 input = readdlm("input/parameters_smeared.csv",';',skipstart=1)
-h5file = "/home/fabian/Downloads/smeared_singlets_M1234.hdf5"
+h5file = "/home/fabian/Downloads/smeared_singlets.hdf5"
 
 for prm in eachrow(input)
 
