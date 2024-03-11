@@ -1,8 +1,8 @@
-function _copy_lattice_parameters(outfile,infile,ensemble)
+function _copy_lattice_parameters(outfile,infile,ensemble;group="")
     file = h5open(infile)[ensemble]
     entries = filter(!contains("correlation_matrix"),keys(file))
     for entry in entries
-        h5write(outfile,joinpath(ensemble,entry),read(file,entry))
+        h5write(outfile,joinpath(ensemble,group,entry),read(file,entry))
     end
 end
 function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deriv = true)
@@ -19,19 +19,19 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deri
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff
 end
-function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,name; t0 = 1, binsize = 2, deriv = true, setup = true)
+function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0 = 1, binsize = 2, deriv = true, setup = true)
     eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    setup && _copy_lattice_parameters(outputfile,inputfile,ensemble)
+    
+    _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
-    new_name = replace(name,"correlation_matrix_" => "")
-    h5write(outputfile,joinpath(ensemble,"meff_$new_name"),meff)
-    h5write(outputfile,joinpath(ensemble,"eigvals_$new_name"),eigvals)
-    h5write(outputfile,joinpath(ensemble,"Delta_meff_$new_name"),Δmeff)
-    h5write(outputfile,joinpath(ensemble,"Delta_eigvals_$new_name"),Δeigvals)
+    h5write(outputfile,joinpath(ensemble,channel,"meff"),meff)
+    h5write(outputfile,joinpath(ensemble,channel,"eigvals"),eigvals)
+    h5write(outputfile,joinpath(ensemble,channel,"Delta_meff"),Δmeff)
+    h5write(outputfile,joinpath(ensemble,channel,"Delta_eigvals"),Δeigvals)
     # generic quantitites used in the GEVP inversion and data preparation
-    h5write(outputfile,joinpath(ensemble,"t0_$new_name"),t0)
-    h5write(outputfile,joinpath(ensemble,"deriv_$new_name"),deriv)
-    h5write(outputfile,joinpath(ensemble,"binsize_$new_name"),binsize)
+    h5write(outputfile,joinpath(ensemble,channel,"t0"),t0)
+    h5write(outputfile,joinpath(ensemble,channel,"deriv"),deriv)
+    h5write(outputfile,joinpath(ensemble,channel,"binsize"),binsize)
 end
 function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing)
     Nops = first(size(meff))

@@ -55,11 +55,11 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
 
 def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp=None,Nmax=10,ensemble="M1",channel="g5_singlet",header=False):
     f = h5py.File(hdf5file)
-    T = get_hdf5_value(f,ensemble+"/lattice")[0]
-    L = get_hdf5_value(f,ensemble+"/lattice")[1]
+    T = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[0]
+    L = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[1]
 
-    ev = get_hdf5_value(f,ensemble+"/eigvals_"+channel)[()]
-    Delta_ev = get_hdf5_value(f,ensemble+"/Delta_eigvals_"+channel)[()]
+    ev = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals")[()]
+    Delta_ev = get_hdf5_value(f,ensemble+"/"+channel+"/Delta_eigvals")[()]
 
     Nops = ev.shape[1]
     eig1 = dict(Gab=gv.gvar(ev[:,Nops-1],Delta_ev[:,Nops-1]))
@@ -68,8 +68,8 @@ def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp=None,Nmax=10,ensemb
     E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
     #E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=PLOT,printing=PRINT)
     
-    beta = get_hdf5_value(f,ensemble+"/beta")
-    mass = get_hdf5_value(f,ensemble+"/quarkmasses_fundamental")[0]
+    beta = get_hdf5_value(f,ensemble+"/"+channel+"/beta")
+    mass = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
 
     if header: 
         print("T,L,m0,beta,m_meson,chi2/dof")
@@ -80,7 +80,7 @@ def fit_eigenvalues_file(hdf5file,tmin1,tmin2,tmax1,tmax2,tp=None,Nmax=10,ensemb
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_conn_v3.hdf5"
 
 fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=7,tp=None,Nmax=4,channel="g5_singlet",ensemble="M1",header=True)
 fit_eigenvalues_file(filename,tmin1=3,tmin2=3,tmax1=10,tmax2=9,tp=None,Nmax=4,channel="g5_singlet",ensemble="M2")
