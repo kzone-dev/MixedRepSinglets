@@ -25,7 +25,9 @@ function plot_correlator!(plt,t,eigvals,Δeigvals;kws...)
     scatter!(plt,t,plot_eigvals,yerrors=(errorbar_lower, Δeigvals);kws...)
     return plt
 end
-function add_mass_band!(plt,m,Δm;label="",alpha=0.5,min_thickness=0.01)
-    Δm = max(min_thickness, Δm)
-    hspan!(plt,[m+Δm,m-Δm];label,alpha)
+function add_mass_band!(plt,m,Δm;label="",alpha=0.5,kws...)
+    hspan!(plt,[m+Δm,m-Δm];label,alpha,kws...)
+end
+function add_fit_range!(plt,tmin,tmax,E,ΔE;label="",kws...)
+    plot!(plt,tmin:tmax, E*ones(length(tmin:tmax)), ribbon = ΔE; label, kws...)
 end

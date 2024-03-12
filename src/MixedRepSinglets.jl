@@ -16,7 +16,7 @@ module MixedRepSinglets
     include("effective_mass.jl")
     export implicit_meff_jackknife, implicit_meff, meff_from_jackknife
     include("plotting.jl")
-    export add_mass_band!, plot_correlator!
+    export add_mass_band!, add_fit_range!, plot_correlator!
     include("correlator_derivative.jl")
     export correlator_derivative
     include("fitcorr.jl")
