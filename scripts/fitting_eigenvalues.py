@@ -106,8 +106,8 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
         E2_samples[n] = gv.mean(E2[0])
         a1_samples[n] = gv.mean(a1[0])
         a2_samples[n] = gv.mean(a2[0])
-        chi2dofA_samples[n] = chi2A*dofA 
-        chi2dofB_samples[n] = chi2B*dofB
+        chi2dofA_samples[n] = chi2A/dofA 
+        chi2dofB_samples[n] = chi2B/dofB
 
     # this dataset uses jackknife resampling
     E1 = gv.gvar(np.mean(E1_samples), np.sqrt(nsamples)*np.std(E1_samples,ddof=1))
