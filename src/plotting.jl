@@ -9,7 +9,7 @@ function errorbars_plotting(eigvals,Δeigvals,ylim_lower)
     end
     return errorbar_lower
 end
-function plot_correlator!(plt,eigvals,Δeigvals;kws...)
+function plot_correlator!(plt,t,eigvals,Δeigvals;kws...)
     # remove negative entries 
     plot_eigvals = replace(x -> x < 0 ? NaN : x, eigvals)
     # but check if they are compatible with zeros
@@ -22,7 +22,7 @@ function plot_correlator!(plt,eigvals,Δeigvals;kws...)
     # set up error bars for plot
     errorbar_lower = errorbars_plotting(eigvals,Δeigvals,ylim_lower) 
     # add data to existing plot
-    scatter!(plt,plot_eigvals,yerrors=(errorbar_lower, Δeigvals);kws...)
+    scatter!(plt,t,plot_eigvals,yerrors=(errorbar_lower, Δeigvals);kws...)
     return plt
 end
 function add_mass_band!(plt,m,Δm;label="",alpha=0.5,min_thickness=0.01)

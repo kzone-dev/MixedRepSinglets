@@ -19,9 +19,11 @@ function all_effective_mass_plots(h5eigenvals,gevp_parameterfile)
         Δmeff    = h5read(h5eigenvals,joinpath(ensemble,channel,"Delta_meff"))
         Δeigvals = h5read(h5eigenvals,joinpath(ensemble,channel,"Delta_eigvals"))
 
-        plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2)
+        plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tag=L"$J^P = 0^-$(singlet)")
         plot!(plt1, ylims=(0.3,1.2))
+        plot!(plt2,yscale=:log10)
         display(plt1)
+        display(plt2)
     end
 end
 

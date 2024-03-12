@@ -42,22 +42,28 @@ function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,in
     end
 
 end
-function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing)
+function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing,tag="")
     Nops = first(size(meff))
 
     title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"   
     plt1 = plot(title=title, xlabel="t", ylabel="effective mass")
     plt2 = plot(title=title, xlabel="t", ylabel="eigenvalues")
 
+    function taggedlabel(state)
+        label = isequal(state,0) ? "ground state" : "excited state #$(state)" 
+        label = isempty(tag) ? label : "$tag: $label"
+        return label
+    end
+    
     for state in 0:nstates-1
         if isnothing(tmax) 
             rel_error = abs.(Δmeff[Nops-state,:]./meff[Nops-state,:])
             tmax = findfirst(x-> x > (1/2), rel_error)
             tmax = isnothing(tmax) ? T÷2 : tmax
         end
-        range = 1:tmax
-        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=L"$m _{\rm eff}$: state %$(state+1)")
-        scatter!(plt2,range, eigvals[Nops-state,range], yerr= Δeigvals[Nops-state,range],label="EV: state $(state+1)")
+        range = 2:tmax
+        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=taggedlabel(state))
+        plot_correlator!(plt2,range,eigvals[Nops-state,range],Δeigvals[Nops-state,range];label=taggedlabel(state))
     end
     return plt1, plt2
 end
