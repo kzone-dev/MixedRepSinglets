@@ -1,14 +1,26 @@
 using Pkg; Pkg.activate(".")
 using DelimitedFiles
+using HDF5
+
+Nsmear = 0:10:80
 
 parameters = readdlm("input/parameters_gevp.csv",';';skipstart=1)
 parameters_fitting = readdlm("input/parameters_corrfitter.csv",';';skipstart=1)
 corrfitter_results = readdlm("output/corrfitter_results.csv",';';skipstart=0)
 corrfitter_results_HR = readdlm("output/corrfitter_results_HR.csv",';';skipstart=0)
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+
+io_results = open("table_results.csv","w")
+io_parameters_fitting = open("table_fitting.csv","w")
+io_parameters_gevp = open("table_gevp.csv","w")
+write(io_results,"header\n")
+write(io_parameters_fitting,"header\n")
+write(io_parameters_gevp,"header\n")
 
 #check that the number of datasets match
 @assert first(size(parameters)) == first(size(parameters_fitting)) == first(size(corrfitter_results)) 
 
+parse_smearing_indices(ops) = parse.(Int,split(replace(ops,r"[()]"=>""),','))
 function _get_measurement_id(ensemble,channel,table)
     isensemble = contains.(parameters[:,1],ensemble)
     ischannel  = contains.(parameters[:,2],channel)
@@ -19,14 +31,6 @@ end
 
 ensembles = unique(parameters[:,1])
 channels = unique(parameters[:,2])
-
-io_results = open("table_results.csv","w")
-io_parameters_fitting = open("table_parameters.csv","w")
-io_parameters_gevp = open("table_parameters_fitting.csv","w")
-
-write(io_results,"header\n")
-write(io_parameters_fitting,"header\n")
-write(io_parameters_gevp,"header\n")
 
 for ensemble in ensembles
     
@@ -73,6 +77,12 @@ for ensemble in ensembles
     @assert binsize_η == binsize_πF == binsize_ρF == binsize_πA == binsize_ρA
     t0_gevp = t0_gevp_ρA
     binsize = binsize_η
+
+    ops_η  = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_η))))
+    ops_πF = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_πF))))
+    ops_ρF = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_ρF))))
+    ops_πA = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_πA))))
+    ops_ρA = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_ρA))))
 
     write(io_results,"$ensemble;$β;$T;$L;$mf;$mas;$maHR;$mηHR;$mπFHR;$mπAHR;$mρFHR;$mρAHR\n")
     write(io_parameters_fitting,"$ensemble;($t0a,$t1a);($t0η,$t1η);($t0πF,$t1πF);($t0πA,$t1πA);($t0ρF,$t1ρF);($t0ρA,$t1ρA);$Nexp;$χ2dofπF;$χ2dofπA;$χ2dofρF;$χ2dofρA;$χ2dofa;$χ2dofη\n")

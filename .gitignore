@@ -2,6 +2,7 @@
 *.h5
 *.hdf5
 *.csv
+*.tex
 *.code-workspace
 !input/parameters.csv
 !input/parameters_smeared.csv
