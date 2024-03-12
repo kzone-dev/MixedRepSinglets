@@ -1,5 +1,3 @@
-using Plots
-using LaTeXStrings
 function _copy_lattice_parameters(outfile,infile,ensemble;group="")
     file = h5open(infile)[ensemble]
     entries = filter(!contains("correlation_matrix"),keys(file))
@@ -11,8 +9,8 @@ end
 function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
-    #correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
-    correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
+    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    #correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
