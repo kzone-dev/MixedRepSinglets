@@ -8,14 +8,17 @@ parameters = readdlm("input/parameters_gevp.csv",';';skipstart=1)
 parameters_fitting = readdlm("input/parameters_corrfitter.csv",';';skipstart=1)
 corrfitter_results = readdlm("output/corrfitter_results.csv",';';skipstart=0)
 corrfitter_results_HR = readdlm("output/corrfitter_results_HR.csv",';';skipstart=0)
+
 h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
 
 ispath("output/tables/") || mkpath("output/tables")
 
+io_resultsMR = open("output/tables/table_results_MR.csv","w")
 io_results = open("output/tables/table_results.csv","w")
 io_fitting = open("output/tables/table_fitting.csv","w")
 io_gevp    = open("output/tables/table_gevp.csv","w")
 
+write(io_resultsMR,"header\n")
 write(io_results,"header\n")
 write(io_fitting,"header\n")
 write(io_gevp,"header\n")
@@ -87,10 +90,12 @@ for ensemble in ensembles
     ops_πA = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_πA))))
     ops_ρA = Tuple(getindex(Nsmear,filter(x-> x <= length(Nsmear),parse_smearing_indices(ops_ρA))))
 
+    write(io_resultsMR,"$ensemble;$β;$T;$L;$mf;$mas;$ma;$Δma;$mη;$Δmη;$mπF;$ΔmπF;$mπA;$ΔmπA;$mρF;$ΔmρF;$mρA;$ΔmρA\n")
     write(io_results,"$ensemble;$β;$T;$L;$mf;$mas;$maHR;$mηHR;$mπFHR;$mπAHR;$mρFHR;$mρAHR\n")
     write(io_fitting,"$ensemble;($t0a,$t1a);($t0η,$t1η);($t0πF,$t1πF);($t0πA,$t1πA);($t0ρF,$t1ρF);($t0ρA,$t1ρA);$Nexp;$χ2dofπF;$χ2dofπA;$χ2dofρF;$χ2dofρA;$χ2dofa;$χ2dofη\n")
     write(io_gevp,"$ensemble;$t0_gevp;$ops_η;$ops_πF;$ops_ρF;$ops_πA;$ops_ρA\n")
 end
+close(io_resultsMR)
 close(io_results)
 close(io_fitting)
 close(io_gevp)
