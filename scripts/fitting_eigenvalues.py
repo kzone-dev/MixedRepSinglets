@@ -15,8 +15,9 @@ def make_models(T,tmin,tmax,tp):
 
 def make_prior(N):
     prior = gv.BufferDict()
-    prior['log(a)']  = gv.log(gv.gvar(N * ['1(1)']))
-    prior['log(dE)'] = gv.log(gv.gvar(N * ['1(1)']))
+    # setting the sdev of the prioir to infinity amounts to turning off the prior contribution to chi2
+    prior['log(a)']  = gv.log(gv.gvar(N * [0.1], N*[np.Inf]))
+    prior['log(dE)'] = gv.log(gv.gvar(N * [0.1], N*[np.Inf]))
     return prior
 
 def first_fit_parameters(fit):
@@ -45,7 +46,8 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
 
         if printing:
             print('nterm =', N, 30 * '=')
-            print_fit_param(fit)
+            #print_fit_param(fit)
+            print(fit)
 
     E, a, chi2, dof = first_fit_parameters(fit) 
     if plotting:
@@ -73,11 +75,6 @@ def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,N
     mf   = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
     mas  = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_antisymmetric")[0]
 
-    if header: 
-        print("ensemble,channel,T,L,m0,beta,m_meson,chi2/dof")
-    print(ensemble,",",channel,",",T,",",L,",",mf,",",mas,",",beta,",",E1[0],",",chi2A/dofA)
-    print(ensemble,",",channel,",",T,",",L,",",mf,",",mas,",",beta,",",E2[0],",",chi2B/dofB)
-    
     out = open(outfile, "a")
     outHR = open(outfileHR, "a")
     out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mf,mas,beta,gv.mean(E1[0]),gv.sdev(E1[0]),gv.mean(E2[0]),gv.sdev(E2[0]),chi2A/dofA,chi2B/dofB))
