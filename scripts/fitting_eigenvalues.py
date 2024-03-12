@@ -28,12 +28,6 @@ def first_fit_parameters(fit):
     dof = fit.dof
     return E, a, chi2, dof
 
-def print_fit_param(fit):
-    E, a, chi2, dof = first_fit_parameters(fit) 
-    print('{:2}  {:15}  {:15}'.format('E', E[0], E[1]))
-    print('{:2}  {:15}  {:15}'.format('a', a[0], a[1]))
-    print('chi2/dof = ', chi2/dof, '\n')
-
 def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,printing=False):
     T = abs(T) 
     fitter = cf.CorrFitter(models=make_models(T,tmin,tmax,tp))
@@ -46,7 +40,6 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
 
         if printing:
             print('nterm =', N, 30 * '=')
-            #print_fit_param(fit)
             print(fit)
 
     E, a, chi2, dof = first_fit_parameters(fit) 
@@ -55,7 +48,7 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
+def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
     f = h5py.File(hdf5file)
     T = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[0]
     L = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[1]
@@ -82,11 +75,63 @@ def fit_eigenvalues_file(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,N
     out.close()
     outHR.close()
 
+def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False):
+    f = h5py.File(hdf5file)
+    T = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[0]
+    L = get_hdf5_value(f,ensemble+"/"+channel+"/lattice")[1]
+    tp = tp*T if tp != 0 else None
+
+    Delta_ev = get_hdf5_value(f,ensemble+"/"+channel+"/Delta_eigvals")[()]
+    ev_resamples = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals_resamples")[()]
+    
+    T, nsamples, Nops = ev_resamples.shape
+    print(T, nsamples, Nops)
+
+    E1_samples = np.zeros(nsamples)
+    E2_samples = np.zeros(nsamples)
+    a1_samples = np.zeros(nsamples)
+    a2_samples = np.zeros(nsamples)
+    chi2dofA_samples = np.zeros(nsamples)
+    chi2dofB_samples = np.zeros(nsamples)
+
+    for n in range(nsamples):
+
+        eig1 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-1],Delta_ev[:,Nops-1]))
+        eig2 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-2],Delta_ev[:,Nops-2]))
+
+        E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=False,printing=False)
+        E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=False,printing=False)
+
+        E1_samples[n] = gv.mean(E1[0]) 
+        E2_samples[n] = gv.mean(E2[0])
+        a1_samples[n] = gv.mean(a1[0])
+        a2_samples[n] = gv.mean(a2[0])
+        chi2dofA_samples[n] = chi2A*dofA 
+        chi2dofB_samples[n] = chi2B*dofB
+
+    # this dataset uses jackknife resampling
+    E1 = gv.gvar(np.mean(E1_samples), np.sqrt(nsamples)*np.std(E1_samples,ddof=1))
+    E2 = gv.gvar(np.mean(E2_samples), np.sqrt(nsamples)*np.std(E2_samples,ddof=1))
+    a1 = gv.gvar(np.mean(a1_samples), np.sqrt(nsamples)*np.std(a1_samples,ddof=1))
+    a2 = gv.gvar(np.mean(a2_samples), np.sqrt(nsamples)*np.std(a2_samples,ddof=1))
+    chi2dofA = np.mean(chi2dofA_samples)
+    chi2dofB = np.mean(chi2dofB_samples)
+
+    beta = get_hdf5_value(f,ensemble+"/"+channel+"/beta")
+    mf   = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_fundamental")[0]
+    mas  = get_hdf5_value(f,ensemble+"/"+channel+"/quarkmasses_antisymmetric")[0]
+
+    out = open(outfile, "a")
+    outHR = open(outfileHR, "a")
+    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mf,mas,beta,gv.mean(E1),gv.sdev(E1),gv.mean(E2),gv.sdev(E2),chi2dofA,chi2dofB))
+    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,mf,mas,beta,E1,E2,chi2dofA,chi2dofB))
+    out.close()
+    outHR.close()
 
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples.hdf5"
 
 with open('input/parameters_corrfitter.csv') as csvfile:
     reader = csv.DictReader(csvfile,delimiter=';')
@@ -98,4 +143,9 @@ with open('input/parameters_corrfitter.csv') as csvfile:
 
         outfile   = "output/corrfitter_results.csv"
         outfileHR = "output/corrfitter_results_HR.csv"
-        fit_eigenvalues_file(outfile,outfileHR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel,header=False)
+
+        outfile2   = "output/corrfitter_results_jackknife.csv"
+        outfile2HR = "output/corrfitter_results_jackknife_HR.csv"
+
+        fit_eigenvalues(outfile,outfileHR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
+        fit_eigenvalues_resample(outfile2,outfile2HR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)

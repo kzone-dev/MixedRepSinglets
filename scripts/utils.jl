@@ -18,10 +18,10 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deri
     eigvals, Δeigvals = eigenvalues(correlation_matrix;t0)
     eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
-    return eigvals, Δeigvals, meff, Δmeff
+    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
 end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0 = 1, binsize = 2, deriv = true, setup = true, resamples = false)
-    eigvals, Δeigvals, meff, Δmeff = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+    eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
    
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
@@ -36,8 +36,7 @@ function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,in
     h5write(outputfile,joinpath(ensemble,channel,"binsize"),binsize)
 
     if resamples
-        eigvals = eigenvalues_jackknife_samples(correlation_matrix; t0)
-        h5write(outputfile,joinpath(ensemble,channel,"eigvals_resamples"),Δeigvals)
+        h5write(outputfile,joinpath(ensemble,channel,"eigvals_resamples"),eigenvalues_jackknife)
         h5write(outputfile,joinpath(ensemble,channel,"eigvals_resample_type"),"jackknife")
     end
 
