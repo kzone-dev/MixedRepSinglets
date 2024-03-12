@@ -8,7 +8,7 @@ include("utils.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=5)
 
 h5corrs = "/home/fabian/Downloads/smeared_singlet_correlators_M1234.hdf5"
-h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234.hdf5"
+h5eigenvals = "/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples.hdf5"
 
 parameters = readdlm("input/parameters_gevp.csv",';';skipstart=1)
 

@@ -64,7 +64,7 @@ function eigenvalues_eigenvectors(corr;swap=nothing,t0=1)
         return eigvals, Δeigvals, eigvecs, Δeigvecs
     end
 end
-function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 2E-14)
+function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 1E-11)
     sample = delete1_resample(corr)
     nops, nconf, T = size(sample)[2:4]
     eigvals_jk = zeros(eltype(sample),(nops,nconf,T))
