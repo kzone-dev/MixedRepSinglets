@@ -132,6 +132,7 @@ PLOT=False
 PRINT=False
 
 filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples.hdf5"
+filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples_more_bins.hdf5"
 
 with open('input/parameters_corrfitter.csv') as csvfile:
     reader = csv.DictReader(csvfile,delimiter=';')
@@ -148,4 +149,4 @@ with open('input/parameters_corrfitter.csv') as csvfile:
         outfile2HR = "output/corrfitter_results_jackknife_HR.csv"
 
         fit_eigenvalues(outfile,outfileHR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
-        fit_eigenvalues_resample(outfile2,outfile2HR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
+        #fit_eigenvalues_resample(outfile2,outfile2HR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)

@@ -1,3 +1,5 @@
+using Plots
+using LaTeXStrings
 function _copy_lattice_parameters(outfile,infile,ensemble;group="")
     file = h5open(infile)[ensemble]
     entries = filter(!contains("correlation_matrix"),keys(file))
@@ -6,10 +8,11 @@ function _copy_lattice_parameters(outfile,infile,ensemble;group="")
         h5write(outfile,label,read(file,entry))
     end
 end
-function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deriv = true)
+function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
-    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    #correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
@@ -20,7 +23,7 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0 = 1, binsize = 1, deri
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
 end
-function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0 = 1, binsize = 2, deriv = true, setup = true, resamples = false)
+function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
    
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
