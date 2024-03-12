@@ -31,11 +31,10 @@ function write_tex_table(name,data;insert_hline=[],no_header=false)
     close(io)
 end
 
-results = readdlm("table_results.csv",';')
-fitting = readdlm("table_fitting.csv",';')
-gevp = readdlm("table_gevp.csv",';')
+results = readdlm("output/tables/table_results.csv",';')
+fitting = readdlm("output/tables/table_fitting.csv",';')
+gevp = readdlm("output/tables/table_gevp.csv",';')
 
-
-write_tex_table("table_results.tex",results)
-write_tex_table("table_fitting.tex",fitting)
-write_tex_table("table_gevp.tex",gevp)
+write_tex_table("output/tables/table_results.tex",results)
+write_tex_table("output/tables/table_fitting.tex",fitting)
+write_tex_table("output/tables/table_gevp.tex",gevp)
