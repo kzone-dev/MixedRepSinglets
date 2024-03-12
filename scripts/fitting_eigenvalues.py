@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import csv
 import os
+import sys
 
 def get_hdf5_value(hdf5file,key):
     return hdf5file[key][()]
@@ -128,25 +129,39 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
     out.close()
     outHR.close()
 
+def run_corrfitter_singlets(prmfile,hdf5file,resample=False):
+    with open(prmfile) as csvfile:
+        reader = csv.DictReader(csvfile,delimiter=';')
+        for row in reader:
+            ensemble, channel = row['ensemble'], row['channel']
+            tmin1, tmin2 = int(row['tmin1']), int(row['tmin2'])
+            tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
+            tp, Nmax = int(row['tp']), int(row['Nmax'])
+
+            outfile   = "output/corrfitter_results.csv"
+            outfileHR = "output/corrfitter_results_HR.csv"
+
+            outfile2   = "output/corrfitter_results_jackknife.csv"
+            outfile2HR = "output/corrfitter_results_jackknife_HR.csv"
+
+            fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
+            if resample:
+                fit_eigenvalues_resample(outfile2,outfile2HR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
+
 PLOT=False
 PRINT=False
 
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples.hdf5"
-filename="/home/fabian/Downloads/smeared_singlet_eigenvalues_M1234_with_resamples_more_bins.hdf5"
-
-with open('input/parameters_corrfitter.csv') as csvfile:
-    reader = csv.DictReader(csvfile,delimiter=';')
-    for row in reader:
-        ensemble, channel = row['ensemble'], row['channel']
-        tmin1, tmin2 = int(row['tmin1']), int(row['tmin2'])
-        tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
-        tp, Nmax = int(row['tp']), int(row['Nmax'])
-
-        outfile   = "output/corrfitter_results.csv"
-        outfileHR = "output/corrfitter_results_HR.csv"
-
-        outfile2   = "output/corrfitter_results_jackknife.csv"
-        outfile2HR = "output/corrfitter_results_jackknife_HR.csv"
-
-        fit_eigenvalues(outfile,outfileHR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
-        #fit_eigenvalues_resample(outfile2,outfile2HR,filename,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
+args = sys.argv
+print(args)
+if len(args) < 3:
+    print("Missing parameter and/or hdf5 file")
+elif len(args)>=4:
+    prmfile  = args[1]
+    hdf5file = args[2] 
+    resample = args[3] == 'True'
+    print(resample)
+    run_corrfitter_singlets(prmfile,hdf5file,resample)
+elif len(args)==3:
+    prmfile  = args[1]
+    hdf5file = args[2] 
+    run_corrfitter_singlets(prmfile,hdf5file,resample=False)

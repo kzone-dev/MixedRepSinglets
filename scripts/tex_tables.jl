@@ -1,7 +1,3 @@
-using Pkg; Pkg.activate(".")
-using DelimitedFiles
-using LaTeXStrings
-
 function write_tex_table(name,data;insert_hline=[],no_header=false)
     io = open(name,"w")
     rows, cols = size(data)
@@ -30,11 +26,12 @@ function write_tex_table(name,data;insert_hline=[],no_header=false)
     write(io,"\\end{tabular}")
     close(io)
 end
+function write_tex_tables()
+    results = readdlm("output/tables/table_results.csv",';')
+    fitting = readdlm("output/tables/table_fitting.csv",';')
+    gevp    = readdlm("output/tables/table_gevp.csv",';')
 
-results = readdlm("output/tables/table_results.csv",';')
-fitting = readdlm("output/tables/table_fitting.csv",';')
-gevp = readdlm("output/tables/table_gevp.csv",';')
-
-write_tex_table("output/tables/table_results.tex",results)
-write_tex_table("output/tables/table_fitting.tex",fitting)
-write_tex_table("output/tables/table_gevp.tex",gevp)
+    write_tex_table("output/tables/table_results.tex",results)
+    write_tex_table("output/tables/table_fitting.tex",fitting)
+    write_tex_table("output/tables/table_gevp.tex",gevp)
+end
