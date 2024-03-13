@@ -1,4 +1,7 @@
-function write_eigenvalues(gevp_parameterfile,h5corrs,h5eigenvals)
+function write_eigenvalues(gevp_parameterfile,hdf5path)
+    h5corrs     = joinpath(hdf5path,"singlets_smeared_correlators.hdf5")
+    h5eigenvals = joinpath(hdf5path,"singlets_smeared_eigenvalues.hdf5")
+
     parameters = readdlm(gevp_parameterfile,';';skipstart=1)
     for row in eachrow(parameters)
 

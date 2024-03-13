@@ -1,4 +1,6 @@
-function main_write_correlator_matrices(Nsmear,h5logfiles,h5corrs)
+function main_write_correlator_matrices(Nsmear,hdf5path)
+    h5logfiles = joinpath(hdf5path,"singlets_smeared.hdf5")
+    h5corrs    = joinpath(hdf5path,"singlets_smeared_correlators.hdf5")
     # get names of ensembles from hdf5 file
     fid = h5open(h5logfiles, "r")
     ensembles = keys(fid)

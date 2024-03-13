@@ -129,7 +129,10 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
     out.close()
     outHR.close()
 
-def run_corrfitter_singlets(prmfile,hdf5file,resample=False):
+def run_corrfitter_singlets(prmfile,hdf5path,outdir,resample=False):
+
+    hdf5file = os.path.join(hdf5path,"singlets_smeared_eigenvalues.hdf5")
+
     with open(prmfile) as csvfile:
         reader = csv.DictReader(csvfile,delimiter=';')
         for row in reader:
@@ -138,11 +141,11 @@ def run_corrfitter_singlets(prmfile,hdf5file,resample=False):
             tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
             tp, Nmax = int(row['tp']), int(row['Nmax'])
 
-            outfile   = "output/corrfitter_results.csv"
-            outfileHR = "output/corrfitter_results_HR.csv"
 
-            outfile2   = "output/corrfitter_results_jackknife.csv"
-            outfile2HR = "output/corrfitter_results_jackknife_HR.csv"
+            outfile    = os.path.join(outdir,"corrfitter_results.csv")
+            outfileHR  = os.path.join(outdir,"corrfitter_results_HR.csv")
+            outfile2   = os.path.join(outdir,"corrfitter_results_jackknife.csv")
+            outfile2HR = os.path.join(outdir,"corrfitter_results_jackknife_HR.csv")
 
             fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
             if resample:
@@ -152,16 +155,16 @@ PLOT=False
 PRINT=False
 
 args = sys.argv
-print(args)
-if len(args) < 3:
+if len(args) < 4:
     print("Missing parameter and/or hdf5 file")
-elif len(args)>=4:
+elif len(args)>=5:
     prmfile  = args[1]
-    hdf5file = args[2] 
-    resample = args[3] == 'True'
-    print(resample)
-    run_corrfitter_singlets(prmfile,hdf5file,resample)
-elif len(args)==3:
+    hdf5path = args[2] 
+    outdir   = args[3] 
+    resample = args[4] == 'True'
+    run_corrfitter_singlets(prmfile,hdf5path,outdir,resample)
+elif len(args)==4:
     prmfile  = args[1]
-    hdf5file = args[2] 
-    run_corrfitter_singlets(prmfile,hdf5file,resample=False)
+    hdf5path = args[2] 
+    outdir   = args[3] 
+    run_corrfitter_singlets(prmfile,hdf5path,outdir,resample=False)

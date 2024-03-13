@@ -1,4 +1,5 @@
-function all_effective_mass_plots(h5eigenvals,gevp_parameterfile)
+function all_effective_mass_plots(hdf5path,gevp_parameterfile)
+    h5eigenvals = joinpath(hdf5path,"singlets_smeared_eigenvalues.hdf5")
 
     function channel_tags(channel)
         isequal(channel,"g5_singlet")        && return L"$J^P = 0^-$(singlet)"

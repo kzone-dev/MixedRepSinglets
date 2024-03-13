@@ -1,4 +1,7 @@
-function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,results_corrfitter,h5eigenvals)
+function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path)
+
+    h5eigenvals = joinpath(hdf5path,"singlets_smeared_eigenvalues.hdf5")
+    results_corrfitter = joinpath(corrfitterpath,"corrfitter_results.csv")
 
     parameters = readdlm(parameters_gevp,';';skipstart=1)
     parameters_fitting = readdlm(parameters_fitting,';';skipstart=1)

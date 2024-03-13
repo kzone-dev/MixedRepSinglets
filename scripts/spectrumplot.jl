@@ -1,4 +1,5 @@
-function plot_spectrum(results_MR)
+function plot_spectrum(tablepath)
+    results_MR = joinpath(tablepath,"table_results_MR.csv")
 
     # get meson masses
     data = readdlm(results_MR,';',skipstart=1)

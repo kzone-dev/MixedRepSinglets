@@ -1,17 +1,16 @@
-function write_all_tables(Nsmear,paramterfile_gevp,paramterfile_corrfitter,outputfile_corrfitter,outputfile_corrfitter_HR)
+function write_all_tables(Nsmear,paramterfile_gevp,paramterfile_corrfitter,corrfitterpath,tablepath)
 
     parameters = readdlm(paramterfile_gevp,';';skipstart=1)
     parameters_fitting = readdlm(paramterfile_corrfitter,';';skipstart=1)
-    corrfitter_results = readdlm(outputfile_corrfitter,';';skipstart=0)
-    corrfitter_results_HR = readdlm(outputfile_corrfitter_HR,';';skipstart=0)
+    corrfitter_results = readdlm(joinpath(corrfitterpath,"corrfitter_results.csv"),';';skipstart=0)
+    corrfitter_results_HR = readdlm(joinpath(corrfitterpath,"corrfitter_results_HR.csv"),';';skipstart=0)
 
+    ispath(tablepath) || mkpath(tablepath)
 
-    ispath("output/tables/") || mkpath("output/tables")
-
-    io_resultsMR = open("output/tables/table_results_MR.csv","w")
-    io_results = open("output/tables/table_results.csv","w")
-    io_fitting = open("output/tables/table_fitting.csv","w")
-    io_gevp    = open("output/tables/table_gevp.csv","w")
+    io_resultsMR = open(joinpath(tablepath,"table_results_MR.csv"),"w")
+    io_results = open(joinpath(tablepath,"table_results.csv"),"w")
+    io_fitting = open(joinpath(tablepath,"table_fitting.csv"),"w")
+    io_gevp    = open(joinpath(tablepath,"table_gevp.csv"),"w")
 
     write(io_resultsMR,"header\n")
     write(io_results,"header\n")

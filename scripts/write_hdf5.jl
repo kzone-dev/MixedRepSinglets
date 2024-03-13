@@ -1,4 +1,6 @@
-function main_write_hdf5_logs(Nsmear,path,h5file,parameterfile)
+function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile)
+    h5file = joinpath(hdf5path,"singlets_smeared.hdf5")
+
     input = readdlm(parameterfile,';',skipstart=1)
     for prm in eachrow(input)
 
