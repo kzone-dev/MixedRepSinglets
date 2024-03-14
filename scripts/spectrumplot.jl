@@ -1,5 +1,9 @@
-function plot_spectrum(tablepath,gradient_flow_results="input/gradient_flow_results.csv")
+function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_flow_results.csv")
     results_MR = joinpath(tablepath,"table_results_MR.csv")
+
+    dir = joinpath(plotdir,"spectrum")
+    ispath(dir) || mkpath(dir)
+
 
     # get meson masses
     data = readdlm(results_MR,';',skipstart=1)
@@ -80,5 +84,10 @@ function plot_spectrum(tablepath,gradient_flow_results="input/gradient_flow_resu
     display(plt1)
     display(plt2)
     display(plt3)
+    savefig(plt0,joinpath(dir,"masses_vs_bare_mass.pdf"))
+    savefig(plt1,joinpath(dir,"masses_vs_spatial_extent.pdf"))
+    savefig(plt2,joinpath(dir,"masses_vs_mrho_over_mpi.pdf"))
+    savefig(plt3,joinpath(dir,"masses_gradient_flow_scale.pdf"))
+
     return plt0, plt1, plt2
 end
