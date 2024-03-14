@@ -131,6 +131,15 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
 
 def run_corrfitter_singlets(prmfile,hdf5path,outdir,resample=False):
 
+    outfile    = os.path.join(outdir,"corrfitter_results.csv")
+    outfileHR  = os.path.join(outdir,"corrfitter_results_HR.csv")
+    outfile2   = os.path.join(outdir,"corrfitter_results_jackknife.csv")
+    outfile2HR = os.path.join(outdir,"corrfitter_results_jackknife_HR.csv")
+    os.path.exists(outfile)     and os.remove(outfile)
+    os.path.exists(outfileHR)   and os.remove(outfileHR)
+    os.path.exists(outfile2)    and os.remove(outfile2)
+    os.path.exists(outfile2HR)  and os.remove(outfile2HR)
+    
     hdf5file = os.path.join(hdf5path,"singlets_smeared_eigenvalues.hdf5")
 
     with open(prmfile) as csvfile:
@@ -140,12 +149,6 @@ def run_corrfitter_singlets(prmfile,hdf5path,outdir,resample=False):
             tmin1, tmin2 = int(row['tmin1']), int(row['tmin2'])
             tmax1, tmax2 = int(row['tmax1']), int(int(row['tmax2']))
             tp, Nmax = int(row['tp']), int(row['Nmax'])
-
-
-            outfile    = os.path.join(outdir,"corrfitter_results.csv")
-            outfileHR  = os.path.join(outdir,"corrfitter_results_HR.csv")
-            outfile2   = os.path.join(outdir,"corrfitter_results_jackknife.csv")
-            outfile2HR = os.path.join(outdir,"corrfitter_results_jackknife_HR.csv")
 
             fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,ensemble,channel)
             if resample:
