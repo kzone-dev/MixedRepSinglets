@@ -16,14 +16,14 @@ include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14, titlefontsize=14,  markersize=5)
 
-start_from_logs  = false
-write_correlator = false
-write_any_hdf5   = false
+start_from_logs  = true
+write_correlator = true
+write_any_hdf5   = true
 
 Nsmear = collect(0:10:80)
 
-logpath        = "/home/fabian/Downloads/DiaLData/measurements"
-hdf5path       = "/home/fabian/Downloads/hdf5out_modified"
+logpath        = "/home/fabian/Documents/DataDiaL/measurements"
+hdf5path       = "/home/fabian/Downloads/hdf5out"
 paramter_path  = "input"
 corrfitterpath = "output/fitresults"
 tablepath      = "output/tables"
@@ -39,7 +39,7 @@ write_correlator*write_any_hdf5 && main_write_correlator_matrices(Nsmear,hdf5pat
 write_any_hdf5 && write_eigenvalues(parameters_gevp,hdf5path)
 #all_effective_mass_plots(hdf5path,parameters_gevp)
 
-function run_corrfitter(parameters_fitting,hdf5path;resample=false)
+function run_corrfitter(parameters_fitting,hdf5path;resample)
     resample = resample ? "True" : "False"
     args = `$(abspath(parameters_fitting)) $(abspath(hdf5path)) $(abspath(corrfitterpath)) $resample`
     try
@@ -49,7 +49,7 @@ function run_corrfitter(parameters_fitting,hdf5path;resample=false)
     end
 end
 
-run_corrfitter(parameters_fitting,hdf5path;resample=false)
+run_corrfitter(parameters_fitting,hdf5path;resample=true)
 plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=true)
 write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
 write_tex_tables(tablepath,tablepath)
