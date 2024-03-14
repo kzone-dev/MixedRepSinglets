@@ -66,7 +66,7 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=
         ms = markershapes[state+1]
         range = 2:tmax
         scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=taggedlabel(state),markershape=ms,kws...)
-        plot_correlator!(plt2,range,eigvals[Nops-state,range],Δeigvals[Nops-state,range];label=taggedlabel(state),markershape=ms,kws...)
+        plot_correlator!(plt2,1:T,eigvals[Nops-state,1:T],Δeigvals[Nops-state,1:T];label=taggedlabel(state),markershape=ms,kws...)
     end
     return plt1, plt2
 end
