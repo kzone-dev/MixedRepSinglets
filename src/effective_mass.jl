@@ -35,23 +35,22 @@ function _meff_at_t(c::AbstractVector,t,T;sign=+1)
     # numerical derivatives.
     s = t <= T/2 ? +1 : -1
     # non-implicit mass as initial guess
-    m0 = s*log(abs(c[mod1(t+1,T)]/c[t]))
+    m0 = log(abs(c[mod1(t+1,T)]/c[t]))
     t0 = mod1(t+1,T)
-    r0 = c[t0]/c[t]
     # correlator at large times (dropped overall factor)
-    cor_lt(m,T,t) = exp(-m*t) + sign*exp(-m*(t-T/2))
+    cor_lt(m,T,t) = exp(-m*t) + sign*exp(-m*(T-t))
     # function to fit the effective mass
-    g(m,T,t,t0) = cor_lt(m,T,t0)/cor_lt(m,T,t)
+    g(m,T,t,t0) = cor_lt(m,T,t0)/cor_lt(m,T,t) - c[t0]/c[t] 
     # Use the more simpler algorithms from the Roots.jl package
     # find_zero() has more overhead and fails if the algorithm does not converged
     # Here we just use two simple, derivative free methods. If they do not converge
     # they return NaN. If that is the case then we try a slightly more robust algorithm.
-    m = Roots.secant_method(x->g(x,T,t,t0)-r0,m0;maxevals=10000)
+    m = Roots.secant_method(x->g(x,T,t,t0),m0;maxevals=10000)
     if isnan(m)
-       m = Roots.dfree(x->g(x,T,t,t0)-r0,m0)
+       m = Roots.dfree(x->g(x,T,t,t0),m0)
     end
     # multiply by overall sign that has been previously extracted
-    return m*s
+    return abs(m)
 end
 function meff_from_jackknife(eigenvalues_jk;sign=+1,swap=nothing)
     nops, nsamples, T = size(eigenvalues_jk)
