@@ -1,7 +1,7 @@
 ensemble;channel;tmin1;tmin2;tmax1;tmax2;tp;Nmax;
-M1;g5_singlet;9;6;13;9;0;1;
-M2;g5_singlet;9;6;13;10;0;1;
-M3;g5_singlet;8;6;13;10;0;1;
+M1;g5_singlet;8;5;13;9;0;1;
+M2;g5_singlet;7;6;13;10;0;1;
+M3;g5_singlet;7;7;13;10;0;1;
 M4;g5_singlet;7;6;13;10;0;1;
 M1;g5_nonsinglet_FUN;10;10;19;15;1;1;
 M2;g5_nonsinglet_FUN;10;10;19;15;1;1;

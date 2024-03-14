@@ -9,8 +9,8 @@ end
 function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
-    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
-    #correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
+    #correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
@@ -42,7 +42,7 @@ function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,in
     end
 
 end
-function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing,tag="")
+function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing,tag="",kws...)
     Nops = first(size(meff))
 
     title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"   
@@ -54,6 +54,8 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=
         label = isempty(tag) ? label : "$tag: $label"
         return label
     end
+
+    markershapes = (:circle, :diamond, :rect, :pentagon,  :octagon)
     
     for state in 0:nstates-1
         if isnothing(tmax) 
@@ -61,9 +63,10 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=
             tmax = findfirst(x-> x > (1/2), rel_error)
             tmax = isnothing(tmax) ? T÷2 : tmax
         end
+        ms = markershapes[state+1]
         range = 2:tmax
-        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=taggedlabel(state))
-        plot_correlator!(plt2,range,eigvals[Nops-state,range],Δeigvals[Nops-state,range];label=taggedlabel(state))
+        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=taggedlabel(state),markershape=ms,kws...)
+        plot_correlator!(plt2,range,eigvals[Nops-state,range],Δeigvals[Nops-state,range];label=taggedlabel(state),markershape=ms,kws...)
     end
     return plt1, plt2
 end
