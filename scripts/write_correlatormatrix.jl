@@ -9,6 +9,7 @@ function main_write_correlator_matrices(Nsmear,hdf5path)
     for ensemble in ensembles
 
         correlation_matrix_singlet_g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="g5",disc_sign=+1,subtract_vev=false)
+        correlation_matrix_singlet_g0g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="g0g5",disc_sign=+1,subtract_vev=false)
         correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g5")
         correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g1")
         correlation_matrix_nonsinglet_FUN_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g2")
@@ -39,6 +40,7 @@ function main_write_correlator_matrices(Nsmear,hdf5path)
         _copy_lattice_parameters(h5corrs,h5logfiles,ensemble)
         # NOTE: Note that the entries of the correlation matrix always need to contain the substring "correlation_matrix" 
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix_singlet_g5)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g0g5_singlet"),correlation_matrix_singlet_g0g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g1)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g5)

@@ -21,6 +21,21 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
 end
+function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+    symmetry = +1 
+    correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
+    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    #correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
+    if deriv 
+        correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
+        symmetry = -1 
+    end
+    # use correlator binning
+    eigvals, Δeigvals, eigvecs, Δeigvecs = eigenvalues_eigenvectors(correlation_matrix;t0)
+    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
+    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
+    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs
+end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
    
