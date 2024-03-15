@@ -32,9 +32,9 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
     end
     # use correlator binning
     eigvals, Δeigvals, eigvecs, Δeigvecs = eigenvalues_eigenvectors(correlation_matrix;t0)
-    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
+    eigenvalues_jackknife, eigenvectors_jackknife = eigenvalues_eigenvectors_jackknife_samples(correlation_matrix;t0)
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
-    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs
+    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs, eigenvectors_jackknife
 end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
