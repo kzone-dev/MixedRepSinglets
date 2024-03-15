@@ -54,7 +54,7 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
         plot!(plt2,yscale=:log10)
         savefig(plt2,joinpath(dir3,"$(ensemble)_$(channel).pdf"))
-        if only_singlet && channel == "g5_singlet"
+        if !only_singlet || channel == "g5_singlet"
             display(plt1)
         end
     end

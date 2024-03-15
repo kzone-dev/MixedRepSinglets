@@ -9,10 +9,10 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
     data = readdlm(results_MR,';',skipstart=1)
     gf = readdlm(gradient_flow_results,',',skipstart=1)
 
-    plt0 = plot(legend=:right,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"$m_0^{\rm f}$", title="meson masses vs. bare fermion mass")
-    plt1 = plot(legend=:right,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
-    plt2 = plot(legend=:right,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title = L"meson masses vs. fundamental $m_\pi / m_\rho ~ (N_t=64)$" )
-    plt3 = plot(legend=:right,ylabel=L"meson masses $[w]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
+    plt0 = plot(legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"$m_0^{\rm f}$", title="meson masses vs. bare fermion mass")
+    plt1 = plot(legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
+    plt2 = plot(legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title = L"meson masses vs. fundamental $m_\pi / m_\rho ~ (N_t=64)$" )
+    plt3 = plot(legend=:left,ylabel=L"meson masses $[w]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
     
     xticks0 = Float64[]
     xticks1 = Int[]
@@ -70,8 +70,8 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
             scatter!(plt3, [r], xerr = Δr, [w*mρA], yerr=Δproduct(mρA,w,ΔmρA,Δw),label="", marker=:pentagon, color=:black)
 
         end
-        plot!(plt2,xlims=(0.88,0.92))
-        plot!(plt3,xlims=(0.88,0.92))
+        plot!(plt2,xlims=(0.87,0.92))
+        plot!(plt3,xlims=(0.87,0.92))
     end
 
     for plt in (plt0,plt1,plt2,plt3)
