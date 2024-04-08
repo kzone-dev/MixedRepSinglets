@@ -94,6 +94,7 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
 
     write(io_mixing_MR,L"Label;$\beta$;$N_t$;$N_l$;$\phi$;$\Delta \phi$","\n")
     write(io_mixing,L"Label;$\beta$;$N_t$;$N_l$;$\phi$","\n")
+    plotpath = joinpath(plotpath,"mixing_angle")
 
     parameters = readdlm(parameters_gevp,';';skipstart=1)
     for row in eachrow(parameters)
@@ -124,7 +125,7 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
 
         display(plt)
         ispath(plotpath) || mkpath(plotpath)
-        savefig(plt, joinpath(plotpath,"mixing_angle","mixing_angle_$ensemble.pdf"))
+        savefig(plt, joinpath(plotpath,"mixing_angle_$ensemble.pdf"))
     end
     close(io_mixing)
     close(io_mixing_MR)
