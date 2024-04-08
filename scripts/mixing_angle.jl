@@ -6,6 +6,7 @@ using HDF5
 using Statistics
 using MixedRepSinglets
 using Plots
+using LsqFit
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14, titlefontsize=14,  markersize=5)
 include("utils.jl")
 include("eigenvalues.jl")
@@ -17,9 +18,13 @@ function effective_mixing_angle(evecs_jackknife)
     ϕ, Δϕ = MixedRepSinglets.apply_jackknife(angle,dims=1)
     return ϕ, Δϕ 
 end
+function effective_mixing_angle_samples(evecs_jackknife)
+    arg  = @. evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:] / evecs_jackknife[1,1,:,:] / evecs_jackknife[2,2,:,:]
+    ϕ_jk = atand.(sqrt.(abs.(arg) ))
+    return ϕ_jk 
+end
 function _loss_of_signal(x,Δx;ind0=0,thresh)
     rel_error = @. abs(Δx[ind0+1:end]/x[ind0+1:end])
-    @show size(rel_error)
     ind = findfirst(x-> x > thresh, rel_error) + ind0
     return ind
 end
@@ -27,22 +32,63 @@ function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
     T = last(size(correlation_matrix))
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
-    # I'm using π/2 periodicity of the mixing angle here
-    ϕ = ϕ .- 90
+    ϕ = ϕ .- 90 # I'm using π/2 periodicity of the mixing angle here
 
     # indicate range of ground state signal
     t_meff = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5)
     t_angle = _loss_of_signal(ϕ, Δϕ; ind0=t0, thresh=0.5)
-    @show t_angle
 
     label ="effective mixing angle"
     label =""
     ylabel=L"effective mixing angle $\phi [°]$ "
     xlabel=L"t > t_0 = %$t0"
 
-    plt = plot(;title,ylabel,xlabel,ylims=(-15,15),xlims=(t0,T÷2))
+    plt = plot(;title,ylabel,xlabel,ylims=(-30,15),xlims=(t0,T÷2))
     scatter!(plt,ϕ,yerr=Δϕ;label)
     vspan!(plt,[t_meff,T÷2],color=:grey,alpha=0.5,label="loss of signal in effective mass")
+end
+function _fit_effective_mixing_angle(correlation_matrix;t0,binsize,deriv)
+    evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+    ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
+    ϕ = ϕ .- 90 # I'm using π/2 periodicity of the mixing angle here
+    # fit until we loose the signal in the effective mass of the ground state
+    tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
+    tmin = t0 +1
+    # extract fitted mxing angle 
+    ϕfit, Δϕfit = _fit_effective_mixing_angle(ϕ, Δϕ, tmin, tmax)
+    @show ϕfit, Δϕfit
+    return ϕfit, Δϕfit, tmin, tmax
+end
+function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
+    evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+    ϕ_jk  = effective_mixing_angle_samples(evecs_jk)
+    ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
+    # I'm using π/2 periodicity of the mixing angle here
+    ϕ = ϕ .- 90 
+    ϕ_jk = ϕ_jk .- 90 
+    # fit until we loose the signal in the effective mass of the ground state
+    tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
+    tmin = t0 +1
+
+    # fit individual jackknife samples
+    # always use the jackknife estimate for the uncertainty as the weight in fitting
+    N  = first(size(ϕ_jk))
+    ϕs = zeros(N) 
+    for i in 1:N
+        ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], Δϕ, tmin, tmax))
+    end
+    ϕfit, Δϕfit = MixedRepSinglets.apply_jackknife(ϕs)
+    return ϕfit, Δϕfit, tmin, tmax
+end
+function _fit_effective_mixing_angle(ϕ, Δϕ, tmin, tmax)
+    # fit to a constant
+    @. model(x,p) = p[1] + 0*x
+    p0  = [0.0] # initial guess: no mixing 
+    t   = tmin:tmax
+    fit = curve_fit(model,t,ϕ[t],(Δϕ[t]).^(-2),p0) 
+    # extract fitted mxing angle 
+    ϕfit, Δϕfit = fit.param[1], stderror(fit)[1]
+    return ϕfit, Δϕfit
 end
 function _plot_title(h5corrs,ensemble)
     β   = h5read(h5corrs,joinpath(ensemble,"beta"))
@@ -70,8 +116,13 @@ for row in eachrow(parameters)
     correlation_matrix = h5read(h5corrs,joinpath(ensemble,matrixname))
     correlation_matrix = correlation_matrix[nops,nops,:,:]
 
+    # get fitted mixing angle 
+    ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
     title = _plot_title(h5corrs,ensemble)    
     plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
+    # add best fit to effective mixing angle
+    add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi$")
+
     display(plt)
     plotpath = joinpath("plot","mixing_angle")
     ispath(plotpath) || mkpath(plotpath)
