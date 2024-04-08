@@ -5,6 +5,8 @@ using DelimitedFiles
 using HDF5
 using Plots
 using LaTeXStrings
+using Statistics
+using LsqFit
 include("scripts/utils.jl")
 include("scripts/write_hdf5.jl")
 include("scripts/write_correlatormatrix.jl")
@@ -14,11 +16,12 @@ include("scripts/plotting.jl")
 include("scripts/tables.jl")
 include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
+include("scripts/mixing_angle.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14, titlefontsize=14,  markersize=5)
 
-start_from_logs  = false
-write_correlator = true
-write_any_hdf5   = true
+start_from_logs    = false
+write_correlator   = false
+write_gevp_results = false
 
 Nsmear = collect(0:10:80)
 
@@ -34,9 +37,9 @@ parameters_fitting = joinpath(paramter_path,"parameters_corrfitter.csv")
 parameters_gevp    = joinpath(paramter_path,"parameters_gevp.csv")
 ispath(corrfitterpath) || mkpath(corrfitterpath)
 
-start_from_logs*write_any_hdf5  && main_write_hdf5_logs(Nsmear,logpath,hdf5path,parameterfile)
-write_correlator*write_any_hdf5 && main_write_correlator_matrices(Nsmear,hdf5path)
-write_any_hdf5 && write_eigenvalues(parameters_gevp,hdf5path)
+start_from_logs    && main_write_hdf5_logs(Nsmear,logpath,hdf5path,parameterfile)
+write_correlator   && main_write_correlator_matrices(Nsmear,hdf5path)
+write_gevp_results && write_eigenvalues(parameters_gevp,hdf5path)
 #all_effective_mass_plots(hdf5path,parameters_gevp)
 
 function run_corrfitter(parameters_fitting,hdf5path;resample)
@@ -54,5 +57,4 @@ plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,h
 write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
 write_tex_tables(tablepath,tablepath)
 plot_spectrum(tablepath,plotpath)
-
-
+plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tablepath,plotpath)

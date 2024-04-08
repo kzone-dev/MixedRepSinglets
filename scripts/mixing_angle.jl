@@ -1,17 +1,3 @@
-using Pkg; Pkg.activate(".")
-using MixedRepSinglets
-using LaTeXStrings
-using DelimitedFiles
-using HDF5
-using Statistics
-using MixedRepSinglets
-using Plots
-using LsqFit
-gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14, titlefontsize=14,  markersize=5)
-include("utils.jl")
-include("eigenvalues.jl")
-
-
 function effective_mixing_angle(evecs_jackknife)
     arg = @. evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:] / evecs_jackknife[1,1,:,:] / evecs_jackknife[2,2,:,:]
     angle = atand.(sqrt.(abs.(arg) ))
@@ -98,33 +84,52 @@ function _plot_title(h5corrs,ensemble)
     title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"
     return title
 end
+function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tablepath,plotpath)
+    h5corrs   = joinpath(hdf5path,"singlets_smeared_correlators.hdf5")
 
-parameters_gevp = joinpath("input","parameters_gevp.csv")
-hdf5path    = "/home/fabian/Downloads/hdf5out_modified"
-h5corrs     = joinpath(hdf5path,"singlets_smeared_correlators.hdf5")
-h5eigenvals = joinpath(hdf5path,"singlets_smeared_eigenvalues.hdf5")
+    file_mixing = joinpath(tablepath,"table_mixing_angle.csv")
+    file_mixing_MR = joinpath(tablepath,"table_mixing_angle_MR.csv")
+    io_mixing = open(file_mixing,"w")
+    io_mixing_MR = open(file_mixing_MR,"w")
 
-parameters = readdlm(parameters_gevp,';';skipstart=1)
-for row in eachrow(parameters)
+    write(io_mixing_MR,L"Label;$\beta$;$N_t$;$N_l$;$\phi$;$\Delta \phi$","\n")
+    write(io_mixing,L"Label;$\beta$;$N_t$;$N_l$;$\phi$","\n")
 
-    ensemble, channel, t0, binsize, = row[1:4]
-    nops, deriv  = [1,10], false
-    t0  = 5
+    parameters = readdlm(parameters_gevp,';';skipstart=1)
+    for row in eachrow(parameters)
 
-    channel == "g5_singlet" || continue    
-    matrixname ="correlation_matrix_g5_singlet"
-    correlation_matrix = h5read(h5corrs,joinpath(ensemble,matrixname))
-    correlation_matrix = correlation_matrix[nops,nops,:,:]
+        ensemble, channel, t0, binsize, = row[1:4]
+        nops, deriv  = [1,10], false
+        t0  = 5
 
-    # get fitted mixing angle 
-    ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
-    title = _plot_title(h5corrs,ensemble)    
-    plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
-    # add best fit to effective mixing angle
-    add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi$")
+        channel == "g5_singlet" || continue    
+        matrixname ="correlation_matrix_g5_singlet"
+        correlation_matrix = h5read(h5corrs,joinpath(ensemble,matrixname))
+        correlation_matrix = correlation_matrix[nops,nops,:,:]
 
-    display(plt)
-    plotpath = joinpath("plot","mixing_angle")
-    ispath(plotpath) || mkpath(plotpath)
-    savefig(plt, joinpath(plotpath,"mixing_angle_$ensemble.pdf"))
+        β   = h5read(h5corrs,joinpath(ensemble,"beta"))
+        T,L = h5read(h5corrs,joinpath(ensemble,"lattice"))[1:2]
+        mf  = h5read(h5corrs,joinpath(ensemble,"quarkmasses_fundamental"))[1]
+        mas = h5read(h5corrs,joinpath(ensemble,"quarkmasses_antisymmetric"))[1]
+
+        # get fitted mixing angle 
+        ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
+        title = _plot_title(h5corrs,ensemble)    
+        plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
+        # add best fit to effective mixing angle
+        add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi$")
+
+        write(io_mixing_MR,"$ensemble;$β;$T;$L;$ϕ;$Δϕ","\n")
+        write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ))","\n")
+
+        display(plt)
+        ispath(plotpath) || mkpath(plotpath)
+        savefig(plt, joinpath(plotpath,"mixing_angle","mixing_angle_$ensemble.pdf"))
+    end
+    close(io_mixing)
+    close(io_mixing_MR)
+
+    # convert table into a tex compatible formatting
+    mixing = readdlm(joinpath(tablepath,"table_mixing_angle.csv"),';')
+    write_tex_table(joinpath(tex_tablepath,"table_mixing.tex"),mixing)
 end
