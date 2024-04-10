@@ -20,7 +20,7 @@ include("scripts/mixing_angle.jl")
 gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=14, titlefontsize=14,  markersize=5)
 
 start_from_logs    = false
-write_correlator   = true
+write_correlator   = false
 write_gevp_results = true
 
 Nsmear = collect(0:10:80)

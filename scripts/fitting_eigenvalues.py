@@ -56,11 +56,12 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,tp,Nmax,e
     tp = tp*T if tp != 0 else None
 
     ev = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals")[()]
+    cov_ev = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals_cov")[()]
     Delta_ev = get_hdf5_value(f,ensemble+"/"+channel+"/Delta_eigvals")[()]
 
     Nops = ev.shape[1]
-    eig1 = dict(Gab=gv.gvar(ev[:,Nops-1],Delta_ev[:,Nops-1]))
-    eig2 = dict(Gab=gv.gvar(ev[:,Nops-2],Delta_ev[:,Nops-2]))
+    eig1 = dict(Gab=gv.gvar(ev[:,Nops-1],cov_ev[:,:,Nops-1]))
+    eig2 = dict(Gab=gv.gvar(ev[:,Nops-2],cov_ev[:,:,Nops-2]))
 
     E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
     E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=PLOT,printing=PRINT)
@@ -83,6 +84,7 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
     tp = tp*T if tp != 0 else None
 
     Delta_ev = get_hdf5_value(f,ensemble+"/"+channel+"/Delta_eigvals")[()]
+    cov_ev   = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals_cov")[()]
     ev_resamples = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals_resamples")[()]
     
     T, nsamples, Nops = ev_resamples.shape
@@ -97,8 +99,8 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
 
     for n in range(nsamples):
 
-        eig1 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-1],Delta_ev[:,Nops-1]))
-        eig2 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-2],Delta_ev[:,Nops-2]))
+        eig1 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-1],cov_ev[:,:,Nops-1]))
+        eig2 = dict(Gab=gv.gvar(ev_resamples[:,n,Nops-2],cov_ev[:,:,Nops-2]))
 
         E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=False,printing=False)
         E2, a2, chi2B, dofB = fit_correlator_without_bootstrap(eig2,T,tmin2,tmax2,Nmax,tp,plotting=False,printing=False)

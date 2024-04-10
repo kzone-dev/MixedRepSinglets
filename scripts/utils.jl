@@ -38,16 +38,16 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
 end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    eigvals_cov = cov_jackknife(eigenvalues_jackknife;dims=2)
-    @show size(Δeigvals)
-    @show size(eigvals_cov)
-
+    eigvals_cov = MixedRepSinglets.cov_jackknife_eigenvalues(eigenvalues_jackknife)
+    @show extrema(eigvals_cov)
+    
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
     h5write(outputfile,joinpath(ensemble,channel,"meff"),meff)
     h5write(outputfile,joinpath(ensemble,channel,"eigvals"),eigvals)
     h5write(outputfile,joinpath(ensemble,channel,"Delta_meff"),Δmeff)
     h5write(outputfile,joinpath(ensemble,channel,"Delta_eigvals"),Δeigvals)
+    h5write(outputfile,joinpath(ensemble,channel,"eigvals_cov"),eigvals_cov)
 
     # generic quantitites used in the GEVP inversion and data preparation
     h5write(outputfile,joinpath(ensemble,channel,"t0"),t0)
