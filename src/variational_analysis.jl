@@ -139,3 +139,23 @@ function nan_apply_jackknife(obs::AbstractVector)
     ΔO = sqrt(N-1)*nanstd(obs,corrected=false)
     return O, ΔO
 end
+function nan_cov_jackknife(obs::AbstractVector)
+    N   = length(obs)
+    cov = (N-1)*nancov(obs,corrected=false)
+    return cov
+end
+function nan_cov_jackknife(obs::AbstractArray;dims::Integer)
+    N   = size(obs)[dims]
+    cov = (N-1)*nancov(obs;dims,corrected=false)
+    return cov
+end
+function cov_jackknife(obs::AbstractVector)
+    N   = length(obs)
+    cov = (N-1)*cov(obs,corrected=false)
+    return cov
+end
+function cov_jackknife(obs::AbstractArray;dims::Integer)
+    N   = size(obs)[dims]
+    cov = (N-1)*cov(obs;dims,corrected=false)
+    return cov
+end

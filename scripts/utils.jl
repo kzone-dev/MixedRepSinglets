@@ -38,7 +38,10 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
 end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-   
+    eigvals_cov = cov_jackknife(eigenvalues_jackknife;dims=2)
+    @show size(Δeigvals)
+    @show size(eigvals_cov)
+
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
     h5write(outputfile,joinpath(ensemble,channel,"meff"),meff)
