@@ -73,7 +73,7 @@ function eigenvalues_jackknife_samples(corr;t0 = 1, imag_thresh = 1E-11)
         # use sortby to sort the eigenvalues by ascending eigen-energy of the meson state
         vals = eigen(sample[:,:,s,t],sample[:,:,s,t0]).values
         max_imag = maximum(imag.(vals)) 
-        max_imag > imag_thresh && @warn "imaginary part of $max_imag exceeds threshold of $imag_thresh"
+        #max_imag > imag_thresh && @warn "imaginary part of $max_imag exceeds threshold of $imag_thresh"
         eigvals_jk[:,s,t] = real.(vals)
     end
     return eigvals_jk
@@ -143,10 +143,8 @@ function cov_jackknife_eigenvalues(evjk::AbstractArray)
     Nev, Nsamples, T = size(evjk) 
     covm = zeros(Nev,T,T)
     for N in 1:Nev
-        c = (Nsamples-1)*cov(evjk[N,:,:],dims=1,corrected=false)
-        @show issymmetric(c)
-        @show isposdef(sqrt(c'*c))
-        covm[N,:,:] = sqrt(c'*c)
+        c0 = (Nsamples-1)*cov(evjk[N,:,:],dims=1,corrected=false)
+        covm[N,:,:] = Hermitian(c0)
     end
     return covm
 end
