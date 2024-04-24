@@ -10,10 +10,10 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
     data = readdlm(results_MR,';',skipstart=1)
     gf = readdlm(gradient_flow_results,',',skipstart=1)
 
-    plt0 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"$m_0^{\rm f}$", title="meson masses vs. bare fermion mass")
-    plt1 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
-    plt2 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"meson masses $[a^{-1}]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title = L"meson masses vs. fundamental $m_\pi / m_\rho ~ (N_t=64)$" )
-    plt3 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"meson masses $[w]$", xlabel=L"m_\pi^{\rm f} / m_\rho^{\rm f}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
+    plt0 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"$am_0^{\rm f}$", title="meson masses vs. bare fermion mass")
+    plt1 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
+    plt2 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"m_{\rm PS} / m_{\rm V}", title = L"meson masses vs. $m_{\rm PS} / m_{\rm V} ~ (N_t=64)$" )
+    plt3 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"wm", xlabel=L"m_{\rm PS} / m_{\rm V}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
     
     xticks0 = Float64[]
     xticks1 = Int[]
@@ -78,10 +78,10 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
     for plt in (plt0,plt1,plt2,plt3)
         scatter!(plt, [],[],label=L"\eta'",marker=:rect, color=colours[1])
         scatter!(plt, [],[],label=L"a",marker=:rect, color=colours[2])
-        scatter!(plt, [],[],label=L"ps",marker=:circ, color=colours[4])
-        scatter!(plt, [],[],label=L"PS",marker=:circ, color=colours[3])
-        scatter!(plt, [],[],label=L"v",marker=:pentagon, color=colours[6])
-        scatter!(plt, [],[],label=L"V",marker=:pentagon, color=colours[5])
+        scatter!(plt, [],[],label="ps",marker=:circ, color=colours[4])
+        scatter!(plt, [],[],label="PS",marker=:circ, color=colours[3])
+        scatter!(plt, [],[],label="v",marker=:pentagon, color=colours[6])
+        scatter!(plt, [],[],label="V",marker=:pentagon, color=colours[5])
     end
 
     display(plt0)

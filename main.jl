@@ -17,7 +17,8 @@ include("scripts/tables.jl")
 include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
 include("scripts/mixing_angle.jl")
-gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
+#gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
+pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 start_from_logs    = false
 write_correlator   = false

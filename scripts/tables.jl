@@ -13,8 +13,8 @@ function write_all_tables(Nsmear,paramterfile_gevp,paramterfile_corrfitter,corrf
     io_gevp    = open(joinpath(tablepath,"table_gevp.csv"),"w")
 
     write(io_resultsMR,L"Label;$\beta$;$N_t$;$N_l$;$am_0^{\rm f}$;$am_0^{\rm as}$;$am_a$;$\Delta am_a$;$am_{\eta'}$;$\Delta am_{\eta'};$am_{\pi}^{(f)}$;$\Delta am_{\pi}^{(f)};$am_{\pi}^{(as)}$;$\Delta am_{\pi}^{(as)}$;$am_{\rho}^{(f)}$;$\Delta am_{\rho}^{(f)};$am_{\rho}^{(as)}$;$\Delta am_{\rho}^{(as)}$","\n")
-    write(io_results,L"Label;$\beta$;$N_t$;$N_l$;$am_0^{\rm f}$;$am_0^{\rm as}$;$am_a$;$am_{\eta'}$;$am_{\pi}^{(f)}$;$am_{\pi}^{(as)}$;$am_{\rho}^{(f)}$;$am_{\rho}^{(as)}$","\n")
-    write(io_fitting,L"Label;$I_{a}$;$I_{\eta'}$;$I_{\pi}^{\rm{(f)}}$;$I_{\pi}^{\rm{(as)}}$;$I_{\rho}^{\rm{(f)}}$;$I_{\rho}^{\rm{(as)}}$;$N_{\rm exp}$;$\frac{\chi^2}{\rm dof}: a$;$\frac{\chi^2}{\rm dof}: \eta'$;$\frac{\chi^2}{\rm dof}: \pi^{\rm(f)}$;$\frac{\chi^2}{\rm dof}: \pi^{\rm(as)}$;$\frac{\chi^2}{\rm dof}: \rho^{\rm(f)}$;$\frac{\chi^2}{\rm dof}: \rho^{\rm(as)}$","\n")
+    write(io_results,L"Label;$\beta$;$N_t$;$N_l$;$am_0^{\rm f}$;$am_0^{\rm as}$;$am_a$;$am_{\eta'}$;$am_{\rm PS}$;$am_{\rm ps}$;$am_{\rm V}$;$am_{\rm v}$","\n")
+    write(io_fitting,L"	Label;$I_{a}$;$I_{\eta'}$;$I_{\rm{PS}}$;$I_{\rm{ps}}$;$I_{\rm{V}}$;$I_{\rm{v}}$;$N_{\rm exp}$;$\chi^2 / N_{\rm d.o.f.}$;$\chi^2 / N_{\rm d.o.f.}$;$\chi^2 / N_{\rm d.o.f.}$;$\chi^2 / N_{\rm d.o.f.}$;$\chi^2 / N_{\rm d.o.f.}$;$\chi^2 / N_{\rm d.o.f.}$\\&&&&&&&&$ a$&$\eta'$&${\rm PS}$&${\rm ps}$&$ {\rm V}$&$ {\rm v}$","\n")
     write(io_gevp,L"Label;$t_0$;$N^{\rm smear}_{a,\eta'}$;$N^{\rm smear}_{\pi(f)}$;$N^{\rm smear}_{\pi(as)}$;$N^{\rm smear}_{\rho(f)}$;$N^{\rm smear}_{\rho(as)}$","\n")
 
     #check that the number of datasets match

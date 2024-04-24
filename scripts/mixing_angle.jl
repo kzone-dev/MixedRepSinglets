@@ -26,7 +26,7 @@ function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
 
     label ="effective mixing angle"
     label =""
-    ylabel=L"effective mixing angle $\phi [°]$ "
+    ylabel=L"$\phi/ ^\circ$ "
     xlabel=L"t > t_0 = %$t0"
 
     plt = plot(;title,ylabel,xlabel,ylims=(-30,15),xlims=(t0,T÷2))
@@ -93,7 +93,7 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
     io_mixing_MR = open(file_mixing_MR,"w")
 
     write(io_mixing_MR,L"Label;$\beta$;$N_t$;$N_l$;$\phi$;$\Delta \phi$","\n")
-    write(io_mixing,L"Label;$\beta$;$N_t$;$N_l$;$\phi$","\n")
+    write(io_mixing,L"Label;$~~~~\beta~~~~$;$~~~~N_t~~~~$;$~~~~N_s~~~~$;$~~~~\phi/{}^{\circ}~~~~$","\n")
     plotpath = joinpath(plotpath,"mixing_angle")
 
     parameters = readdlm(parameters_gevp,';';skipstart=1)
@@ -118,10 +118,10 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
         title = "ensemble $ensemble" #_plot_title(h5corrs,ensemble)    
         plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
         # add best fit to effective mixing angle
-        add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi$")
+        add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi/ ^\circ$")
 
         write(io_mixing_MR,"$ensemble;$β;$T;$L;$ϕ;$Δϕ","\n")
-        write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ))","\n")
+        write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ;nsig=1))","\n")
 
         display(plt)
         ispath(plotpath) || mkpath(plotpath)
