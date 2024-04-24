@@ -44,7 +44,8 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         Δmeff    = h5read(h5eigenvals,joinpath(ensemble,channel,"Delta_meff"))
         Δeigvals = h5read(h5eigenvals,joinpath(ensemble,channel,"Delta_eigvals"))
 
-        plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=2,tag=channel_tags(channel))
+        title = "ensemble $ensemble" #L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"   
+        plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,channel;title,nstates=2)
         add_fit_range!(plt1,tmin1,tmax1,E0,ΔE0;label="")
         add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
 

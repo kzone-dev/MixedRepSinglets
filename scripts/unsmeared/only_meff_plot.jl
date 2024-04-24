@@ -4,7 +4,7 @@ using HDF5
 using Statistics
 using Plots
 using LaTeXStrings
-gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=6)
+#gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=6)
 
 basepath  = "./output/correlation_matrix/"
 ensembles = [

@@ -4,7 +4,7 @@ using HiRepParsing
 using HDF5
 using Plots
 using Statistics
-gr(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
+#gr(legend=:bottomleft, frame=:box, legendfontsize=12, tickfontsize=12, labelfontsize=18, markersize=5)
 
 Nsmear = 0:40:80
 markershape = :rect

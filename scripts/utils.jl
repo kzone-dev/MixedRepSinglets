@@ -59,18 +59,27 @@ function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,in
     end
 
 end
-function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=1,tmax=nothing,tag="",kws...)
-    Nops = first(size(meff))
-
-    title = L" N_t \times N_l^3 =%$(T) \times %$(L)^3, \beta=%$β, m_f=%$mf, m_{as}=%$mas"   
-    plt1 = plot(title=title, xlabel="t", ylabel="effective mass")
-    plt2 = plot(title=title, xlabel="t", ylabel="eigenvalues")
-
-    function taggedlabel(state)
-        label = isequal(state,0) ? "ground state" : "excited state #$(state)" 
-        label = isempty(tag) ? label : "$tag: $label"
-        return label
+function channel_label(channel,state)    
+    tag ="" # empty fallback
+    
+    if isequal(channel,"g5_singlet")
+        state == 0 && return L"a" 
+        state == 1 && return L"η'"
     end
+
+    isequal(channel,"g5_nonsinglet_FUN") && (tag = L"PS")
+    isequal(channel,"g5_nonsinglet_AS")  && (tag = L"ps")
+    isequal(channel,"g1_nonsinglet_FUN") && (tag = L"V")
+    isequal(channel,"g1_nonsinglet_AS")  && (tag = L"v")
+
+    label = isequal(state,0) ? "ground state" : "excited state #$(state)" 
+    return "$tag ($label)"
+end
+function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,channel;nstates=1,tmax=nothing,title="",kws...)
+    Nops, T = size(meff)
+
+    plt1 = plot(title=title, xlabel="t", ylabel=L"effective mass [$a^{-1}$]")
+    plt2 = plot(title=title, xlabel="t", ylabel="eigenvalues")
 
     markershapes = (:circle, :diamond, :rect, :pentagon,  :octagon)
     
@@ -82,8 +91,8 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,β,T,L,mf,mas;nstates=
         end
         ms = markershapes[state+1]
         range = 2:tmax
-        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=taggedlabel(state),markershape=ms,kws...)
-        plot_correlator!(plt2,1:T,eigvals[Nops-state,1:T],Δeigvals[Nops-state,1:T];label=taggedlabel(state),markershape=ms,kws...)
+        scatter!(plt1,range, meff[Nops-state,range], yerr= Δmeff[Nops-state,range],label=channel_label(channel,state),markershape=ms,kws...)
+        plot_correlator!(plt2,1:T,eigvals[Nops-state,1:T],Δeigvals[Nops-state,1:T];label=channel_label(channel,state),markershape=ms,kws...)
     end
     return plt1, plt2
 end

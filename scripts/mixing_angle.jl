@@ -115,7 +115,7 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
 
         # get fitted mixing angle 
         ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
-        title = _plot_title(h5corrs,ensemble)    
+        title = "ensemble $ensemble" #_plot_title(h5corrs,ensemble)    
         plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
         # add best fit to effective mixing angle
         add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi$")
