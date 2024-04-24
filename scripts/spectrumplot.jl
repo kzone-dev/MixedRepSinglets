@@ -10,10 +10,10 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
     data = readdlm(results_MR,';',skipstart=1)
     gf = readdlm(gradient_flow_results,',',skipstart=1)
 
-    plt0 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"$am_0^{\rm f}$", title="meson masses vs. bare fermion mass")
-    plt1 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
-    plt2 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"am", xlabel=L"m_{\rm PS} / m_{\rm V}", title = L"meson masses vs. $m_{\rm PS} / m_{\rm V} ~ (N_t=64)$" )
-    plt3 = plot(legend_column=2,legendfontsize=13,legend=:left,ylabel=L"wm", xlabel=L"m_{\rm PS} / m_{\rm V}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
+    plt0 = plot(legend_column=2,legendfontsize=16,legend=:left,ylabel=L"am", xlabel=L"$am_0^{\rm f}$", title="meson masses vs. bare fermion mass")
+    plt1 = plot(legend_column=2,legendfontsize=16,legend=:left,ylabel=L"am", xlabel=L"N_t", title=L"meson masses vs. spatial extent $N_t$")
+    plt2 = plot(legend_column=2,legendfontsize=16,legend=:left,ylabel=L"am", xlabel=L"m_{\rm PS} / m_{\rm V}", title = L"meson masses vs. $m_{\rm PS} / m_{\rm V} ~ (N_t=64)$" )
+    plt3 = plot(legend_column=2,legendfontsize=16,legend=:left,ylabel=L"wm", xlabel=L"m_{\rm PS} / m_{\rm V}", title=L"meson mass in gradient flow scale $w ~ (N_t=64)$")
     
     xticks0 = Float64[]
     xticks1 = Int[]
@@ -36,52 +36,51 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
 
         push!(xticks1,T)
         unique!(xticks1)
+ 
+        # add label with M2 ensemble, since it features in every plot
+        label1 = (T == 64) && isapprox(mf,-0.71) ? L"\eta'~~" : ""
+        label2 = (T == 64) && isapprox(mf,-0.71) ? L"a~~" : ""
+        label3 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm ps}~~" : ""
+        label4 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm PS}~~" : ""
+        label5 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm v}~~" : ""
+        label6 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm V}~~" : ""
         
-        scatter!(plt0, [mf+offset], [mη], yerr=Δmη,label="", markersize=5, marker=:rect, color=colours[1])
-        scatter!(plt0, [mf+offset], [ma], yerr=Δma,label="", markersize=5, marker=:rect, color=colours[2])
-        scatter!(plt0, [mf+offset], [mπA], yerr=ΔmπA,label="", markersize=5, marker=:circ, color=colours[3])
-        scatter!(plt0, [mf+offset], [mπF], yerr=ΔmπF,label="", markersize=5, marker=:circ, color=colours[4])
-        scatter!(plt0, [mf+offset], [mρA], yerr=ΔmρA,label="", markersize=5, marker=:pentagon, color=colours[5])
-        scatter!(plt0, [mf+offset], [mρF], yerr=ΔmρF,label="", markersize=5, marker=:pentagon, color=colours[6])
+        scatter!(plt0, [mf+offset], [mη], yerr=Δmη, markersize=5,marker=:rect, color=colours[1];label=label1)
+        scatter!(plt0, [mf+offset], [ma], yerr=Δma, markersize=5,marker=:rect, color=colours[2];label=label2)
+        scatter!(plt0, [mf+offset], [mπA], yerr=ΔmπA, markersize=5,marker=:circ, color=colours[3];label=label3)
+        scatter!(plt0, [mf+offset], [mπF], yerr=ΔmπF, markersize=5,marker=:circ, color=colours[4];label=label4)
+        scatter!(plt0, [mf+offset], [mρA], yerr=ΔmρA, markersize=5,marker=:pentagon, color=colours[5];label=label5)
+        scatter!(plt0, [mf+offset], [mρF], yerr=ΔmρF, markersize=5,marker=:pentagon, color=colours[6];label=label6)
         plot!(plt0;xticks=xticks0)
 
         if isapprox(mf,-0.71)
-            scatter!(plt1, [T], [mη], yerr=Δmη, color=colours[1], label="",markersize=5, marker=:rect)
-            scatter!(plt1, [T], [ma], yerr=Δma, color=colours[2], label="",markersize=5, marker=:rect)
-            scatter!(plt1, [T], [mπA], yerr=ΔmπA, color=colours[3], label="",markersize=5, marker=:circ)
-            scatter!(plt1, [T], [mπF], yerr=ΔmπF, color=colours[4], label="",markersize=5, marker=:circ)
-            scatter!(plt1, [T], [mρA], yerr=ΔmρA, color=colours[5], label="",markersize=5, marker=:pentagon)
-            scatter!(plt1, [T], [mρF], yerr=ΔmρF, color=colours[6], label="",markersize=5, marker=:pentagon)
+            scatter!(plt1, [T], [mη], yerr=Δmη, color=colours[1], markersize=5, marker=:rect;label=label1)
+            scatter!(plt1, [T], [ma], yerr=Δma, color=colours[2], markersize=5, marker=:rect;label=label2)
+            scatter!(plt1, [T], [mπA], yerr=ΔmπA, color=colours[3], markersize=5, marker=:circ;label=label3)
+            scatter!(plt1, [T], [mπF], yerr=ΔmπF, color=colours[4], markersize=5, marker=:circ;label=label4)
+            scatter!(plt1, [T], [mρA], yerr=ΔmρA, color=colours[5], markersize=5, marker=:pentagon;label=label5)
+            scatter!(plt1, [T], [mρF], yerr=ΔmρF, color=colours[6], markersize=5, marker=:pentagon;label=label6)
             plot!(plt1;xticks=xticks1)
         end
 
         if T == 64
-            scatter!(plt2, [r], xerr = Δr, [mη], yerr=Δmη, color=colours[1] ,label="", markersize=5, marker=:rect)
-            scatter!(plt2, [r], xerr = Δr, [ma], yerr=Δma, color=colours[2] ,label="", markersize=5, marker=:rect)
-            scatter!(plt2, [r], xerr = Δr, [mπA], yerr=ΔmπA, color=colours[3] ,label="", markersize=5, marker=:circ)
-            scatter!(plt2, [r], xerr = Δr, [mπF], yerr=ΔmπF, color=colours[4] ,label="", markersize=5, marker=:circ)
-            scatter!(plt2, [r], xerr = Δr, [mρA], yerr=ΔmρA, color=colours[5] ,label="", markersize=5, marker=:pentagon)
-            scatter!(plt2, [r], xerr = Δr, [mρF], yerr=ΔmρF, color=colours[6] ,label="", markersize=5, marker=:pentagon)
+            scatter!(plt2, [r], xerr = Δr, [mη], yerr=Δmη, color=colours[1] ,markersize=5, marker=:rect;label=label1)
+            scatter!(plt2, [r], xerr = Δr, [ma], yerr=Δma, color=colours[2] ,markersize=5, marker=:rect;label=label2)
+            scatter!(plt2, [r], xerr = Δr, [mπA], yerr=ΔmπA, color=colours[3], markersize=5, marker=:circ;label=label3)
+            scatter!(plt2, [r], xerr = Δr, [mπF], yerr=ΔmπF, color=colours[4], markersize=5, marker=:circ;label=label4)
+            scatter!(plt2, [r], xerr = Δr, [mρA], yerr=ΔmρA, color=colours[5], markersize=5, marker=:pentagon;label=label5)
+            scatter!(plt2, [r], xerr = Δr, [mρF], yerr=ΔmρF, color=colours[6], markersize=5, marker=:pentagon;label=label6)
 
-            scatter!(plt3, [r], xerr = Δr, [w*mη],  yerr=Δproduct(mη,w,Δmη,Δw), color=colours[1] ,label="", marker=:rect)
-            scatter!(plt3, [r], xerr = Δr, [w*ma],  yerr=Δproduct(ma,w,Δma,Δw), color=colours[2] ,label="", marker=:rect)
-            scatter!(plt3, [r], xerr = Δr, [w*mπA], yerr=Δproduct(mπA,w,ΔmπA,Δw), color=colours[3] ,label="", marker=:circ)
-            scatter!(plt3, [r], xerr = Δr, [w*mπF], yerr=Δproduct(mπF,w,ΔmπF,Δw), color=colours[4] ,label="", marker=:circ)
-            scatter!(plt3, [r], xerr = Δr, [w*mρA], yerr=Δproduct(mρA,w,ΔmρA,Δw), color=colours[5] ,label="", marker=:pentagon)
-            scatter!(plt3, [r], xerr = Δr, [w*mρF], yerr=Δproduct(mρF,w,ΔmρF,Δw), color=colours[6] ,label="", marker=:pentagon)
+            scatter!(plt3, [r], xerr = Δr, [w*mη],  yerr=Δproduct(mη,w,Δmη,Δw), color=colours[1] ,marker=:rect;label=label1)
+            scatter!(plt3, [r], xerr = Δr, [w*ma],  yerr=Δproduct(ma,w,Δma,Δw), color=colours[2] ,marker=:rect;label=label2)
+            scatter!(plt3, [r], xerr = Δr, [w*mπA], yerr=Δproduct(mπA,w,ΔmπA,Δw), color=colours[3], marker=:circ;label=label3)
+            scatter!(plt3, [r], xerr = Δr, [w*mπF], yerr=Δproduct(mπF,w,ΔmπF,Δw), color=colours[4], marker=:circ;label=label4)
+            scatter!(plt3, [r], xerr = Δr, [w*mρA], yerr=Δproduct(mρA,w,ΔmρA,Δw), color=colours[5] , marker=:pentagon;label=label5)
+            scatter!(plt3, [r], xerr = Δr, [w*mρF], yerr=Δproduct(mρF,w,ΔmρF,Δw), color=colours[6] , marker=:pentagon;label=label6)
 
         end
         plot!(plt2,xlims=(0.87,0.92))
         plot!(plt3,xlims=(0.87,0.92))
-    end
-
-    for plt in (plt0,plt1,plt2,plt3)
-        scatter!(plt, [],[],label=L"\eta'",marker=:rect, color=colours[1])
-        scatter!(plt, [],[],label=L"a",marker=:rect, color=colours[2])
-        scatter!(plt, [],[],label="ps",marker=:circ, color=colours[4])
-        scatter!(plt, [],[],label="PS",marker=:circ, color=colours[3])
-        scatter!(plt, [],[],label="v",marker=:pentagon, color=colours[6])
-        scatter!(plt, [],[],label="V",marker=:pentagon, color=colours[5])
     end
 
     display(plt0)
