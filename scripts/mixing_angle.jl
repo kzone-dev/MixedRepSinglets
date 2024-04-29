@@ -1,13 +1,17 @@
+# Here, the uncertainties would naively lead to samples where you would try to take the FP64 square root of a negative number
+# which leads to a domain error. By adding a vanishing imaginary part, julia will compute the copmplex result with a negligible 
+# complex part, which I discard in the end-
 function effective_mixing_angle(evecs_jackknife)
-    arg = @. evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:] / evecs_jackknife[1,1,:,:] / evecs_jackknife[2,2,:,:]
-    angle = atand.(sqrt.(abs.(arg) ))
+    # Note: The thirs entry denotes the i=1,2 entries of the eigenvectors, whereas the fourth index labels the eignvectors
+    arg = @. - (evecs_jackknife[1,1,:,:] * evecs_jackknife[2,2,:,:]) / (evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:])
+    angle = atand.(sqrt.((arg .+ 0im) ))
     ϕ, Δϕ = MixedRepSinglets.apply_jackknife(angle,dims=1)
-    return ϕ, Δϕ 
+    return real.(ϕ), real.(Δϕ) 
 end
 function effective_mixing_angle_samples(evecs_jackknife)
-    arg  = @. evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:] / evecs_jackknife[1,1,:,:] / evecs_jackknife[2,2,:,:]
-    ϕ_jk = atand.(sqrt.(abs.(arg) ))
-    return ϕ_jk 
+    arg  = @. - (evecs_jackknife[1,1,:,:] * evecs_jackknife[2,2,:,:]) / (evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:])
+    ϕ_jk = atand.(sqrt.((arg) .+ 0im ))
+    return real.(ϕ_jk) 
 end
 function _loss_of_signal(x,Δx;ind0=0,thresh)
     rel_error = @. abs(Δx[ind0+1:end]/x[ind0+1:end])
@@ -18,7 +22,6 @@ function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
     T = last(size(correlation_matrix))
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
-    ϕ = ϕ .- 90 # I'm using π/2 periodicity of the mixing angle here
 
     # indicate range of ground state signal
     t_meff = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5)
@@ -29,14 +32,13 @@ function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
     ylabel=L"$\phi/ ^\circ$ "
     xlabel=L"t > t_0 = %$t0"
 
-    plt = plot(;title,ylabel,xlabel,ylims=(-30,15),xlims=(t0,T÷2))
+    plt = plot(;title,ylabel,xlabel,ylims=(-5,20),xlims=(t0,T÷2))
     scatter!(plt,ϕ,yerr=Δϕ;label)
     vspan!(plt,[t_meff,T÷2],color=:grey,alpha=0.5,label="loss of signal in effective mass")
 end
 function _fit_effective_mixing_angle(correlation_matrix;t0,binsize,deriv)
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
-    ϕ = ϕ .- 90 # I'm using π/2 periodicity of the mixing angle here
     # fit until we loose the signal in the effective mass of the ground state
     tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
     tmin = t0 +1
@@ -50,8 +52,6 @@ function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsi
     ϕ_jk  = effective_mixing_angle_samples(evecs_jk)
     ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
     # I'm using π/2 periodicity of the mixing angle here
-    ϕ = ϕ .- 90 
-    ϕ_jk = ϕ_jk .- 90 
     # fit until we loose the signal in the effective mass of the ground state
     tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
     tmin = t0 +1
