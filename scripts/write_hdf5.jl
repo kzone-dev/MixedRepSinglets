@@ -1,20 +1,20 @@
-function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile)
-    h5file = joinpath(hdf5path,"singlets_smeared.hdf5")
+using DelimitedFiles
+using HiRepParsing
 
+function main_write_hdf5_logs(path,hdf5path,parameterfile)
+    h5file = joinpath(hdf5path,"b55_tests.hdf5")
     input = readdlm(parameterfile,';',skipstart=1)
     for prm in eachrow(input)
 
-        dir, patternDISC, patternCONN, nhits, Nmax, rep, name = prm
-
-        fileCONN = joinpath(path,dir,"out/out_spectrum_smeared")
-        fileDISC = joinpath(path,dir,"out/out_spectrum_smeared_discon")
-
-        typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
-        typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
+        dir, file, typeCONN, rep, name = prm
+        fileCONN = joinpath(path,dir,"out",file)
         
         @show fileCONN   
-        writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="$name/$rep/CONN")
-        @show fileDISC   
-        writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="$name/$rep/DISC")
+        writehdf5_spectrum(fileCONN,h5file,typeCONN,h5group="$name/$rep/CONN")
     end    
 end
+
+path = "/home/fabian/Dokumente/DataDiaL/measurementsTests"
+hdf5path = ""
+parameterfile = "input/parameters.csv"
+main_write_hdf5_logs(path,hdf5path,parameterfile)

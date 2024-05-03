@@ -26,6 +26,7 @@ write_gevp_results = true
 Nsmear = collect(0:10:80)
 
 logpath        = "/home/fabian/Documents/DataDiaL/measurements"
+logpath        = "/home/fabian/Dokumente/DataDiaL/measurements"
 hdf5path       = "/home/fabian/Downloads/hdf5out_new"
 paramter_path  = "input"
 corrfitterpath = "output/fitresults"
