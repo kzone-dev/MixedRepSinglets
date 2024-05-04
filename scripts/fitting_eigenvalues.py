@@ -59,7 +59,7 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,chan
     print(h5name)
     corr = get_hdf5_value(f,h5name)[()]
     
-    dset = gv.dataset.avg_data(corr)
+    dset = gv.dataset.avg_data(np.transpose(corr))
     eig1 = dict(Gab=dset)
     
     E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
@@ -90,7 +90,7 @@ def run_corrfitter_singlets(prmfile,hdf5file,outdir):
             fit_eigenvalues(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep)
 
 
-PLOT=False
+PLOT=True
 PRINT=False
 
 args = sys.argv
