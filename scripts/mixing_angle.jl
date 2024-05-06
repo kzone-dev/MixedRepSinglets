@@ -6,7 +6,9 @@ function effective_mixing_angle(evecs_jackknife)
     arg = @. - (evecs_jackknife[1,1,:,:] * evecs_jackknife[2,2,:,:]) / (evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:])
     angle = atand.(sqrt.((arg .+ 0im) ))
     ϕ, Δϕ = MixedRepSinglets.apply_jackknife(angle,dims=1)
-    return real.(ϕ), real.(Δϕ) 
+    N, T  = size(angle)
+    ϕcov  = sqrt(N-1)*cov(real.(angle); dims=1,corrected=false)
+    return real.(ϕ), real.(Δϕ), Hermitian(ϕcov)
 end
 function effective_mixing_angle_samples(evecs_jackknife)
     arg  = @. - (evecs_jackknife[1,1,:,:] * evecs_jackknife[2,2,:,:]) / (evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:])
@@ -21,7 +23,7 @@ end
 function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
     T = last(size(correlation_matrix))
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
+    ϕ, Δϕ, ϕcov =  effective_mixing_angle(evecs_jk)
 
     # indicate range of ground state signal
     t_meff = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5)
@@ -38,19 +40,20 @@ function _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
 end
 function _fit_effective_mixing_angle(correlation_matrix;t0,binsize,deriv)
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
+    ϕ, Δϕ, ϕcov =  effective_mixing_angle(evecs_jk)
     # fit until we loose the signal in the effective mass of the ground state
     tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
     tmin = t0 +1
     # extract fitted mxing angle 
-    ϕfit, Δϕfit = _fit_effective_mixing_angle(ϕ, Δϕ, tmin, tmax)
+    #ϕfit, Δϕfit = _fit_effective_mixing_angle(ϕ, Δϕ, tmin, tmax)
+    ϕfit, Δϕfit = _fit_effective_mixing_angle(ϕ, ϕcov, tmin, tmax)
     @show ϕfit, Δϕfit
     return ϕfit, Δϕfit, tmin, tmax
 end
 function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     ϕ_jk  = effective_mixing_angle_samples(evecs_jk)
-    ϕ, Δϕ =  effective_mixing_angle(evecs_jk)
+    ϕ, Δϕ, ϕcov =  effective_mixing_angle(evecs_jk)
     # I'm using π/2 periodicity of the mixing angle here
     # fit until we loose the signal in the effective mass of the ground state
     tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
@@ -61,17 +64,28 @@ function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsi
     N  = first(size(ϕ_jk))
     ϕs = zeros(N) 
     for i in 1:N
-        ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], Δϕ, tmin, tmax))
+        #ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], Δϕ, tmin, tmax))
+        ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], ϕcov, tmin, tmax))
     end
     ϕfit, Δϕfit = MixedRepSinglets.apply_jackknife(ϕs)
     return ϕfit, Δϕfit, tmin, tmax
 end
-function _fit_effective_mixing_angle(ϕ, Δϕ, tmin, tmax)
+function _fit_effective_mixing_angle(ϕ, Δϕ::AbstractVector, tmin, tmax)
     # fit to a constant
     @. model(x,p) = p[1] + 0*x
     p0  = [0.0] # initial guess: no mixing 
     t   = tmin:tmax
     fit = curve_fit(model,t,ϕ[t],(Δϕ[t]).^(-2),p0) 
+    # extract fitted mxing angle 
+    ϕfit, Δϕfit = fit.param[1], stderror(fit)[1]
+    return ϕfit, Δϕfit
+end
+function _fit_effective_mixing_angle(ϕ, ϕcov::AbstractVector, tmin, tmax)
+    # fit to a constant
+    @. model(x,p) = p[1] + 0*x
+    p0  = [0.0] # initial guess: no mixing 
+    t   = tmin:tmax
+    fit = curve_fit(model,t,ϕ[t],(ϕcov[t,t]).^(-1),p0) 
     # extract fitted mxing angle 
     ϕfit, Δϕfit = fit.param[1], stderror(fit)[1]
     return ϕfit, Δϕfit
@@ -121,7 +135,7 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
         add_fit_range!(plt,t1,t2,ϕ,Δϕ;label=L"fit: mixing angle $\phi/ ^\circ$")
 
         write(io_mixing_MR,"$ensemble;$β;$T;$L;$ϕ;$Δϕ","\n")
-        write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ;nsig=1))","\n")
+        write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ;nsig=2))","\n")
 
         display(plt)
         ispath(plotpath) || mkpath(plotpath)

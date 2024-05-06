@@ -6,6 +6,7 @@ using HDF5
 using Plots
 using LaTeXStrings
 using Statistics
+using LinearAlgebra
 using LsqFit
 include("scripts/utils.jl")
 include("scripts/write_hdf5.jl")
@@ -22,7 +23,7 @@ pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labe
 
 start_from_logs    = false
 write_correlator   = false
-write_gevp_results = true
+write_gevp_results = false
 
 Nsmear = collect(0:10:80)
 
@@ -53,9 +54,9 @@ function run_corrfitter(parameters_fitting,hdf5path;resample)
     end
 end
 
-run_corrfitter(parameters_fitting,hdf5path;resample=false)
-plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=false)
-write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
-write_tex_tables(tablepath,tablepath)
-plot_spectrum(tablepath,plotpath)
+#run_corrfitter(parameters_fitting,hdf5path;resample=false)
+#plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=false)
+#write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
+#write_tex_tables(tablepath,tablepath)
+#plot_spectrum(tablepath,plotpath)
 plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tablepath,plotpath)
