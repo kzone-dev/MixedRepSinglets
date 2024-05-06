@@ -84,12 +84,12 @@ function _fit_effective_mixing_angle(ϕ, Δϕ::AbstractVector, tmin, tmax)
     ϕfit, Δϕfit = fit.param[1], stderror(fit)[1]
     return ϕfit, Δϕfit
 end
-function _fit_effective_mixing_angle(ϕ, ϕcov::AbstractVector, tmin, tmax)
+function _fit_effective_mixing_angle(ϕ, ϕcov::AbstractMatrix, tmin, tmax)
     # fit to a constant
     @. model(x,p) = p[1] + 0*x
     p0  = [0.0] # initial guess: no mixing 
     t   = tmin:tmax
-    fit = curve_fit(model,t,ϕ[t],(ϕcov[t,t]).^(-1),p0) 
+    fit = curve_fit(model,t,ϕ[t],Hermitian(inv(ϕcov[t,t])),p0) 
     # extract fitted mxing angle 
     ϕfit, Δϕfit = fit.param[1], stderror(fit)[1]
     return ϕfit, Δϕfit

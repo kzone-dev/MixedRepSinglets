@@ -23,7 +23,7 @@ gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, l
 
 start_from_logs    = false
 write_correlator   = false
-write_gevp_results = false
+write_gevp_results = true
 
 Nsmear = collect(0:10:80)
 
