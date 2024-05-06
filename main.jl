@@ -18,11 +18,11 @@ include("scripts/tables.jl")
 include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
 include("scripts/mixing_angle.jl")
-gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
-#pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
+#gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
+pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 start_from_logs    = false
-write_correlator   = false
+write_correlator   = true
 write_gevp_results = true
 
 Nsmear = collect(0:10:80)
@@ -42,7 +42,6 @@ ispath(corrfitterpath) || mkpath(corrfitterpath)
 start_from_logs    && main_write_hdf5_logs(Nsmear,logpath,hdf5path,parameterfile)
 write_correlator   && main_write_correlator_matrices(Nsmear,hdf5path)
 write_gevp_results && write_eigenvalues(parameters_gevp,hdf5path)
-#all_effective_mass_plots(hdf5path,parameters_gevp)
 
 function run_corrfitter(parameters_fitting,hdf5path;resample)
     resample = resample ? "True" : "False"
@@ -54,7 +53,7 @@ function run_corrfitter(parameters_fitting,hdf5path;resample)
     end
 end
 
-run_corrfitter(parameters_fitting,hdf5path;resample=false)
+run_corrfitter(parameters_fitting,hdf5path;resample=true)
 plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=false)
 write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
 write_tex_tables(tablepath,tablepath)
