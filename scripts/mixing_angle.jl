@@ -50,14 +50,18 @@ function _fit_effective_mixing_angle(correlation_matrix;t0,binsize,deriv)
     @show ϕfit, Δϕfit
     return ϕfit, Δϕfit, tmin, tmax
 end
-function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
+function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv,tmin=nothing,tmax=nothing)
     evals, Δevals, meff, Δmeff, evals_jk, evecs, Δevecs, evecs_jk = eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     ϕ_jk  = effective_mixing_angle_samples(evecs_jk)
     ϕ, Δϕ, ϕcov =  effective_mixing_angle(evecs_jk)
     # I'm using π/2 periodicity of the mixing angle here
     # fit until we loose the signal in the effective mass of the ground state
-    tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
-    tmin = t0 +1
+    if isnothing(tmax) 
+        tmax = _loss_of_signal(meff[2,:],Δmeff[2,:];thresh=0.5) - 1
+    end
+    if isnothing(tmin)
+        tmin = t0 +1
+    end
 
     # fit individual jackknife samples
     # always use the jackknife estimate for the uncertainty as the weight in fitting
@@ -127,8 +131,10 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
         mf  = h5read(h5corrs,joinpath(ensemble,"quarkmasses_fundamental"))[1]
         mas = h5read(h5corrs,joinpath(ensemble,"quarkmasses_antisymmetric"))[1]
 
+        # special case M1, where the correlated fitr is not stable
+        tmax = ensemble == "M1" ? 11 : nothing
         # get fitted mixing angle 
-        ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv)
+        ϕ, Δϕ, t1, t2 = _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsize,deriv,tmax)
         title = "ensemble $ensemble" #_plot_title(h5corrs,ensemble)    
         plt   = _plot_effective_mixing_angle(correlation_matrix,title;t0,binsize,deriv)
         # add best fit to effective mixing angle
