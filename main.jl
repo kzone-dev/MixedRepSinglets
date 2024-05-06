@@ -18,8 +18,8 @@ include("scripts/tables.jl")
 include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
 include("scripts/mixing_angle.jl")
-#gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
-pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
+gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
+#pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 start_from_logs    = false
 write_correlator   = false
@@ -54,9 +54,9 @@ function run_corrfitter(parameters_fitting,hdf5path;resample)
     end
 end
 
-#run_corrfitter(parameters_fitting,hdf5path;resample=false)
-#plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=false)
-#write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
-#write_tex_tables(tablepath,tablepath)
-#plot_spectrum(tablepath,plotpath)
+run_corrfitter(parameters_fitting,hdf5path;resample=false)
+plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5path,plotpath;only_singlet=false)
+write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
+write_tex_tables(tablepath,tablepath)
+plot_spectrum(tablepath,plotpath)
 plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tablepath,plotpath)
