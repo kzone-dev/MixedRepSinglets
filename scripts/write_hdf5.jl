@@ -13,10 +13,15 @@ function main_write_hdf5_logs(path,h5file,parameterfile)
     end    
 end
 
-path = "/home/fabian/Dokumente/DataDiaL/measurementsTests"
 h5file = "/home/fabian/Dokumente/Physics/Analysis/HiRepHadrons/b55_tests.hdf5"
-parameterfile = "input/parameters.csv"
 isfile(h5file) && rm(h5file)
+
+path = "/home/fabian/Dokumente/DataDiaL/measurementsTests"
+parameterfile = "input/parameters_b6p55.csv"
+main_write_hdf5_logs(path,h5file,parameterfile)
+
+path = "/home/fabian/Dokumente/DataDiaL/measurements"
+parameterfile = "input/parameters_b6p45.csv"
 main_write_hdf5_logs(path,h5file,parameterfile)
 
 function run_corrfitter(parameters,hdf5file,outdir)
@@ -29,4 +34,5 @@ function run_corrfitter(parameters,hdf5file,outdir)
 end
 
 parameters_fitting = "input/parameters_fitting.csv"
+parameters_fitting = "input/parameters_fitting_b6p45.csv"
 run_corrfitter(parameters_fitting,h5file,"output")
