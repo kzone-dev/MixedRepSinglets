@@ -68,8 +68,8 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,chan
 
     out = open(outfile, "a")
     outHR = open(outfileHR, "a")
-    out.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,beta,gv.mean(E1[0]),gv.sdev(E1[0]),chi2A/dofA))
-    outHR.write("%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,T,L,beta,E1[0],chi2A/dofA))
+    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,rep,T,L,beta,gv.mean(E1[0]),gv.sdev(E1[0]),chi2A/dofA))
+    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,channel,rep,T,L,beta,E1[0],chi2A/dofA))
     out.close()
     outHR.close()
 
