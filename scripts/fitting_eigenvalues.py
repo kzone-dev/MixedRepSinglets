@@ -90,7 +90,7 @@ def run_corrfitter_singlets(prmfile,hdf5file,outdir):
             fit_eigenvalues(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep)
 
 
-PLOT=True
+PLOT=False
 PRINT=False
 
 args = sys.argv
