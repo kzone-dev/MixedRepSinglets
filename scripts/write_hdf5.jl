@@ -16,6 +16,7 @@ end
 path = "/home/fabian/Dokumente/DataDiaL/measurementsTests"
 h5file = "/home/fabian/Dokumente/Physics/Analysis/HiRepHadrons/b55_tests.hdf5"
 parameterfile = "input/parameters.csv"
+isfile(h5file) && rm(h5file)
 main_write_hdf5_logs(path,h5file,parameterfile)
 
 function run_corrfitter(parameters,hdf5file,outdir)

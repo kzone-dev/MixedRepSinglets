@@ -4,8 +4,4 @@
 *.csv
 *.tex
 *.code-workspace
-!input/parameters.csv
-!input/parameters_smeared.csv
-!input/parameters_corrfitter.csv
-!input/parameters_gevp.csv
-!input/gradient_flow_results.csv
+!input/*.csv
