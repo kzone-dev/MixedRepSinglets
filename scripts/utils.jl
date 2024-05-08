@@ -63,8 +63,10 @@ function channel_label(channel,state)
     tag ="" # empty fallback
     
     if isequal(channel,"g5_singlet")
-        state == 0 && return L"a" 
-        state == 1 && return L"\eta'"
+        #state == 0 && return L"a" 
+        #state == 1 && return L"\eta'"
+        state == 0 && return L"\eta^{\prime}_l" 
+        state == 1 && return L"\eta^{\prime}_h"
     end
 
     isequal(channel,"g5_nonsinglet_FUN") && (tag = L"{\rm PS}")

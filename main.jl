@@ -22,7 +22,7 @@ include("scripts/mixing_angle.jl")
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 start_from_logs    = false
-write_correlator   = true
+write_correlator   = false
 write_gevp_results = true
 
 Nsmear = collect(0:10:80)
