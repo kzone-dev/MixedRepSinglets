@@ -38,8 +38,8 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_f
         unique!(xticks1)
  
         # add label with M2 ensemble, since it features in every plot
-        label1 = (T == 64) && isapprox(mf,-0.71) ? L"\eta'~~" : ""
-        label2 = (T == 64) && isapprox(mf,-0.71) ? L"a~~" : ""
+        label1 = (T == 64) && isapprox(mf,-0.71) ? L"\eta^{\prime}_h~~" : ""
+        label2 = (T == 64) && isapprox(mf,-0.71) ? L"\eta^{\prime}_l~~" : ""
         label3 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm ps}~~" : ""
         label4 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm PS}~~" : ""
         label5 = (T == 64) && isapprox(mf,-0.71) ? L"{\rm v}~~" : ""

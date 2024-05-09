@@ -50,11 +50,11 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
 
         plot!(plt1, ylims=(0.9*E0,1.1*E0))
-        savefig(plt1,joinpath(dir2,"$(ensemble)_$(channel).pdf"))
+        #savefig(plt1,joinpath(dir2,"$(ensemble)_$(channel).pdf"))
         plot!(plt1, ylims=(0.3,1.2))
-        savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
+        isequal(channel,"g5_singlet") && savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
         plot!(plt2,yscale=:log10)
-        savefig(plt2,joinpath(dir3,"$(ensemble)_$(channel).pdf"))
+        #savefig(plt2,joinpath(dir3,"$(ensemble)_$(channel).pdf"))
         if !only_singlet || channel == "g5_singlet"
             display(plt1)
         end
