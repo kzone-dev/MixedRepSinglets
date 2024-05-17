@@ -12,9 +12,12 @@ function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile)
         typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
         typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
         
+        filter_channels=true
+        channels=["g5","g0g5","g1","g2","g3"]
+
         @show fileCONN   
-        writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="$name/$rep/CONN")
+        writehdf5_spectrum(fileCONN,h5file,typesCONN,h5group="$name/$rep/CONN";filter_channels,channels)
         @show fileDISC   
-        writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="$name/$rep/DISC")
+        writehdf5_spectrum_disconnected(fileDISC,h5file,typesDISC,nhits,h5group="$name/$rep/DISC";filter_channels,channels)
     end    
 end

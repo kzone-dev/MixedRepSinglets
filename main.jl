@@ -21,14 +21,15 @@ include("scripts/mixing_angle.jl")
 #gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=12, tickfontsize=14, labelfontsize=14, titlefontsize=14,  markersize=5)
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
-start_from_logs    = false
-write_correlator   = false
+start_from_logs    = true
+write_correlator   = true
 write_gevp_results = true
 
 Nsmear = collect(0:10:80)
 
-logpath        = "/home/fabian/Documents/DataDiaL/measurements"
-hdf5path       = "/home/fabian/Downloads/hdf5out"
+#logpath        = "/home/fabian/Documents/DataDiaL/measurements"
+logpath        = "/home/fabian/Dokumente/DataDiaL/measurements"
+hdf5path       = "/home/fabian/Downloads/hdf5out_new"
 paramter_path  = "input"
 corrfitterpath = "output/fitresults"
 tablepath      = "output/tables"
@@ -38,6 +39,7 @@ parameterfile      = joinpath(paramter_path,"parameters_smeared.csv")
 parameters_fitting = joinpath(paramter_path,"parameters_corrfitter.csv")
 parameters_gevp    = joinpath(paramter_path,"parameters_gevp.csv")
 ispath(corrfitterpath) || mkpath(corrfitterpath)
+ispath(hdf5path) || mkpath(hdf5path) 
 
 start_from_logs    && main_write_hdf5_logs(Nsmear,logpath,hdf5path,parameterfile)
 write_correlator   && main_write_correlator_matrices(Nsmear,hdf5path)
