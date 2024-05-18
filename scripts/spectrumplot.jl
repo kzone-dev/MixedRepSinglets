@@ -1,4 +1,4 @@
-function plot_spectrum(tablepath,plotdir,gradient_flow_results="input/gradient_flow_results.csv")
+function plot_spectrum(tablepath,plotdir,gradient_flow_results)
     results_MR = joinpath(tablepath,"table_results_MR.csv")
 
     dir = joinpath(plotdir,"spectrum")

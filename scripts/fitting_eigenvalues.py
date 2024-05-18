@@ -33,7 +33,6 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
     T = abs(T) 
     fitter = cf.CorrFitter(models=make_models(T,tmin,tmax,tp))
     p0 = None
-    # TODO: find good Nmax
     for N in range(1,Nmax+1):
         prior = make_prior(N)
         fit = fitter.lsqfit(data=avg, prior=prior, p0=p0)
@@ -88,7 +87,6 @@ def fit_eigenvalues_resample(outfile,outfileHR,hdf5file,tmin1,tmin2,tmax1,tmax2,
     ev_resamples = get_hdf5_value(f,ensemble+"/"+channel+"/eigvals_resamples")[()]
     
     T, nsamples, Nops = ev_resamples.shape
-    print(T, nsamples, Nops)
 
     E1_samples = np.zeros(nsamples)
     E2_samples = np.zeros(nsamples)

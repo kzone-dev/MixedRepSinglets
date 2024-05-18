@@ -1,4 +1,4 @@
-function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile)
+function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile;filter_channels=true)
     h5file = joinpath(hdf5path,"singlets_smeared.hdf5")
 
     input = readdlm(parameterfile,';',skipstart=1)
@@ -12,7 +12,6 @@ function main_write_hdf5_logs(Nsmear,path,hdf5path,parameterfile)
         typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
         typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
         
-        filter_channels=true
         channels=["g5","g0g5","g1","g2","g3"]
 
         @show fileCONN   
