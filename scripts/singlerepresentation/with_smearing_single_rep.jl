@@ -2,9 +2,9 @@ using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using Plots
 using HDF5
-#gr(fontfamily="Computer Modern",  top_margin=4Plots.mm, left_margin=4Plots.mm, legend=:topright, frame=:box, legendfontsize=11, tickfontsize=10, labelfontsize=14, markersize=6)
+gr()
 
-h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
+h5file = "/home/fabian/Documents/smearing_tests/new/single_rep_smeared.hdf5"
 h5data = "/home/fabian/Downloads/data.hdf5"
 
 N_max  = 80
@@ -29,6 +29,10 @@ MixedRepSinglets.rescale_connected!(conn_old,L)
 corr_new = conn_matrix - disc_matrix
 corr_old = conn_old'   - disc_old
 
+
+corr_new = conn_matrix - disc_matrix
+corr_old = conn_old'   - disc_old
+
 corr_new = correlator_folding(corr_new;t_dim=4,sign)
 corr_old = correlator_folding(corr_old;t_dim=2,sign)
 
@@ -40,22 +44,19 @@ corr_new = correlator_derivative(corr_new;t_dim=4)
 corr_old = correlator_derivative(corr_old;t_dim=2)
 sign = -1
 
-corr_new
-corr_old
-
 samples = eigenvalues_jackknife_samples(corr_new,t0=1)
 meff_new, Δmeff_new = meff_from_jackknife(samples;sign)
 meff_old, Δmeff_old = implicit_meff_jackknife(corr_old';sign)
 meff_APE, Δmeff_APE = implicit_meff_jackknife(corr_new[1,1,:,:]';sign)
 
 # Plot correlator data without drivative
-plt1 = plot(yscale=:log10)
-scatter!(plt1,c3       ,yerr=Δc3       , label ="N=0 (with APE)")
-scatter!(plt1,c1[1,1,:],yerr=Δc1[1,1,:], label ="published data")
-display(plt1)
+#plt1 = plot(yscale=:log10)
+#scatter!(plt1,c3       ,yerr=Δc3       , label ="N=0 (with APE)")#
+#scatter!(plt1,c1[1,1,:],yerr=Δc1[1,1,:], label ="published data")
+#display(plt1)
 
 # Plot effective mass
-range  = 2:10 
+range  = 2:12
 xlabel = "Euclidean time"
 ylabel = "effective mass"
 title  = "pseudoscalar singlet: with numerical derivative"

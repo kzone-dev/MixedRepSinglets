@@ -4,8 +4,8 @@ using HiRepParsing
 using HDF5
 using Statistics
 
-path   = "/home/fabian/Downloads/"
-h5file = "/home/fabian/Downloads/single_rep_smeared.hdf5"
+path   = "/home/fabian/Documents/smearing_tests/old/"
+h5file = "/home/fabian/Documents/smearing_tests/old/single_rep_smeared.hdf5"
 
 Nsmear_conn = 0:40:80
 Nsmear_disc = 0:40:80
