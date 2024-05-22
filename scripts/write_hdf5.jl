@@ -33,6 +33,5 @@ function run_corrfitter(parameters,hdf5file,outdir)
     end
 end
 
-parameters_fitting = "input/parameters_fitting_g1.csv"
 parameters_fitting = "input/parameters_fitting.csv"
 run_corrfitter(parameters_fitting,h5file,"output")
