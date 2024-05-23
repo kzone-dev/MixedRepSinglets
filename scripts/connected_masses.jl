@@ -49,6 +49,8 @@ fitparam = readdlm("input/parameters_fitting.csv",';',skipstart=1)
 for (i,line) in enumerate(eachrow(results))
     ens, channel, rep, T, L, β, m, Δm, χ2dof = line
     tmin, tmax, tp, Nmax = fitparam[i,4:7]
+
+    title = "$T × $L^3, β=$β, $channel, $rep"
     
     if channel == "g1"
         label1 = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/g1"
@@ -64,8 +66,9 @@ for (i,line) in enumerate(eachrow(results))
     meff, Δmeff = implicit_meff_jackknife(corr')
 
     range = 1:div(T,2)
-    ylims = (m - 10Δm,m + 10Δm)
+    ylims = (m - 20Δm,m + 20Δm)
     plt = scatter(meff[range],yerr=Δmeff[range];ylims,label="effective mass")
     add_fit_range!(plt,tmin,tmax,m,Δm;label="")
+    plot!(plt,title=title)
     display(plt)
 end
