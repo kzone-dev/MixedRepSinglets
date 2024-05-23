@@ -55,10 +55,20 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,chan
     L = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[1]
     tp = tp*T if tp != 0 else None
 
-    h5name = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+channel
-    print(h5name)
-    corr = get_hdf5_value(f,h5name)[()]
-    
+    if channel == "g1":
+        h5name_g1 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g1"
+        h5name_g2 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g2"
+        h5name_g3 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g3"
+        corr_g1 = get_hdf5_value(f,h5name_g1)[()]
+        corr_g2 = get_hdf5_value(f,h5name_g2)[()]
+        corr_g3 = get_hdf5_value(f,h5name_g3)[()]
+        corr = (corr_g1 + corr_g2 + corr_g3)/3
+        print(h5name_g1)
+    else:
+        h5name = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+channel
+        corr = get_hdf5_value(f,h5name)[()]
+        print(h5name)
+        
     dset = gv.dataset.avg_data(np.transpose(corr))
     eig1 = dict(Gab=dset)
     
