@@ -50,13 +50,22 @@ for (i,line) in enumerate(eachrow(results))
     ens, channel, rep, T, L, β, m, Δm, χ2dof = line
     tmin, tmax, tp, Nmax = fitparam[i,4:7]
     
-    label = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/$channel"
-    corr  = h5read(h5file,label)
+    if channel == "g1"
+        label1 = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/g1"
+        label2 = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/g2"
+        label3 = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/g3"
+        corr = (h5read(h5file,label1) .+ h5read(h5file,label2) .+ h5read(h5file,label3)) ./ 3 
+    else
+        label = "$ens/$rep/CONN/DEFAULT_SEMWALL TRIPLET/$channel"
+        corr = h5read(h5file,label)
+    end
+
+    corr = correlator_folding(corr;t_dim=2,sign=+1)
     meff, Δmeff = implicit_meff_jackknife(corr')
-    #meff = correlator_folding(meff;t_dim=1,sign=+1)
 
     range = 1:div(T,2)
     ylims = (m - 10Δm,m + 10Δm)
     plt = scatter(meff[range],yerr=Δmeff[range];ylims,label="effective mass")
+    add_fit_range!(plt,tmin,tmax,m,Δm;label="")
     display(plt)
 end
