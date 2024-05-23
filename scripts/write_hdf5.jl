@@ -13,14 +13,18 @@ function main_write_hdf5_logs(path,h5file,parameterfile)
     end    
 end
 
-h5file = "/home/fabian/Dokumente/Physics/Analysis/HiRepHadrons/b55_tests.hdf5"
-isfile(h5file) && rm(h5file)
+h5file   = "/home/fabian/Downloads/b55_tests.hdf5"
+datapath = "/home/fabian/Dokumente/DataDiaL/"
+datapath = "/home/fabian/Documents/DataDiaL/"
 
-path = "/home/fabian/Dokumente/DataDiaL/measurementsTests"
+isfile(h5file) && rm(h5file)
+ispath("output") || mkpath("output")
+
+path = joinpath(datapath,"measurementsTests")
 parameterfile = "input/parameters_b6p55.csv"
 main_write_hdf5_logs(path,h5file,parameterfile)
 
-path = "/home/fabian/Dokumente/DataDiaL/measurements"
+path = joinpath(datapath,"measurements")
 parameterfile = "input/parameters_b6p45.csv"
 main_write_hdf5_logs(path,h5file,parameterfile)
 
