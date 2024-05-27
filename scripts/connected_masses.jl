@@ -4,6 +4,7 @@ using MixedRepSinglets
 using HDF5
 using Plots
 gr(frame=:box)
+plotlyjs(frame=:box)
 
 function main_write_hdf5_logs(path,h5file,parameterfile)
     input = readdlm(parameterfile,';',skipstart=1)
@@ -18,8 +19,8 @@ function main_write_hdf5_logs(path,h5file,parameterfile)
 end
 
 h5file   = "/home/fabian/Downloads/b55_tests.hdf5"
-datapath = "/home/fabian/Dokumente/DataDiaL/"
 datapath = "/home/fabian/Documents/DataDiaL/"
+datapath = "/home/fabian/Dokumente/DataDiaL/"
 
 isfile(h5file) && rm(h5file)
 ispath("output") || mkpath("output")
