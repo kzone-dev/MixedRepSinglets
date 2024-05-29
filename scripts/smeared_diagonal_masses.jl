@@ -1,3 +1,4 @@
+using Pkg; Pkg.activate(".")
 using DelimitedFiles
 using HiRepParsing
 using MixedRepSinglets
@@ -6,18 +7,6 @@ using Plots
 gr(frame=:box)
 plotlyjs(frame=:box)
 include("utils.jl")
-
-function main_write_hdf5_logs(path,h5file,parameterfile)
-    input = readdlm(parameterfile,';',skipstart=1)
-    for prm in eachrow(input)
-        
-        dir, file, typeCONN, rep, name = prm
-        fileCONN = joinpath(path,dir,"out",file)
-
-        @show fileCONN   
-        writehdf5_spectrum(fileCONN,h5file,typeCONN,h5group="$name/$rep/CONN")
-    end    
-end
 
 h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
 prm      = "input/parameters_smearing.csv"
@@ -29,7 +18,7 @@ isfile(h5file) && rm(h5file)
 ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurements")
 
-main_write_hdf5_logs(path,h5file,prm)
+main_write_hdf5_logs(path,h5file,prm;regexp=true)
 
 fitparam = readdlm(prm_fit,';',skipstart=1)
 for (i,line) in enumerate(eachrow(fitparam))
