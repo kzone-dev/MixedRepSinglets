@@ -23,3 +23,18 @@ function main_write_hdf5_logs(path,h5file,parameterfile;regexp=false)
         
     end    
 end
+function eigenvalues_meff(correlation_matrix;t0=1,binsize=1,deriv=false)
+    symmetry = +1 
+    correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
+    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+
+    if deriv 
+        correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
+        symmetry = -1 
+    end
+
+    eigvals, Δeigvals = eigenvalues(correlation_matrix;t0)
+    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
+    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
+    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
+end
