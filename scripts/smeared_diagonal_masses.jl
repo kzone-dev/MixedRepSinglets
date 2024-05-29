@@ -1,0 +1,60 @@
+using DelimitedFiles
+using HiRepParsing
+using MixedRepSinglets
+using HDF5
+using Plots
+gr(frame=:box)
+plotlyjs(frame=:box)
+include("utils.jl")
+
+function main_write_hdf5_logs(path,h5file,parameterfile)
+    input = readdlm(parameterfile,';',skipstart=1)
+    for prm in eachrow(input)
+        
+        dir, file, typeCONN, rep, name = prm
+        fileCONN = joinpath(path,dir,"out",file)
+
+        @show fileCONN   
+        writehdf5_spectrum(fileCONN,h5file,typeCONN,h5group="$name/$rep/CONN")
+    end    
+end
+
+h5file   = "/home/fabian/Downloads/b45_tests_smearing.hdf5"
+prm      = "input/parameters_b6p45_smearing.csv"
+prm_fit  = "input/parameters_fitting_b6p45_smearing.csv"
+datapath = "/home/fabian/Dokumente/DataDiaL/"
+datapath = "/home/fabian/Documents/DataDiaL/"
+
+isfile(h5file) && rm(h5file)
+ispath("output") || mkpath("output")
+path = joinpath(datapath,"measurements")
+
+main_write_hdf5_logs(path,h5file,prm)
+
+fitparam = readdlm(prm_fit,';',skipstart=1)
+for (i,line) in enumerate(eachrow(fitparam))
+    ens, rep, type, channel, tmin, tmax, tp, Nexp  = line
+    
+    β   = h5read(h5file,"$ens/$rep/CONN/beta")
+    T,L = h5read(h5file,"$ens/$rep/CONN/lattice")[1:2]
+    
+    title = "$T × $L^3, β=$β, $channel, $rep"
+    
+    if channel == "g1"
+        label1 = "$ens/$rep/CONN/$type/g1"
+        label2 = "$ens/$rep/CONN/$type/g2"
+        label3 = "$ens/$rep/CONN/$type/g3"
+        corr = (h5read(h5file,label1) .+ h5read(h5file,label2) .+ h5read(h5file,label3)) ./ 3 
+    else
+        label = "$ens/$rep/CONN/$type/$channel"
+        corr = h5read(h5file,label)
+    end
+
+    corr = correlator_folding(corr;t_dim=2,sign=+1)
+    meff, Δmeff = implicit_meff_jackknife(corr')
+
+    range = 1:div(T,2)
+    plt = scatter(meff[range],yerr=Δmeff[range];label="effective mass")
+    plot!(plt,title=title)
+    display(plt)
+end

@@ -33,15 +33,6 @@ path = joinpath(datapath,"measurements")
 parameterfile645 = "input/parameters_b6p45.csv"
 main_write_hdf5_logs(path,h5file,parameterfile645)
 
-function run_corrfitter(parameters,hdf5file,outdir)
-    args = `$(abspath(parameters)) $(abspath(hdf5file)) $(abspath(outdir))`
-    try
-        run(`python3 $(abspath("scripts/fitting_eigenvalues.py")) $args`)
-    catch
-        run(`python  $(abspath("scripts/fitting_eigenvalues.py")) $args`)
-    end
-end
-
 parameters_fitting = "input/parameters_fitting.csv"
 run_corrfitter(parameters_fitting,h5file,"output")
 
