@@ -1,0 +1,12 @@
+outputdir;file;typeCONN;rep;name
+Lt48Ls24beta6.45mf0.7mas1.04FUN;out_spectrum_smeared;source_N120_sink_N120 TRIPLET;FUN;B1MF1MA1
+Lt48Ls20beta6.5mf0.71mas1.01FUN;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;FUN;M1
+Lt48Ls20beta6.5mf0.71mas1.01AS;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;AS;M1
+Lt64Ls20beta6.5mf0.71mas1.01FUN;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;FUN;M2
+Lt64Ls20beta6.5mf0.71mas1.01AS;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;AS;M2
+Lt96Ls20beta6.5mf0.71mas1.01FUN;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;FUN;M3
+Lt96Ls20beta6.5mf0.71mas1.01AS;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;AS;M3
+Lt64Ls20beta6.5mf0.70mas1.01FUN;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;FUN;M4
+Lt64Ls20beta6.5mf0.70mas1.01AS;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;AS;M4
+Lt64Ls32beta6.5mf0.72mas1.01FUN;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;FUN;M5
+Lt64Ls32beta6.5mf0.72mas1.01AS;out_spectrum_smeared;source_N80_sink_N80 TRIPLET;AS;M5

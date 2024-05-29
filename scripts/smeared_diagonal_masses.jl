@@ -19,9 +19,9 @@ function main_write_hdf5_logs(path,h5file,parameterfile)
     end    
 end
 
-h5file   = "/home/fabian/Downloads/b45_tests_smearing.hdf5"
-prm      = "input/parameters_b6p45_smearing.csv"
-prm_fit  = "input/parameters_fitting_b6p45_smearing.csv"
+h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
+prm      = "input/parameters_smearing.csv"
+prm_fit  = "input/parameters_fitting_smearing.csv"
 datapath = "/home/fabian/Dokumente/DataDiaL/"
 datapath = "/home/fabian/Documents/DataDiaL/"
 

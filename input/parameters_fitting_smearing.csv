@@ -1,0 +1,24 @@
+ensemble;rep;type;channel;tmin;tmax;tp;Nmax;
+B1MF1MA1;FUN;source_N120_sink_N120 TRIPLET;g5;17;26;1;1;
+B1MF1MA1;FUN;source_N120_sink_N120 TRIPLET;g1;20;26;1;1;
+M1;FUN;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M1;FUN;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M1;AS;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M1;AS;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M2;FUN;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M2;FUN;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M2;AS;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M2;AS;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M3;FUN;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M3;FUN;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M3;AS;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M3;AS;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M4;FUN;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M4;FUN;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M4;AS;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M4;AS;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M5;FUN;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M5;FUN;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+M5;AS;source_N80_sink_N80 TRIPLET;g5;17;26;1;1;
+M5;AS;source_N80_sink_N80 TRIPLET;g1;20;26;1;1;
+
