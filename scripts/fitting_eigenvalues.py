@@ -17,8 +17,8 @@ def make_models(T,tmin,tmax,tp):
 def make_prior(N):
     prior = gv.BufferDict()
     # setting the sdev of the prioir to infinity amounts to turning off the prior contribution to chi2
-    prior['log(a)']  = gv.log(gv.gvar(N*[0.1], N*[0.1]))
-    prior['log(dE)'] = gv.log(gv.gvar(N*[0.1], N*[0.1]))
+    prior['log(a)']  = gv.log(gv.gvar(N*[0.5], N*[0.3]))
+    prior['log(dE)'] = gv.log(gv.gvar(N*[0.5], N*[0.3]))
     return prior
 
 def first_fit_parameters(fit):

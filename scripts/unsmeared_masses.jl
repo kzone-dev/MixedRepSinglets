@@ -10,7 +10,7 @@ include("utils.jl")
 
 h5file   = "/home/fabian/Downloads/b55_tests.hdf5"
 datapath = "/home/fabian/Dokumente/DataDiaL/"
-datapath = "/home/fabian/Documents/DataDiaL/"
+datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
 
 isfile(h5file) && rm(h5file)
 ispath("output") || mkpath("output")
