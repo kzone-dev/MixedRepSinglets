@@ -12,7 +12,7 @@ h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
 prm      = "input/parameters_smearing.csv"
 prm_fit  = "input/parameters_fitting_smearing.csv"
 datapath = "/home/fabian/Dokumente/DataDiaL/"
-datapath = "/home/fabian/Documents/DataDiaL/"
+datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
 
 ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurements")
@@ -24,6 +24,8 @@ if write_hdf5_file
 end
 
 fitparam = readdlm(prm_fit,';',skipstart=1)
+run_corrfitter(prm_fit,h5file,"output")
+
 for (i,line) in enumerate(eachrow(fitparam))
     ens, rep, type, channel, tmin, tmax, tp, Nexp  = line
     
@@ -50,7 +52,5 @@ for (i,line) in enumerate(eachrow(fitparam))
     scatter!(plt,meff[range],yerr=Δmeff[range];label="effective mass (diag)")
     plot!(plt,title=title,ylims=(0.34,0.36))
     display(plt)
-
-    break
 
 end

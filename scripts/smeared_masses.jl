@@ -12,13 +12,13 @@ h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
 prm      = "input/parameters_smearing.csv"
 prm_fit  = "input/parameters_fitting_smearing.csv"
 datapath = "/home/fabian/Dokumente/DataDiaL/"
-datapath = "/home/fabian/Documents/DataDiaL/"
+datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
 
 ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurements")
 Nsmear = 0:40:120
 
-write_hdf5_file = false
+write_hdf5_file = true
 if write_hdf5_file
     isfile(h5file) && rm(h5file)
     main_write_hdf5_logs(path,h5file,prm;regexp=true)
@@ -43,8 +43,5 @@ for (i,line) in enumerate(eachrow(fitparam))
     scatter!(plt,meff[Nops,range],yerr=Δmeff[Nops,range];label="effective mass")
     plot!(plt,title=title,ylims=(0.34,0.36))
     display(plt)
-
-
-    break 
 
 end
