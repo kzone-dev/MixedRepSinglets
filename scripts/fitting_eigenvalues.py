@@ -29,7 +29,7 @@ def first_fit_parameters(fit):
     dof = fit.dof
     return E, a, chi2, dof
 
-def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,printing=False):
+def fit_correlator(avg,T,tmin,tmax,Nmax,tp,plotting=False,printing=False):
     T = abs(T) 
     fitter = cf.CorrFitter(models=make_models(T,tmin,tmax,tp))
     p0 = None
@@ -49,16 +49,16 @@ def fit_correlator_without_bootstrap(avg,T,tmin,tmax,Nmax,tp,plotting=False,prin
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,channel,rep,header=False):
+def fit_connected(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,channel,rep,ID="DEFAULT_SEMWALL TRIPLET",header=False):
     f = h5py.File(hdf5file)
     T = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[0]
     L = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[1]
     tp = tp*T if tp != 0 else None
 
     if channel == "g1":
-        h5name_g1 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g1"
-        h5name_g2 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g2"
-        h5name_g3 = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/"+"g3"
+        h5name_g1 = ensemble+"/"+rep+"/CONN/"+ID+"/"+"g1"
+        h5name_g2 = ensemble+"/"+rep+"/CONN/"+ID+"/"+"g2"
+        h5name_g3 = ensemble+"/"+rep+"/CONN/"+ID+"/"+"g3"
         corr_g1 = get_hdf5_value(f,h5name_g1)[()]
         corr_g2 = get_hdf5_value(f,h5name_g2)[()]
         corr_g3 = get_hdf5_value(f,h5name_g3)[()]
@@ -72,8 +72,7 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,chan
     dset = gv.dataset.avg_data(np.transpose(corr))
     eig1 = dict(Gab=dset)
     
-    E1, a1, chi2A, dofA = fit_correlator_without_bootstrap(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
-    
+    E1, a1, chi2A, dofA = fit_correlator(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
     beta = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/beta")
 
     out = open(outfile, "a")
@@ -84,7 +83,7 @@ def fit_eigenvalues(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,chan
     outHR.close()
 
 
-def run_corrfitter_singlets(prmfile,hdf5file,outdir):
+def run_corrfitter(prmfile,hdf5file,outdir,ID="DEFAULT_SEMWALL TRIPLET"):
     outfile    = os.path.join(outdir,"corrfitter_results.csv")
     outfileHR  = os.path.join(outdir,"corrfitter_results_HR.csv")
     os.path.exists(outfile)   and os.remove(outfile)
@@ -97,7 +96,7 @@ def run_corrfitter_singlets(prmfile,hdf5file,outdir):
             ensemble, channel, rep = row['ensemble'], row['channel'], row["rep"]
             tmin, tmax = int(row['tmin']), int(row['tmax'])
             tp,   Nmax = int(row['tp']), int(row['Nmax'])
-            fit_eigenvalues(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep)
+            fit_connected(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep,ID)
 
 
 PLOT=False
@@ -106,8 +105,15 @@ PRINT=False
 args = sys.argv
 if len(args) < 4:
     print("Missing parameter and/or hdf5 file")
+elif len(args)==4:
+    prmfile  = args[1]
+    hdf5path = args[2] 
+    outdir   = args[3] 
+    run_corrfitter(prmfile,hdf5path,outdir)
 elif len(args)>=4:
     prmfile  = args[1]
     hdf5path = args[2] 
     outdir   = args[3] 
-    run_corrfitter_singlets(prmfile,hdf5path,outdir)
+    ID       = args[4] 
+    run_corrfitter(prmfile,hdf5path,outdir,ID)
+
