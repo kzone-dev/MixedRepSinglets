@@ -130,25 +130,42 @@ def run_corrfitter(prmfile,hdf5file,outdir,ID="DEFAULT_SEMWALL TRIPLET"):
             tmin, tmax = int(row['tmin']), int(row['tmax'])
             tp,   Nmax = int(row['tp']), int(row['Nmax'])
             fit_connected(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep,ID)
-            if channel == "g5":
-                fit_decay_constant(out_fpi,out_fpi_HR,hdf5file,tmin,tmax,tp,Nmax,ensemble,rep)
 
+def run_corrfitter_fpi(prmfile,hdf5file,outdir):
+    out_fpi     = os.path.join(outdir,"corrfitter_fpi_results.csv")
+    out_fpi_HR  = os.path.join(outdir,"corrfitter_fpi_results_HR.csv")
+    os.path.exists(out_fpi)    and os.remove(out_fpi)
+    os.path.exists(out_fpi_HR) and os.remove(out_fpi_HR)
+
+    with open(prmfile) as csvfile:
+        reader = csv.DictReader(csvfile,delimiter=';')
+        for row in reader:
+            ensemble, channel, rep = row['ensemble'], row['channel'], row["rep"]
+            tmin, tmax = int(row['tmin']), int(row['tmax'])
+            tp,   Nmax = int(row['tp']), int(row['Nmax'])
+            fit_decay_constant(out_fpi,out_fpi_HR,hdf5file,tmin,tmax,tp,Nmax,ensemble,rep)
 
 PLOT=False
 PRINT=False
 
 args = sys.argv
-if len(args) < 4:
+if len(args) < 5:
     print("Missing parameter and/or hdf5 file")
-elif len(args)==4:
+elif len(args)==5:
     prmfile  = args[1]
     hdf5path = args[2] 
     outdir   = args[3] 
-    run_corrfitter(prmfile,hdf5path,outdir)
-elif len(args)>=4:
-    prmfile  = args[1]
-    hdf5path = args[2] 
-    outdir   = args[3] 
-    ID       = args[4] 
-    run_corrfitter(prmfile,hdf5path,outdir,ID)
+    run_fpi  = args[4]
+    print(run_fpi)
+    if run_fpi == "fpi": 
+        run_corrfitter_fpi(prmfile,hdf5path,outdir)
+    else:
+        run_corrfitter(prmfile,hdf5path,outdir)
+
+#elif len(args)>=4:
+#    prmfile  = args[1]
+#    hdf5path = args[2] 
+#    outdir   = args[3] 
+#    ID       = args[4] 
+#    run_corrfitter(prmfile,hdf5path,outdir,ID)
 
