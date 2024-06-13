@@ -49,7 +49,7 @@ def fit_correlator(avg,T,tmin,tmax,Nmax,tp,plotting=False,printing=False):
         fit.show_plots(view='log'  )
     return E, a, chi2, dof
 
-def fit_connected(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,channel,rep,ID="DEFAULT_SEMWALL TRIPLET",header=False):
+def fit_connected(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,channel,rep,ID="DEFAULT_SEMWALL TRIPLET"):
     f = h5py.File(hdf5file)
     T = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[0]
     L = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[1]
@@ -82,6 +82,37 @@ def fit_connected(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,channe
     out.close()
     outHR.close()
 
+def fit_decay_constant(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,rep):
+    f = h5py.File(hdf5file)
+    T = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[0]
+    L = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/lattice")[1]
+
+    tp = tp*T if tp != 0 else None
+    beta = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/beta")
+    plaquettes = get_hdf5_value(f,ensemble+"/"+rep+"/CONN/plaquette")[()]
+
+    h5name = ensemble+"/"+rep+"/CONN/DEFAULT_SEMWALL TRIPLET/g0g5"
+    print(h5name)
+        
+    corr = get_hdf5_value(f,h5name)[()]*L**3/2
+    dset = gv.dataset.avg_data(np.transpose(corr))
+    eig1 = dict(Gab=dset)
+    E, a, chi2A, dofA = fit_correlator(eig1,T,tmin1,tmax1,Nmax,tp,plotting=PLOT,printing=PRINT)
+
+    # now do the pion decay constant
+    p = gv.dataset.avg_data(plaquettes)
+    # renormalization from lattice perturbation theory 
+    ZA = 1 + (5/4)*(-12.82-3)*8/(16*np.pi**2)/(beta*p)        
+    fpi = a[0]*np.sqrt(2/E[0])
+    fpi_ren = ZA*a[0]*np.sqrt(2/E[0])
+
+    out = open(outfile, "a")
+    outHR = open(outfileHR, "a")
+    out.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,"g0g5",rep,T,L,beta,gv.mean(E[0]),gv.sdev(E[0]),gv.mean(fpi_ren),gv.sdev(fpi_ren),chi2A/dofA))
+    outHR.write("%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (ensemble,"g0g5",rep,T,L,beta,E[0],fpi_ren,chi2A/dofA))
+    out.close()
+    outHR.close()
+
 
 def run_corrfitter(prmfile,hdf5file,outdir,ID="DEFAULT_SEMWALL TRIPLET"):
     outfile    = os.path.join(outdir,"corrfitter_results.csv")
@@ -89,6 +120,8 @@ def run_corrfitter(prmfile,hdf5file,outdir,ID="DEFAULT_SEMWALL TRIPLET"):
     os.path.exists(outfile)   and os.remove(outfile)
     os.path.exists(outfileHR) and os.remove(outfileHR)
     
+    out_fpi     = os.path.join(outdir,"corrfitter_fpi_results.csv")
+    out_fpi_HR  = os.path.join(outdir,"corrfitter_fpi_results_HR.csv")
 
     with open(prmfile) as csvfile:
         reader = csv.DictReader(csvfile,delimiter=';')
@@ -97,6 +130,8 @@ def run_corrfitter(prmfile,hdf5file,outdir,ID="DEFAULT_SEMWALL TRIPLET"):
             tmin, tmax = int(row['tmin']), int(row['tmax'])
             tp,   Nmax = int(row['tp']), int(row['Nmax'])
             fit_connected(outfile,outfileHR,hdf5file,tmin,tmax,tp,Nmax,ensemble,channel,rep,ID)
+            if channel == "g5":
+                fit_decay_constant(out_fpi,out_fpi_HR,hdf5file,tmin,tmax,tp,Nmax,ensemble,rep)
 
 
 PLOT=False
