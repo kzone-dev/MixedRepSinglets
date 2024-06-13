@@ -18,10 +18,14 @@ ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurementsTests")
 parameterfile655 = "input/parameters_b6p55.csv"
 main_write_hdf5_logs(path,h5file,parameterfile655)
-
+    
 path = joinpath(datapath,"measurements")
 parameterfile645 = "input/parameters_b6p45.csv"
 main_write_hdf5_logs(path,h5file,parameterfile645)
+
+path = joinpath(datapath,"measurements")
+parameterfile65 = "input/parameters_b6p5.csv"
+main_write_hdf5_logs(path,h5file,parameterfile65)
 
 parameters_fitting = "input/parameters_fitting.csv"
 run_corrfitter(parameters_fitting,h5file,"output")
