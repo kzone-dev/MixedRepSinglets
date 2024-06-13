@@ -33,9 +33,9 @@ run_corrfitter(parameters_fitting,h5file,"output")
 parameters_fitting_fpi = "input/parameters_fitting_fpi.csv"
 run_corrfitter(parameters_fitting_fpi,h5file,"output",fpi=true)
 
-#results  = readdlm("output/corrfitter_results.csv",';')
-#fitparam = readdlm("input/parameters_fitting.csv",';',skipstart=1)
-#_effective_mass_plots(results,fitparam)
+results  = readdlm("output/corrfitter_results.csv",';')
+fitparam = readdlm("input/parameters_fitting.csv",';',skipstart=1)
+_effective_mass_plots(results,fitparam)
 
 results  = readdlm("output/corrfitter_fpi_results.csv",';')
 fitparam = readdlm("input/parameters_fitting_fpi.csv",';',skipstart=1)
