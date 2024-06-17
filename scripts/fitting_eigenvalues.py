@@ -102,7 +102,12 @@ def fit_decay_constant(outfile,outfileHR,hdf5file,tmin1,tmax1,tp,Nmax,ensemble,r
     # now do the pion decay constant
     p = gv.dataset.avg_data(plaquettes)
     # renormalization from lattice perturbation theory 
-    ZA = 1 + (5/4)*(-12.82-3)*8/(16*np.pi**2)/(beta*p)        
+    if rep == "FUN":
+        CF = (5/4)
+    elif rep == "AS":
+        CF = 2
+
+    ZA = 1 + CF*(-12.82-3)*8/(16*np.pi**2)/(beta*p)        
     fpi = a[0]*np.sqrt(2/E[0])
     fpi_ren = ZA*a[0]*np.sqrt(2/E[0])
 
