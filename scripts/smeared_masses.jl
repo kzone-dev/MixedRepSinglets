@@ -9,14 +9,15 @@ plotlyjs(frame=:box)
 include("utils.jl")
 
 h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
-prm      = "input/parameters_smearing.csv"
-prm_fit  = "input/parameters_fitting_smearing.csv"
-datapath = "/home/fabian/Dokumente/DataDiaL/"
+prm      = "input/smearing_single.csv"
+prm_fit  = "input/fitting_smearing_single.csv"
+
 datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
+datapath = "/home/fabian/Dokumente/DataDiaL/"
 
 ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurements")
-Nsmear = 0:40:120
+Nsmear = 0:200:400
 
 write_hdf5_file = true
 if write_hdf5_file
@@ -41,7 +42,6 @@ for (i,line) in enumerate(eachrow(fitparam))
     range = 1:div(T,2)
     plt = plot()
     scatter!(plt,meff[Nops,range],yerr=Δmeff[Nops,range];label="effective mass")
-    plot!(plt,title=title,ylims=(0.34,0.36))
     display(plt)
 
 end
