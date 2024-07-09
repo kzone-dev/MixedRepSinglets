@@ -44,7 +44,7 @@ for (i,line) in enumerate(eachrow(fitparam))
         corr = h5read(h5file,label)
     end
 
-    corr = correlator_folding(corr;t_dim=2,sign=+1)
+    corr[1,1,:,:] = correlator_folding(corr;t_dim=2,sign=+1)
     meff, Δmeff = implicit_meff_jackknife(corr')
 
     range = 1:div(T,2)
