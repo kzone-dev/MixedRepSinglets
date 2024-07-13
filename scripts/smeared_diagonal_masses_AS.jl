@@ -9,13 +9,14 @@ plotlyjs(frame=:box)
 include("utils.jl")
 
 h5file   = "/home/fabian/Downloads/tests_smearing.hdf5"
-prm      = "input/smearing_single.csv"
-prm_fit  = "input/fitting_smearing_single.csv"
+prm      = "input/parameters_AS.csv"
+prm_fit  = "input/fitting_matrix_AS.csv"
 datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
 datapath = "/home/fabian/Dokumente/DataDiaL/"
 
 ispath("output") || mkpath("output")
 path = joinpath(datapath,"measurements")
+path = joinpath(datapath,"measurementsAS")
 
 write_hdf5_file = true
 if write_hdf5_file
@@ -45,6 +46,7 @@ for (i,line) in enumerate(eachrow(fitparam))
         corr = h5read(h5file,label)
     end
 
+    @show size(corr)
     corr = correlator_folding(corr;t_dim=2,sign=+1)
     meff, Δmeff = implicit_meff_jackknife(corr')
 

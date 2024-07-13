@@ -1,3 +1,5 @@
 ensemble;rep;type;channel;tmin;tmax;tp;Nmax;
 M3;FUN;source_N400_sink_N400 TRIPLET;g5;17;26;1;1;
-M3;FUN;source_N400_sink_N400 TRIPLET;g1;20;26;1;1;
+M3;FUN;source_N400_sink_N0 TRIPLET;g5;17;26;1;1;
+M3;FUN;source_N200_sink_N0 TRIPLET;g5;17;26;1;1;
+M3;FUN;source_N0_sink_N0 TRIPLET;g5;17;26;1;1;
