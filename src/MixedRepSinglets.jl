@@ -8,6 +8,7 @@ module MixedRepSinglets
     using LsqFit
     using Roots
     using HDF5
+    using Polyester
 
     include("unbiased_estimator.jl")
     export unbiased_estimator, read_hdf5_diagrams

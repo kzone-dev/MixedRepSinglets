@@ -53,10 +53,10 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",
                 discFUN_N1N2 = unbiased_estimator(discFUN[i];rescale=rescale_disc,subtract_vev)
                 discAS_N1N2  = unbiased_estimator(discAS[i] ;rescale=rescale_disc,subtract_vev)
             else
-                discFUN_N1N2 = unbiased_estimator(discFUN[i],discFUN[j];rescale=rescale_disc,subtract_vev) 
-                discAS_N1N2  = unbiased_estimator(discAS[i] ,discAS[j] ;rescale=rescale_disc,subtract_vev) 
+                discFUN_N1N2 = unbiased_estimator_threaded(discFUN[i],discFUN[j];rescale=rescale_disc,subtract_vev) 
+                discAS_N1N2  = unbiased_estimator_threaded(discAS[i] ,discAS[j] ;rescale=rescale_disc,subtract_vev) 
             end
-            discFUNAS_N1N2   = unbiased_estimator(discFUN[i],discAS[j] ;rescale=rescale_disc,subtract_vev) 
+            discFUNAS_N1N2   = unbiased_estimator_threaded(discFUN[i],discAS[j] ;rescale=rescale_disc,subtract_vev) 
             block_diag_FUN[i,j,:,:] = Nf_fun*disc_sign*discFUN_N1N2
             block_diag_FUN[j,i,:,:] = Nf_fun*disc_sign*discFUN_N1N2
             block_diag_AS[i,j,:,:]  = Nf_as *disc_sign*discAS_N1N2
@@ -116,7 +116,7 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
             if i == j
                 disc_N1N2 = unbiased_estimator(disc[i];rescale=rescale_disc,subtract_vev)
             else
-                disc_N1N2 = unbiased_estimator(disc[i],disc[j];rescale=rescale_disc,subtract_vev) 
+                disc_N1N2 = unbiased_estimator_threaded(disc[i],disc[j];rescale=rescale_disc,subtract_vev) 
             end
             correlation_matrix_DISC[i,j,:,:] = Nf*disc_sign*disc_N1N2
             correlation_matrix_DISC[j,i,:,:] = Nf*disc_sign*disc_N1N2
