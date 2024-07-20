@@ -27,8 +27,8 @@ fileDISC = joinpath(path,"out_spectrum_smeared_discon")
 name  = "AS1"
 nhits = 200
 h5file = "test_AS.hdf5"
-Nsmear = ("0","30")
-mπREF, ΔmπREF = NaN, NaN
+Nsmear = ("0","30","60")
+mπREF, ΔmπREF = 0.3463, 0.0007
 mηREF, ΔmηREF = NaN, NaN
 Nf = 3
 
@@ -46,36 +46,35 @@ end
 
 assemble = true
 if assemble
-    conn, disc = _assemble_correlation_matrix_rep(h5file,name,Nsmear,"";channel="g0g5",disc_sign=+1,subtract_vev=false,Nf,nsrc_max=nhits÷1)
-    correlation_matrix = @. conn - disc
-    correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=+1)
+    conn, disc = _assemble_correlation_matrix_rep(h5file,name,Nsmear,"";channel="g5",disc_sign=+1,subtract_vev=false,Nf,nsrc_max=nhits÷1)
     conn = correlator_folding(conn;t_dim=4,sign=+1)
+    disc = correlator_folding(disc;t_dim=4,sign=+1)
+    correlation_matrix = @. conn - disc
     correlation_matrix_deriv = correlator_derivative(correlation_matrix,t_dim=4)
 
 end
 
 binsize = 1
 deriv = false
-t0 = 2
+t0 = 1
 Nl = length(Nsmear)
 
 plt3 = plot()
-#for ind in [(1,1),(Nl,1),(Nl-1,1),(Nl,Nl)] 
-for ind in [(Nl,Nl),(Nl,1),(1,1)] 
-    #corr  = deriv ? correlation_matrix_deriv[ind[1],ind[2],:,:] : correlation_matrix[ind[1],ind[2],:,:]
+for ind in [(Nl,Nl),(Nl-1,Nl-1),(Nl,1),(Nl-1,1)] 
+    corr  = deriv ? correlation_matrix_deriv[ind[1],ind[2],:,:] : correlation_matrix[ind[1],ind[2],:,:]
     corr0 = conn[ind[1],ind[2],:,:]
     sign  = deriv ? -1 : +1
-    #meff , Δmeff  = implicit_meff_jackknife(corr' ;sign)
+    meff , Δmeff  = implicit_meff_jackknife(corr' ;sign)
     meff0, Δmeff0 = implicit_meff_jackknife(corr0';sign=+1)
     smear="(N1=$(Nsmear[ind[1]]), N2=$(Nsmear[ind[2]]))"
-    #plot!(plt3,meff,  yerr = Δmeff,  ms=5, markershape=:auto; label="singlet: $smear")
-    plot!(plt3,meff0, yerr = Δmeff0, ms=5, markershape=:auto; label="non-singlet: $smear")
+    plot!(plt3,meff,  yerr = Δmeff,  ms=5, markershape=:auto; label="singlet: $smear")
+    #plot!(plt3,meff0, yerr = Δmeff0, ms=5, markershape=:auto; label="non-singlet: $smear")
 end
 eigvals1, Δeigvals1, meff1, Δmeff1, eigenvalues_jackknife1 = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
 eigvals2, Δeigvals2, meff2, Δmeff2, eigenvalues_jackknife2 = eigenvalues_meff_mixed_rep(conn;t0,binsize,deriv=false)
 #plot!(plt3,meff1[Nl,:], yerr = Δmeff1[Nl,:],label="singlet (GEVP)",ms=5,markershape=:auto)
-plot!(plt3,meff2[Nl,:], yerr = Δmeff2[Nl,:],label="non-singlet (GEVP)",ms=5,markershape=:auto)
+#plot!(plt3,meff2[Nl,:], yerr = Δmeff2[Nl,:],label="non-singlet (GEVP)",ms=5,markershape=:auto)
 add_mass_band!(plt3,mπREF,2ΔmπREF;label="pi (error x2)",alpha=0.5)
-add_mass_band!(plt3,mηREF,ΔmηREF;label="",alpha=0.5)
+#add_mass_band!(plt3,mηREF,ΔmηREF;label="",alpha=0.5)
 plot!(plt3,ylims=(0.2,0.5),xlims=(0,22.5),legend=:bottomright)
 display(plt3)
