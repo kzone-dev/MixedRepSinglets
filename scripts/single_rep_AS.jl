@@ -8,32 +8,6 @@ gr(frame=:box,legendfontsize=8,legend=:bottomright)
 plotlyjs(frame=:box,legendfontsize=8,legend=:bottomright)
 
 #=
-path = "/home/fabian/Downloads/smearing_old_complex_numbers/"
-fileCONN = joinpath(path,"out_spectrum_smeared")
-fileDISC = joinpath(path,"out_spectrum_smeared_discon")
-name  = "F1"
-nhits = 128
-h5file = "test_F.hdf5"
-Nsmear = ("0","40","80")
-Nsmear = ("0","40")
-mπREF, ΔmπREF = 0.5663, 0.0008  
-mηREF, ΔmηREF = 0.6100, 0.0060  
-Nf = 2
-
-
-path = "/home/fabian/Documents/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
-path = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
-fileCONN = joinpath(path,"out_spectrum_smeared")
-fileDISC = joinpath(path,"out_spectrum_smeared_discon")
-name  = "AS1"
-nhits = 200
-h5file = "test_AS.hdf5"
-Nsmear = ("0","30","60")
-mπREF, ΔmπREF = 0.3463, 0.0007
-mηREF, ΔmηREF = NaN, NaN
-Nf = 3
-
-
 path = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
 path = "/home/fabian/Documents/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
 fileCONN = joinpath(path,"out_spectrum_smeared_N120")
@@ -68,8 +42,30 @@ h5file = "test_AS_v2.hdf5"
 Nsmear = collect(0:40:80)
 Nf = 3
 
+path = "/home/fabian/Downloads/smearing_old_complex_numbers/"
+fileCONN = joinpath(path,"out_spectrum_smeared")
+fileDISC = joinpath(path,"out_spectrum_smeared_discon")
+name  = "F1"
+nhits = 128
+h5file = "test_F.hdf5"
+Nsmear = ("0","40")
+Nsmear = ("0","40","80")
+mπREF, ΔmπREF = 0.5663, 0.0008  
+mηREF, ΔmηREF = 0.6100, 0.0060  
+Nf = 2
 
-@show size(conn)
+path = "/home/fabian/Documents/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
+path = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurementsAS/Lt56Ls24beta6.8mas-1.035/out"
+fileCONN = joinpath(path,"out_spectrum_smeared")
+fileDISC = joinpath(path,"out_spectrum_smeared_discon")
+name  = "AS1"
+nhits = 200
+h5file = "test_AS.hdf5"
+Nsmear = ("0","30","60")
+mπREF, ΔmπREF = 0.3463, 0.0007
+mρREF, ΔmρREF = 0.3989, 0.0016
+mηREF, ΔmηREF = NaN, NaN
+Nf = 3
 
 typesDISC = ["DISCON_SEMWALL smear_N$N SINGLET"  for N  in Nsmear]
 typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
@@ -77,45 +73,45 @@ typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
 typesCONN = r"source_N[0-9]+_sink_N[0-9]+ TRIPLET"
 typesDISC = r"DISCON_SEMWALL smear_N[0-9]+ SINGLET"
 
-write = true
+write = false
 if write
     writehdf5_spectrum_with_regexp(fileCONN,h5file,typesCONN,h5group="$name/CONN")
-    #writehdf5_spectrum_disconnected_with_regexp(fileDISC,h5file,typesDISC,nhits,h5group="$name/DISC")
+    writehdf5_spectrum_disconnected_with_regexp(fileDISC,h5file,typesDISC,nhits,h5group="$name/DISC")
 end
 
 assemble = true
 if assemble
     conn = _assemble_correlation_matrix_rep_nonsinglet(h5file,name,Nsmear,"";channel="id")
-    #conn, disc = _assemble_correlation_matrix_rep(h5file,name,Nsmear,"";channel="g5",disc_sign=+1,subtract_vev=false,Nf,nsrc_max=nhits÷1)
+    conn, disc = _assemble_correlation_matrix_rep(h5file,name,Nsmear,"";channel="id",disc_sign=-1,subtract_vev=true,Nf,nsrc_max=nhits÷1)
     conn = correlator_folding(conn;t_dim=4,sign=+1)
-    #disc = correlator_folding(disc;t_dim=4,sign=+1)
-    #correlation_matrix = @. conn - disc
-    #correlation_matrix_deriv = correlator_derivative(correlation_matrix,t_dim=4)
-
+    disc = correlator_folding(disc;t_dim=4,sign=+1)
+    correlation_matrix = @. conn - disc
+    correlation_matrix_deriv = correlator_derivative(correlation_matrix,t_dim=4)
 end
 
 binsize = 1
 deriv = false
-t0 = 4 # at least 2 needed for scalar states
+t0 = 2 # at least 2 needed for scalar states
 Nl = length(Nsmear)
 
 plt3 = plot()
-for ind in [(Nl,1),(Nl-1,1),(Nl-1,Nl-1)] 
-    #corr  = deriv ? correlation_matrix_deriv[ind[1],ind[2],:,:] : correlation_matrix[ind[1],ind[2],:,:]
+for ind in [(Nl,Nl),(Nl-1,Nl-1)] 
+    corr  = deriv ? correlation_matrix_deriv[ind[1],ind[2],:,:] : correlation_matrix[ind[1],ind[2],:,:]
     corr0 = conn[ind[1],ind[2],:,:]
     sign  = deriv ? -1 : +1
-    #meff , Δmeff  = implicit_meff_jackknife(corr' ;sign)
+    meff , Δmeff  = implicit_meff_jackknife(corr' ;sign)
     meff0, Δmeff0 = implicit_meff_jackknife(corr0';sign=+1)
     smear="(N1=$(Nsmear[ind[1]]), N2=$(Nsmear[ind[2]]))"
     #plot!(plt3,meff,  yerr = Δmeff,  ms=5, markershape=:auto; label="singlet: $smear")
-    plot!(plt3,meff0, yerr = Δmeff0, ms=5, markershape=:auto; label="non-singlet: $smear")
+    #plot!(plt3,meff0, yerr = Δmeff0, ms=5, markershape=:auto; label="non-singlet: $smear")
 end
-#eigvals1, Δeigvals1, meff1, Δmeff1, eigenvalues_jackknife1 = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
+eigvals1, Δeigvals1, meff1, Δmeff1, eigenvalues_jackknife1 = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
 eigvals2, Δeigvals2, meff2, Δmeff2, eigenvalues_jackknife2 = eigenvalues_meff_mixed_rep(conn;t0,binsize,deriv=false)
-#plot!(plt3,meff1[Nl,:], yerr = Δmeff1[Nl,:],label="singlet (GEVP)",ms=5,markershape=:auto)
-plot!(plt3,meff2[Nl,:], yerr = Δmeff2[Nl,:],label="non-singlet (GEVP)",ms=5,markershape=:auto)
-#add_mass_band!(plt3,mπREF,2ΔmπREF;label="pi (error x2)",alpha=0.5)
+plot!(plt3,meff1[Nl,:], yerr = Δmeff1[Nl,:],label="singlet (GEVP)",ms=5,markershape=:auto)
+#plot!(plt3,meff2[Nl,:], yerr = Δmeff2[Nl,:],label="non-singlet (GEVP)",ms=5,markershape=:auto)
+add_mass_band!(plt3,mπREF,2ΔmπREF;label="pi (error x2)",alpha=0.5)
+add_mass_band!(plt3,mρREF,2ΔmρREF;label="rho (error x2)",alpha=0.5)
 #add_mass_band!(plt3,mηREF,ΔmηREF;label="",alpha=0.5)
 plot!(plt3,ylims=(0.2,0.5),xlims=(0,22.5),legend=:bottomright)
-plot!(plt3,ylims=(0.4,0.8),xlims=(0,22.5),legend=:bottomright)
+plot!(plt3,ylims=(0.0,1.2),xlims=(0,10.5),legend=:bottomright)
 display(plt3)
