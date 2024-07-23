@@ -61,6 +61,13 @@ h5file = "test_AS_v2.hdf5"
 Nsmear = collect(0:200:400)
 Nf = 3
 
+path = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurements/Lt96Ls20beta6.5mf0.71mas1.01AS/out"
+fileCONN = joinpath(path,"out_spectrum_smeared")
+name  = "AS3"
+h5file = "test_AS_v2.hdf5"
+Nsmear = collect(0:40:80)
+Nf = 3
+
 
 @show size(conn)
 
@@ -70,7 +77,7 @@ typesCONN = ["source_N$(N1)_sink_N$(N2) TRIPLET" for N1 in Nsmear, N2 in Nsmear]
 typesCONN = r"source_N[0-9]+_sink_N[0-9]+ TRIPLET"
 typesDISC = r"DISCON_SEMWALL smear_N[0-9]+ SINGLET"
 
-write = false
+write = true
 if write
     writehdf5_spectrum_with_regexp(fileCONN,h5file,typesCONN,h5group="$name/CONN")
     #writehdf5_spectrum_disconnected_with_regexp(fileDISC,h5file,typesDISC,nhits,h5group="$name/DISC")
