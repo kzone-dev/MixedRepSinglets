@@ -27,6 +27,7 @@ function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false,nsrc_ma
     # (3) normalize wrt. time and hit average
     nconf1, nhits1, T = size(discon1)
     nconf2, nhits2, T = size(discon2)
+    # TODO: Look into issues with 0+ singlet for nsrc_max < nhits1
     if nsrc_max < nhits1
         discon1 = discon1[:,1:nsrc_max,:]
         nhits1  = nsrc_max
