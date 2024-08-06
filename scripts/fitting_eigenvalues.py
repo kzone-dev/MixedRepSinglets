@@ -2,7 +2,6 @@ import gvar as gv
 import corrfitter as cf
 import h5py
 import numpy as np
-import matplotlib.pyplot as plt
 import csv
 import os
 import sys
