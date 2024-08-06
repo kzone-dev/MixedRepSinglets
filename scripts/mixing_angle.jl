@@ -143,7 +143,6 @@ function plot_and_write_mixing_angles(parameters_gevp,hdf5path,tablepath,tex_tab
         write(io_mixing_MR,"$ensemble;$β;$T;$L;$ϕ;$Δϕ","\n")
         write(io_mixing,"$ensemble;$β;$T;$L;$(errorstring(ϕ,Δϕ;nsig=2))","\n")
 
-        display(plt)
         ispath(plotpath) || mkpath(plotpath)
         savefig(plt, joinpath(plotpath,"mixing_angle_$ensemble.pdf"))
     end
