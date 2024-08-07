@@ -27,50 +27,6 @@ function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false,nsrc_ma
     # (3) normalize wrt. time and hit average
     nconf1, nhits1, T = size(discon1)
     nconf2, nhits2, T = size(discon2)
-    # TODO: Look into issues with 0+ singlet for nsrc_max < nhits1
-    if nsrc_max < nhits1
-        discon1 = discon1[:,1:nsrc_max,:]
-        nhits1  = nsrc_max
-    end
-    if nsrc_max < nhits2
-        discon2 = discon2[:,1:nsrc_max,:]
-        nhits2  = nsrc_max
-    end
-    nconf = min(nconf1,nconf2)
-    timavg = zeros(eltype(discon1),(nconf,T))
-    norm   = T*nhits1*nhits2
-    if subtract_vev
-        vev1 = vev_contribution(discon1)
-        vev2 = vev_contribution(discon2)
-        @inbounds for h in 1:nhits1, t in 1:T, conf in 1:nconf
-            discon1[conf,h,t] = discon1[conf,h,t] - vev1[t]
-        end
-        @inbounds for h in 1:nhits1, t in 1:T, conf in 1:nconf
-            discon2[conf,h,t] = discon2[conf,h,t] - vev2[t]
-        end
-    end
-    for t in 1:T
-        for t0 in 1:T
-            Δt = mod(t-t0,T)
-            @inbounds for hit1 in 1:nhits1, hit2 in 1:nhits2
-                for conf in 1:nconf
-                    loop1 = discon1[conf,hit1,t]
-                    loop2 = discon2[conf,hit2,t0]
-                    timavg[conf,Δt+1] += loop1*loop2
-                end
-            end
-        end
-    end
-    @. timavg = rescale*timavg/norm
-    # transpose the matrix so that it has the same layout as the connected pieces
-    return timavg
-end
-function unbiased_estimator_threaded(discon1,discon2;rescale=1,subtract_vev=false,nsrc_max=typemax(Int64))
-    # (1) average over different hits
-    # (2) average over all time separations
-    # (3) normalize wrt. time and hit average
-    nconf1, nhits1, T = size(discon1)
-    nconf2, nhits2, T = size(discon2)
     if nsrc_max < nhits1
         discon1 = discon1[:,1:nsrc_max,:]
         nhits1  = nsrc_max
@@ -99,7 +55,7 @@ function unbiased_estimator_threaded(discon1,discon2;rescale=1,subtract_vev=fals
             discon2[h,t,conf] = discon2[h,t,conf] - vev2[t]
         end
     end
-    @batch for conf in 1:nconf
+    for conf in 1:nconf
         for t in 1:T
             for t0 in 1:T
                 Δt = mod(t-t0,T)
