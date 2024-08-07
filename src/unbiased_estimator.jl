@@ -22,9 +22,6 @@ end
 #       For products of different flavours we use a simple average over the sources. 
 #       In both cases we need to take care of the relative time slices
 function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false,nsrc_max=typemax(Int64))
-    # (1) average over different hits
-    # (2) average over all time separations
-    # (3) normalize wrt. time and hit average
     nconf1, nhits1, T = size(discon1)
     nconf2, nhits2, T = size(discon2)
     if nsrc_max < nhits1
@@ -69,38 +66,9 @@ function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false,nsrc_ma
     @. timavg = rescale*timavg/norm
     return permutedims(timavg,(2,1))
 end
-function unbiased_estimator(discon;rescale=1,subtract_vev=false,nsrc_max=typemax(Int64))
-    # (1) average over different hits
-    # (2) average over all time separations
-    # (3) normalize wrt. time and hit average
+function unbiased_estimator(discon;kws...)
     nconf, nhits, T = size(discon)
-    if nsrc_max < nhits
-        discon = discon[:,1:nsrc_max,:]
-        nhits  = nsrc_max
-    end
-    timavg = zeros(eltype(discon),(nconf,T))
-    norm   = T*div(nhits,2)^2
-    hitsd2 = div(nhits,2)
-    if subtract_vev
-        vev = vev_contribution(discon)
-        @inbounds for h in 1:nhits, t in 1:T, conf in 1:nconf
-            discon[conf,h,t] = discon[conf,h,t] - vev[t]
-        end
-    end
-    for t in 1:T
-        for t0 in 1:T
-            Δt = mod(t-t0,T)
-            @inbounds for hit1 in 1:hitsd2, hit2 in hitsd2+1:nhits
-                for conf in 1:nconf
-                    loop1 = discon[conf,hit1,t]
-                    loop2 = discon[conf,hit2,t0]
-                    timavg[conf,Δt+1] += loop1*loop2
-                end
-            end
-        end
-    end
-    @. timavg = rescale*timavg/norm
-    return timavg
+    unbiased_estimator(discon[:,1:nhits÷2,:],discon[:,nhits÷2+1:nhits,:];kws...)
 end
 function vev_contribution(discon)
     vev = dropdims(mean(discon,dims=(1,2)),dims=(1,2)) 
