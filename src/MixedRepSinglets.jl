@@ -19,8 +19,6 @@ module MixedRepSinglets
     export add_mass_band!, add_fit_range!, plot_correlator!
     include("correlator_derivative.jl")
     export correlator_derivative
-    include("fitcorr.jl")
-    export fit_corr, fit_corr_bars
     include("pcac.jl")
     export awi_corr, awi_fit
     include("folding.jl")
