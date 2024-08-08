@@ -1,5 +1,5 @@
 start_from_logs    = true
-write_correlator   = true
+write_correlator   = true   
 write_gevp_results = true
 
 logfiles_path  = "input/logfiles/"

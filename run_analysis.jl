@@ -47,8 +47,8 @@ function run_corrfitter(parameters_fitting,hdf5file_path;resample)
     end
 end
 
-run_corrfitter(parameters_fitting,hdf5file_path;resample=true)
-plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5file_path,plotpath;only_singlet=false)
+run_corrfitter(parameters_fitting,hdf5file_path;resample=false)
+plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5file_path,plotpath;only_singlet=true)
 write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
 write_tex_tables(tablepath,tablepath)
 plot_spectrum(tablepath,plotpath,gradient_flow_results)

@@ -18,6 +18,8 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     # use correlator binning
     eigvals, Δeigvals = eigenvalues(correlation_matrix;t0)
     eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
+    # fold ewigenvalues
+    eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
 end

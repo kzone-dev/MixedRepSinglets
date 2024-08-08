@@ -25,7 +25,5 @@ function all_effective_mass_plots(hdf5path,gevp_parameterfile)
         plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,channel;title,nstates=2)
         plot!(plt1, ylims=(0.3,1.2))
         plot!(plt2,yscale=:log10)
-        display(plt1)
-        #display(plt2)
     end
 end

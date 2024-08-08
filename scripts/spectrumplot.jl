@@ -83,10 +83,6 @@ function plot_spectrum(tablepath,plotdir,gradient_flow_results)
         plot!(plt3,xlims=(0.87,0.92))
     end
 
-    display(plt0)
-    display(plt1)
-    display(plt2)
-    display(plt3)
     savefig(plt0,joinpath(dir,"masses_vs_bare_mass.pdf"))
     savefig(plt1,joinpath(dir,"masses_vs_spatial_extent.pdf"))
     savefig(plt2,joinpath(dir,"masses_vs_mrho_over_mpi.pdf"))
