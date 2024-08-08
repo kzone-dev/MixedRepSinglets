@@ -47,13 +47,13 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;channel="g5",
             end
             discFUNAS_N1N2   = unbiased_estimator(discFUN[i],discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
             discASFUN_N1N2   = unbiased_estimator(discFUN[j],discAS[i] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
-           
+
             correlation_matrix[i,j,:,:] = connFUN[i,j] - Nf_fun*disc_sign*discFUN_N1N2
             correlation_matrix[j,i,:,:] = connFUN[j,i] - Nf_fun*disc_sign*discFUN_N1N2
             correlation_matrix[i+S,j+S,:,:]  = connAS[i,j] - Nf_as *disc_sign*discAS_N1N2
             correlation_matrix[j+S,i+S,:,:]  = connAS[j,i] - Nf_as *disc_sign*discAS_N1N2
-            correlation_matrix[i+S,j,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS_N1N2
-            correlation_matrix[j+S,i,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discASFUN_N1N2
+            correlation_matrix[j+S,i,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS_N1N2
+            correlation_matrix[i+S,j,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discASFUN_N1N2
             correlation_matrix[i,j+S,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS_N1N2
             correlation_matrix[j,i+S,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discASFUN_N1N2
             next!(p) # update progress meter
@@ -93,7 +93,7 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
                 discFUN_N1N2 = unbiased_estimator(discFUN[i],discFUN[j];rescale=rescale_disc,subtract_vev,nsrc_max) 
             end
             correlation_matrix[i,j,:,:] = connFUN[i,j] - Nf_fun*disc_sign*discFUN_N1N2
-            correlation_matrix[j,i,:,:] = connFUN[i,j] - Nf_fun*disc_sign*discFUN_N1N2
+            correlation_matrix[j,i,:,:] = connFUN[j,i] - Nf_fun*disc_sign*discFUN_N1N2
             next!(p) # update progress meter
         end
     end
@@ -105,7 +105,7 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
                 discAS_N1N2  = unbiased_estimator(discAS[i] ,discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
             end
             correlation_matrix[i+NF,j+NF,:,:] = connAS[i,j] - Nf_as *disc_sign*discAS_N1N2
-            correlation_matrix[j+NF,i+NF,:,:] = connAS[i,j] - Nf_as *disc_sign*discAS_N1N2
+            correlation_matrix[j+NF,i+NF,:,:] = connAS[j,i] - Nf_as *disc_sign*discAS_N1N2
             next!(p) # update progress meter
         end
     end
