@@ -1,0 +1,3 @@
+ensemble;rep;type;channel;tmin;tmax;tp;Nmax;
+F1;FUN;source_N200_sink_N200 TRIPLET;g5;17;26;1;1;
+F1;FUN;source_N200_sink_N200 TRIPLET;id;17;26;1;1;

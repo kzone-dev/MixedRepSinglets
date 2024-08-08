@@ -8,18 +8,18 @@ gr(frame=:box)
 plotlyjs(frame=:box)
 include("utils.jl")
 
-h5file   = "tests_smearing_AS.hdf5"
-prm      = "input/parameters_AS.csv"
-prm_fit  = "input/fitting_AS.csv"
+h5file   = "tests_smearing_FUN.hdf5"
+prm      = "input/parameters_FUN.csv"
+prm_fit  = "input/fitting_FUN.csv"
 
 datapath = "/home/fabian/Dokumente/DataDiaL/"
 datapath = "/home/fabian/Documents/Physics/Data/DataDiaL/"
 
 ispath("output") || mkpath("output")
-path = joinpath(datapath,"measurementsAS")
-Nsmear = 0:30:60
+path = joinpath(datapath,"measurementsFUN")
+Nsmear = 0:50:100
 
-write_hdf5_file = true
+write_hdf5_file = false
 if write_hdf5_file
     isfile(h5file) && rm(h5file)
     main_write_hdf5_logs(path,h5file,prm;regexp=true)
@@ -30,7 +30,7 @@ for (i,line) in enumerate(eachrow(fitparam))
 
     ens, rep, type, channel, tmin, tmax, tp, Nexp  = line
     corr = _assemble_correlation_matrix_rep_nonsinglet(h5file,ens,Nsmear,rep;channel)
-    eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff(corr,t0=1)
+    eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff(corr,t0=2)
 
     
     Nops, T = size(eigvals)
@@ -44,10 +44,10 @@ for (i,line) in enumerate(eachrow(fitparam))
     scatter!(plt,meff[Nops,range],yerr=Δmeff[Nops,range];label="effective mass")
     
     @show size(corr)
-    for i in eachindex(Nsmear)
-        corr0 = corr[i,i,:,:]
+    for ind in [(3,1),(2,1)]
+        corr0 = corr[ind[1],ind[2],:,:]
         meffd, Δmeffd = implicit_meff_jackknife(corr0')
-        scatter!(plt,meffd,yerr=Δmeffd;label="effective mass: diag #$i")
+        scatter!(plt,meffd,yerr=Δmeffd;label="effective mass: C_ij, ij=$ind")
     end
 
     display(plt)
