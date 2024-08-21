@@ -4,11 +4,7 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
     results_corrfitter = joinpath(corrfitterpath,"corrfitter_results.csv")
 
     dir1 = joinpath(plotdir,"effective_mass")
-    dir2 = joinpath(plotdir,"effective_mass_groundstate")
-    dir3 = joinpath(plotdir,"correlator")
     ispath(dir1) || mkpath(dir1)
-    ispath(dir2) || mkpath(dir2)
-    ispath(dir3) || mkpath(dir3)
 
     parameters = readdlm(parameters_gevp,';';skipstart=1)
     parameters_fitting = readdlm(parameters_fitting,';';skipstart=1)
@@ -49,13 +45,9 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         add_fit_range!(plt1,tmin1,tmax1,E0,ΔE0;label="")
         add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
 
-        plot!(plt1, ylims=(0.9*E0,1.1*E0))
         plot!(plt1, ylims=(0.3,1.2))
-        isequal(channel,"g5_singlet") && savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
-        plot!(plt2,yscale=:log10)
-        #savefig(plt2,joinpath(dir3,"$(ensemble)_$(channel).pdf"))
         if !only_singlet || channel == "g5_singlet"
-            savefig(plt1,joinpath(dir2,"$(ensemble)_$(channel).pdf"))
+            savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
         end
     end
 end
