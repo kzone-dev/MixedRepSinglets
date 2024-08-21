@@ -1,4 +1,4 @@
-function main_write_correlator_matrices(Nsmear,hdf5path)
+function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
     h5logfiles = joinpath(hdf5path,"singlets_smeared.hdf5")
     h5corrs    = joinpath(hdf5path,"singlets_smeared_correlators.hdf5")
     isfile(h5corrs) && rm(h5corrs)
@@ -10,18 +10,19 @@ function main_write_correlator_matrices(Nsmear,hdf5path)
 
     for ensemble in ensembles
 
-        correlation_matrix_singlet_g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="g5",disc_sign=+1,subtract_vev=false)
-        correlation_matrix_singlet_g0g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="g0g5",disc_sign=+1,subtract_vev=false)
-        correlation_matrix_singlet_id = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="id",disc_sign=-1,subtract_vev=false)
-        correlation_matrix_singlet_id_vevsubtract = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,Nsmear;channel="id",disc_sign=-1,subtract_vev=true)
-        correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g5")
-        correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g1")
-        correlation_matrix_nonsinglet_FUN_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g2")
-        correlation_matrix_nonsinglet_FUN_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"FUN";channel="g3")
-        correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"AS";channel="g5")
-        correlation_matrix_nonsinglet_AS_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"AS";channel="g1")
-        correlation_matrix_nonsinglet_AS_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"AS";channel="g2")
-        correlation_matrix_nonsinglet_AS_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,Nsmear,"AS";channel="g3")
+        correlation_matrix_singlet_g5   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g5"  ,disc_sign=+1,subtract_vev=false)
+        correlation_matrix_singlet_g0g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g0g5",disc_sign=+1,subtract_vev=false)
+        #correlation_matrix_singlet_id   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id"  ,disc_sign=-1,subtract_vev=false)
+        # TODO: Segfault occurs here
+        #correlation_matrix_singlet_id_vevsubtract = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id",disc_sign=-1,subtract_vev=true)
+        correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g5")
+        correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g1")
+        correlation_matrix_nonsinglet_FUN_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g2")
+        correlation_matrix_nonsinglet_FUN_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g3")
+        correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g5")
+        correlation_matrix_nonsinglet_AS_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g1")
+        correlation_matrix_nonsinglet_AS_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g2")
+        correlation_matrix_nonsinglet_AS_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g3")
 
         correlation_matrix_nonsinglet_FUN_g1 = @. (correlation_matrix_nonsinglet_FUN_g1 + correlation_matrix_nonsinglet_FUN_g2 + correlation_matrix_nonsinglet_FUN_g3)/3
         correlation_matrix_nonsinglet_AS_g1  = @. (correlation_matrix_nonsinglet_AS_g1  + correlation_matrix_nonsinglet_AS_g2  + correlation_matrix_nonsinglet_AS_g3 )/3
@@ -45,12 +46,14 @@ function main_write_correlator_matrices(Nsmear,hdf5path)
         # NOTE: Note that the entries of the correlation matrix always need to contain the substring "correlation_matrix" 
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix_singlet_g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g0g5_singlet"),correlation_matrix_singlet_g0g5)
-        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_singlet"),correlation_matrix_singlet_id)
-        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_mvev_singlet"),correlation_matrix_singlet_id_vevsubtract)
+        #h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_singlet"),correlation_matrix_singlet_id)
+        #h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_mvev_singlet"),correlation_matrix_singlet_id_vevsubtract)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g1)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g1)
-        h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels"),Nsmear)
+        h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels"),NsmearFUN)
+        h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_FUN"),NsmearFUN)
+        h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_AS"),NsmearAS)
     end
 end

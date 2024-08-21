@@ -19,7 +19,6 @@ include("scripts/spectrumplot.jl")
 include("scripts/tex_tables.jl")
 include("scripts/mixing_angle.jl")
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
-Nsmear = collect(0:10:80)
 
 corrfitterpath = joinpath(output_path,"fitresults")
 tablepath      = joinpath(output_path,"tables")
@@ -33,8 +32,11 @@ gradient_flow_results = joinpath(paramter_path,"gradient_flow_results.csv")
 ispath(corrfitterpath) || mkpath(corrfitterpath)
 ispath(hdf5file_path) || mkpath(hdf5file_path) 
 
-start_from_logs    && main_write_hdf5_logs(Nsmear,logfiles_path,hdf5file_path,parameterfile;filter_channels=!write_all_channes_to_hdf5)
-write_correlator   && main_write_correlator_matrices(Nsmear,hdf5file_path)
+NsmearFUN = collect(0:50:200)
+NsmearAS  = collect(0:60:180)
+
+start_from_logs    && main_write_hdf5_logs(logfiles_path,hdf5file_path,parameterfile;filter_channels=!write_all_channes_to_hdf5)
+write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5file_path)
 write_gevp_results && write_eigenvalues(parameters_gevp,hdf5file_path)
 
 function run_corrfitter(parameters_fitting,hdf5file_path;resample)
