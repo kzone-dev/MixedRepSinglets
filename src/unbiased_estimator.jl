@@ -49,6 +49,8 @@ function unbiased_estimator(discon1,discon2;rescale=1,subtract_vev=false,nsrc_ma
     if subtract_vev
         @inbounds for conf in 1:nconf, h in 1:nhits1, t in 1:T
             discon1[h,t,conf] = discon1[h,t,conf] - vev1[t]
+        end
+        @inbounds for conf in 1:nconf, h in 1:nhits2, t in 1:T
             discon2[h,t,conf] = discon2[h,t,conf] - vev2[t]
         end
     end
