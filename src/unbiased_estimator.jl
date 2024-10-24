@@ -111,7 +111,7 @@ function unbiased_estimator_threaded(discon1,discon2;rescale=1,subtract_vev=fals
             discon2[h,t,conf] = discon2[h,t,conf] - vev2[conf,t]
         end
     end
-    @batch for conf in 1:nconf
+    for conf in 1:nconf
         for t in 1:T
             for t0 in 1:T
                 Δt = mod(t-t0,T)
