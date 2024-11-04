@@ -1,6 +1,6 @@
-start_from_logs    = false
-write_correlator   = false
-write_gevp_results = false
+start_from_logs    = true
+write_correlator   = true
+write_gevp_results = true
 
 logfiles_path  = "/home/fabian/Documents/Physics/Data/DataDiaL/measurements/"
 paramter_path  = "input/parameters_M3/"
