@@ -45,7 +45,7 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         add_fit_range!(plt1,tmin1,tmax1,E0,ΔE0;label="")
         add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
 
-        plot!(plt1, ylims=(0.3,1.2))
+        plot!(plt1, ylims=(0.0,2))
         if !only_singlet || channel == "g5_singlet"
             savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
         end

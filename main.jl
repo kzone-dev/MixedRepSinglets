@@ -1,10 +1,10 @@
-start_from_logs    = true
-write_correlator   = true   
-write_gevp_results = true
+start_from_logs    = false
+write_correlator   = false
+write_gevp_results = false
 
-logfiles_path  = "input/logfiles/"
-paramter_path  = "input/parameters/"
-hdf5file_path  = "input/hdf5out"
+logfiles_path  = "/home/fabian/Documents/Physics/Data/DataDiaL/measurements/"
+paramter_path  = "input/parameters_M3/"
+hdf5file_path  = "output/hdf5out"
 output_path    = "output/"
 
 # In order to repsect the dataset size limit on zenodo, only_singlet
@@ -13,4 +13,4 @@ output_path    = "output/"
 # variable 'write_all_channes_to_hdf5' to 'true'
 write_all_channes_to_hdf5 = false
 
-include("run_analysis.jl")
+include("run_analysis.jl")  
