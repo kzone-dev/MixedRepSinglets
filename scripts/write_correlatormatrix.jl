@@ -54,5 +54,21 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_FUN"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_AS"),NsmearAS)
+        # write single disconnected loops to hdf5 file for analysis of the glueball mixing
+        for channel in ["g5","g0g5","id"] 
+            discFUN = stack(_get_disconnected_at_smearing_level(h5logfiles,N,channel,"FUN";ensemble) for N in NsmearFUN)
+            discAS  = stack(_get_disconnected_at_smearing_level(h5logfiles,N,channel,"AS";ensemble)  for N in NsmearAS)
+            # match the layout of the correlation matrix
+            discFUN = permutedims(discFUN,(4,1,2,3))
+            discAS  = permutedims(discAS,(4,1,2,3))
+            # perform average over sources and use a consistent normalization
+            T,L = h5read(h5logfiles,joinpath(ensemble,"FUN","CONN","lattice"))[1:2]
+            rescale = sqrt(4*L^3)
+            avg_loopFUN = rescale*dropdims(mean(discFUN,dims=3),dims=3)
+            avg_loopAS = rescale*dropdims(mean(discAS,dims=3),dims=3)
+            # write to HDF5 file
+            h5write(h5corrs,joinpath(ensemble,"singlet_loop_$(channel)_FUN"),avg_loopFUN)
+            h5write(h5corrs,joinpath(ensemble,"singlet_loop_$(channel)_AS"),avg_loopAS)    
+        end
     end
 end
