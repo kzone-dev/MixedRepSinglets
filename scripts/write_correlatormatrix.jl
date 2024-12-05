@@ -33,7 +33,6 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
             # ignore everything but correlator
             entries = filter(!contains("TRIPLET"),keys(fileFUN))
             entries = filter(!contains("quarkmasses"),entries)
-            @show entries
             for entry in entries
                 h5write(outfile,joinpath(ensemble,entry),read(fileFUN,entry))
             end
