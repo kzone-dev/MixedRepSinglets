@@ -10,7 +10,6 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
     correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
-    #correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
@@ -26,7 +25,6 @@ end
 function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
-    #correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
     correlation_matrix = correlation_matrix[:,:,1:binsize:end,:]
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
@@ -35,6 +33,8 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
     # use correlator binning
     eigvals, Δeigvals, eigvecs, Δeigvecs = eigenvalues_eigenvectors(correlation_matrix;t0)
     eigenvalues_jackknife, eigenvectors_jackknife = eigenvalues_eigenvectors_jackknife_samples(correlation_matrix;t0)
+    # fold ewigenvalues
+    eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
     meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs, eigenvectors_jackknife
 end

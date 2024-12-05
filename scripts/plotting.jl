@@ -46,6 +46,7 @@ function plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfit
         plt1, plt2 = _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,channel;title,nstates=2)
         add_fit_range!(plt1,tmin1,tmax1,E0,ΔE0;label="")
         add_fit_range!(plt1,tmin2,tmax2,E1,ΔE1;label="")
+        plot!(plt2,yscale=:log10)
 
         if !only_singlet || channel == "g5_singlet"
             savefig(plt1,joinpath(dir1,"$(ensemble)_$(channel).pdf"))
