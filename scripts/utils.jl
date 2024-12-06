@@ -8,7 +8,7 @@ function _copy_lattice_parameters(outfile,infile,ensemble;group="")
 end
 function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
-    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    correlation_matrix = LatticeUtils._bin_correlator_matrix(correlation_matrix;binsize)
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
@@ -16,13 +16,13 @@ function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     correlation_matrix   = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
     eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
     #eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
-    eigvals, Δeigvals = MixedRepSinglets.apply_jackknife(eigenvalues_jackknife;dims=2)
-    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
+    eigvals, Δeigvals = LatticeUtils.apply_jackknife(eigenvalues_jackknife;dims=2)
+    meff, Δmeff =  implicit_meff_jackknife(eigenvalues_jackknife;sign=symmetry)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
 end
 function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
-    correlation_matrix = _bin_correlator_matrix(correlation_matrix;binsize)
+    correlation_matrix = LatticeUtils._bin_correlator_matrix(correlation_matrix;binsize)
     if deriv 
         correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
         symmetry = -1 
@@ -31,14 +31,14 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
     correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
     eigenvalues_jackknife, eigenvectors_jackknife = eigenvalues_eigenvectors_jackknife_samples(correlation_matrix;t0)
     #eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
-    eigvals, Δeigvals = MixedRepSinglets.apply_jackknife(eigenvalues_jackknife;dims=2)
-    eigvecs, Δeigvecs = MixedRepSinglets.apply_jackknife(eigenvectors_jackknife;dims=3)
-    meff, Δmeff =  meff_from_jackknife(eigenvalues_jackknife;sign=symmetry,swap=nothing)
+    eigvals, Δeigvals = LatticeUtils.apply_jackknife(eigenvalues_jackknife;dims=2)
+    eigvecs, Δeigvecs = LatticeUtils.apply_jackknife(eigenvectors_jackknife;dims=3)
+    meff, Δmeff =  implicit_meff_jackknife(eigenvalues_jackknife;sign=symmetry)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs, eigenvectors_jackknife
 end
 function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
     eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    eigvals_cov = MixedRepSinglets.cov_jackknife_eigenvalues(eigenvalues_jackknife)
+    eigvals_cov = LatticeUtils.cov_jackknife_eigenvalues(eigenvalues_jackknife)
     
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
@@ -99,37 +99,4 @@ function _plot_meff_eigvals(meff,Δmeff,eigvals,Δeigvals,channel;nstates=1,tmax
         tmax = nothing
     end
     return plt1, plt2
-end
-function errorstring(x,Δx;nsig=2)
-    @assert Δx > 0
-    sgn = x < 0 ? "-" : ""
-    x = abs(x)  
-    # round error part to desired number of signficant digits
-    # convert to integer if no fractional part exists
-    Δx_rounded = round(Δx,sigdigits=nsig) 
-    # get number of decimal digits for x  
-    floor_log_10 = floor(Int,log10(Δx))
-    dec_digits   = (nsig - 1) - floor_log_10
-    # round x, to desired number of decimal digits 
-    # (standard julia function deals with negative dec_digits) 
-    x_rounded = round(x,digits=dec_digits)
-    # get decimal and integer part if there is a decimal part
-    if dec_digits > 0
-        digits_val = Int(round(x_rounded*10.0^(dec_digits)))
-        digits_unc = Int(round(Δx_rounded*10.0^(dec_digits)))
-        str_val = _insert_decimal(digits_val,dec_digits) 
-        str_unc = _insert_decimal(digits_unc,dec_digits)
-        str_unc = nsig > dec_digits ? str_unc : string(digits_unc)
-        return sgn*"$str_val($str_unc)"
-    else
-        return sgn*"$(Int(x_rounded))($(Int(Δx_rounded)))"
-    end
-end
-function _insert_decimal(val::Int,digits)
-    str = lpad(string(val),digits,"0")
-    pos = length(str) - digits
-    int = rpad(str[1:pos],1,"0")
-    dec = str[pos+1:end]
-    inserted = int*"."*dec
-    return inserted
 end

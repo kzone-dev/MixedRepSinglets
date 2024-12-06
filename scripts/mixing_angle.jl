@@ -5,7 +5,7 @@ function effective_mixing_angle(evecs_jackknife)
     # Note: The thirs entry denotes the i=1,2 entries of the eigenvectors, whereas the fourth index labels the eignvectors
     arg = @. - (evecs_jackknife[1,1,:,:] * evecs_jackknife[2,2,:,:]) / (evecs_jackknife[2,1,:,:] * evecs_jackknife[1,2,:,:])
     angle = atand.(sqrt.((arg .+ 0im) ))
-    ϕ, Δϕ = MixedRepSinglets.apply_jackknife(angle,dims=1)
+    ϕ, Δϕ = LatticeUtils.apply_jackknife(angle,dims=1)
     N, T  = size(angle)
     ϕcov  = sqrt(N-1)*cov(real.(angle); dims=1,corrected=false)
     return real.(ϕ), real.(Δϕ), Hermitian(ϕcov)
@@ -71,7 +71,7 @@ function _fit_effective_mixing_angle_jackknife_error(correlation_matrix;t0,binsi
         #ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], Δϕ, tmin, tmax))
         ϕs[i] = first(_fit_effective_mixing_angle(ϕ_jk[i,:], ϕcov, tmin, tmax))
     end
-    ϕfit, Δϕfit = MixedRepSinglets.apply_jackknife(ϕs)
+    ϕfit, Δϕfit = LatticeUtils.apply_jackknife(ϕs)
     return ϕfit, Δϕfit, tmin, tmax
 end
 function _fit_effective_mixing_angle(ϕ, Δϕ::AbstractVector, tmin, tmax)

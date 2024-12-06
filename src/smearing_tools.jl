@@ -10,6 +10,11 @@ function _get_disconnected_at_smearing_level(h5file,Nsmear,channel,rep;ensemble=
     @assert 0 == sum(any.(isnan, data))
     return data 
 end
+function rescale_connected!(corr,L)
+    n1 = L^6/2 # from the norm used in HiReo
+    n2 = L^3   # only keep a norm for the spatial volume
+    @. corr  *= (n1/n2)
+end
 _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear;kws...) = _assemble_correlation_matrix_mixed(h5file,ensemble,Nsmear,Nsmear;kws...)
 function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;channel="g5",disc_sign=+1,subtract_vev=false,nsrc_max=typemax(Int64))
 
@@ -26,8 +31,8 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
 
     # Compared to the old code, there is another factor of 2 per loop missing
     rescale_disc = 4*L^3
-    MixedRepSinglets.rescale_connected!.(connFUN ,L) # rescale connected pieces
-    MixedRepSinglets.rescale_connected!.(connAS  ,L) # rescale connected pieces
+    rescale_connected!.(connFUN ,L) # rescale connected pieces
+    rescale_connected!.(connAS  ,L) # rescale connected pieces
 
     # model specific parameters
     Nf_fun = 2
@@ -38,9 +43,9 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
     for i in eachindex(NsmearFUN)
         for j in 1:i
             if i == j
-                discFUN_N1N2 = unbiased_estimator(discFUN[i];rescale=rescale_disc,subtract_vev,nsrc_max)
+                discFUN_N1N2 = disconnected_loop_product(discFUN[i];rescale=rescale_disc,subtract_vev,nsrc_max)
             else
-                discFUN_N1N2 = unbiased_estimator(discFUN[i],discFUN[j];rescale=rescale_disc,subtract_vev,nsrc_max) 
+                discFUN_N1N2 = disconnected_loop_product(discFUN[i],discFUN[j];rescale=rescale_disc,subtract_vev,nsrc_max) 
             end
             correlation_matrix[i,j,:,:] = connFUN[i,j] - Nf_fun*disc_sign*discFUN_N1N2
             correlation_matrix[j,i,:,:] = connFUN[j,i] - Nf_fun*disc_sign*discFUN_N1N2
@@ -50,9 +55,9 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
     for i in eachindex(NsmearAS)
         for j in 1:i
             if i == j
-                discAS_N1N2  = unbiased_estimator(discAS[i] ;rescale=rescale_disc,subtract_vev,nsrc_max)
+                discAS_N1N2  = disconnected_loop_product(discAS[i] ;rescale=rescale_disc,subtract_vev,nsrc_max)
             else
-                discAS_N1N2  = unbiased_estimator(discAS[i] ,discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
+                discAS_N1N2  = disconnected_loop_product(discAS[i] ,discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
             end
             correlation_matrix[i+NF,j+NF,:,:] = connAS[i,j] - Nf_as *disc_sign*discAS_N1N2
             correlation_matrix[j+NF,i+NF,:,:] = connAS[j,i] - Nf_as *disc_sign*discAS_N1N2
@@ -61,7 +66,7 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
     end
     for i in eachindex(NsmearFUN)
         for j in eachindex(NsmearAS)
-            discFUNAS = unbiased_estimator(discFUN[i],discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
+            discFUNAS = disconnected_loop_product(discFUN[i],discAS[j] ;rescale=rescale_disc,subtract_vev,nsrc_max) 
             correlation_matrix[i,j+NF,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS
             correlation_matrix[j+NF,i,:,:] = sqrt(Nf_fun*Nf_as)*disc_sign*discFUNAS
             next!(p) # update progress meter
@@ -81,7 +86,7 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
 
     # Compared to the old code, there is another factor of 2 per loop missing
     rescale_disc = 4*L^3
-    MixedRepSinglets.rescale_connected!.(conn ,L) # rescale connected pieces
+    rescale_connected!.(conn ,L) # rescale connected pieces
 
     # create block matrices of the full correlation matrix
     correlation_matrix_CONN = zeros((Nops,Nops,N,T))
@@ -91,9 +96,9 @@ function _assemble_correlation_matrix_rep(h5file,ensemble,Nsmear,rep;channel="g5
     for i in eachindex(Nsmear)
         for j in 1:i
             if i == j
-                disc_N1N2 = unbiased_estimator(disc[i];rescale=rescale_disc,subtract_vev,nsrc_max)
+                disc_N1N2 = disconnected_loop_product(disc[i];rescale=rescale_disc,subtract_vev,nsrc_max)
             else
-                disc_N1N2 = unbiased_estimator(disc[i],disc[j];rescale=rescale_disc,subtract_vev,nsrc_max) 
+                disc_N1N2 = disconnected_loop_product(disc[i],disc[j];rescale=rescale_disc,subtract_vev,nsrc_max) 
             end
             correlation_matrix_DISC[i,j,:,:] = Nf*disc_sign*disc_N1N2
             correlation_matrix_DISC[j,i,:,:] = Nf*disc_sign*disc_N1N2
@@ -109,7 +114,7 @@ function _assemble_correlation_matrix_rep_nonsinglet(h5file,ensemble,Nsmear,rep;
     # number of configurations and lattice size
     N   = size(first(conn))[1]
     T,L = h5read(h5file,joinpath(ensemble,rep,"CONN","lattice"))[1:2]
-    MixedRepSinglets.rescale_connected!.(conn ,L)
+    rescale_connected!.(conn ,L)
     Nops = length(Nsmear)
     correlation_matrix_CONN = zeros((Nops,Nops,N,T))    
     # add connected pieces

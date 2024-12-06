@@ -1,13 +1,13 @@
 using Pkg; Pkg.activate(".")
 using MixedRepSinglets
 using HiRepParsing
+using LatticeUtils
 using DelimitedFiles
 using HDF5
 using Plots
 using LaTeXStrings
 using Statistics
 using LinearAlgebra
-using LsqFit
 include("scripts/utils.jl")
 include("scripts/write_hdf5.jl")
 include("scripts/write_correlatormatrix.jl")
