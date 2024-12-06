@@ -1,25 +1,4 @@
-function _copy_lattice_parameters(outfile,infile,ensemble;group="")
-    file = h5open(infile)[ensemble]
-    entries = filter(!contains("correlation_matrix"),keys(file))
-    for entry in entries
-        label = joinpath(ensemble,group,entry)
-        h5write(outfile,label,read(file,entry))
-    end
-end
-function eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    symmetry = +1 
-    correlation_matrix = LatticeUtils._bin_correlator_matrix(correlation_matrix;binsize)
-    if deriv 
-        correlation_matrix = correlator_derivative(correlation_matrix;t_dim=4)
-        symmetry = -1 
-    end
-    correlation_matrix   = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
-    eigenvalues_jackknife = eigenvalues_jackknife_samples(correlation_matrix;t0)
-    #eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
-    eigvals, Δeigvals = LatticeUtils.apply_jackknife(eigenvalues_jackknife;dims=2)
-    meff, Δmeff =  implicit_meff_jackknife(eigenvalues_jackknife;sign=symmetry)
-    return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife
-end
+eigenvalues_meff_mixed_rep(args...;kws...) = eigenvalues_eigenvectors_meff_mixed_rep(args...;kws...)[1:5]
 function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
     symmetry = +1 
     correlation_matrix = LatticeUtils._bin_correlator_matrix(correlation_matrix;binsize)
@@ -28,36 +7,11 @@ function eigenvalues_eigenvectors_meff_mixed_rep(correlation_matrix;t0,binsize,d
         symmetry = -1 
     end
     # use correlator binning
-    correlation_matrix = correlator_folding(correlation_matrix;t_dim=4,sign=symmetry)
     eigenvalues_jackknife, eigenvectors_jackknife = eigenvalues_eigenvectors_jackknife_samples(correlation_matrix;t0)
-    #eigenvalues_jackknife = correlator_folding(eigenvalues_jackknife;t_dim=3,sign=symmetry)
     eigvals, Δeigvals = LatticeUtils.apply_jackknife(eigenvalues_jackknife;dims=2)
     eigvecs, Δeigvecs = LatticeUtils.apply_jackknife(eigenvectors_jackknife;dims=3)
     meff, Δmeff =  implicit_meff_jackknife(eigenvalues_jackknife;sign=symmetry)
     return eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife, eigvecs, Δeigvecs, eigenvectors_jackknife
-end
-function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,inputfile,ensemble,channel; t0, binsize, deriv, resamples = false)
-    eigvals, Δeigvals, meff, Δmeff, eigenvalues_jackknife = eigenvalues_meff_mixed_rep(correlation_matrix;t0,binsize,deriv)
-    eigvals_cov = LatticeUtils.cov_jackknife_eigenvalues(eigenvalues_jackknife)
-    
-    _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
-
-    h5write(outputfile,joinpath(ensemble,channel,"meff"),meff)
-    h5write(outputfile,joinpath(ensemble,channel,"eigvals"),eigvals)
-    h5write(outputfile,joinpath(ensemble,channel,"Delta_meff"),Δmeff)
-    h5write(outputfile,joinpath(ensemble,channel,"Delta_eigvals"),Δeigvals)
-    h5write(outputfile,joinpath(ensemble,channel,"eigvals_cov"),eigvals_cov)
-
-    # generic quantitites used in the GEVP inversion and data preparation
-    h5write(outputfile,joinpath(ensemble,channel,"t0"),t0)
-    h5write(outputfile,joinpath(ensemble,channel,"deriv"),deriv)
-    h5write(outputfile,joinpath(ensemble,channel,"binsize"),binsize)
-
-    if resamples
-        h5write(outputfile,joinpath(ensemble,channel,"eigvals_resamples"),eigenvalues_jackknife)
-        h5write(outputfile,joinpath(ensemble,channel,"eigvals_resample_type"),"jackknife")
-    end
-
 end
 function channel_label(channel,state)    
     tag ="" # empty fallback

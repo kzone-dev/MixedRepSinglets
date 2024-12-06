@@ -495,9 +495,9 @@ version = "1.14.2+1"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "PrecompileTools", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "ae350b8225575cc3ea385d4131c81594f86dfe4f"
+git-tree-sha1 = "6c22309e9a356ac1ebc5c8a217045f9bae6f8d9a"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.12"
+version = "1.10.13"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll"]
@@ -644,7 +644,7 @@ version = "0.16.5"
 
 [[deps.LatticeUtils]]
 deps = ["LinearAlgebra", "LsqFit", "NaNStatistics", "Plots", "Roots", "Statistics"]
-git-tree-sha1 = "540ce5eae4f7728c6b86438708983bd751c6628d"
+git-tree-sha1 = "4fc1a73d34e8a7c4fc60be9ad0b278420c9b5611"
 repo-rev = "main"
 repo-url = "../LatticeUtils"
 uuid = "faef5128-6048-4e09-bb0e-6a325a68fa81"

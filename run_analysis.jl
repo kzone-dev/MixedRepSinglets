@@ -10,16 +10,10 @@ using Statistics
 using LinearAlgebra
 include("scripts/utils.jl")
 include("scripts/write_hdf5.jl")
-include("scripts/write_correlatormatrix.jl")
-include("scripts/eigenvalues.jl")
-include("scripts/massplots.jl")
 include("scripts/plotting.jl")
 include("scripts/tables.jl")
-include("scripts/spectrumplot.jl")
-include("scripts/tex_tables.jl")
 include("scripts/mixing_angle.jl")
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
-plotlyjs(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 corrfitterpath = joinpath(output_path,"fitresults")
 tablepath      = joinpath(output_path,"tables")
