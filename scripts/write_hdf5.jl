@@ -121,6 +121,10 @@ function write_eigenvalues_and_effective_masses(correlation_matrix,outputfile,in
     
     _copy_lattice_parameters(outputfile,inputfile,ensemble;group=channel)
 
+    meff_log, Δmeff_log =  log_meff_jackknife(eigenvalues_jackknife)
+    h5write(outputfile,joinpath(ensemble,channel,"meff_log"),meff_log)
+    h5write(outputfile,joinpath(ensemble,channel,"Delta_meff_log"),Δmeff_log)
+
     h5write(outputfile,joinpath(ensemble,channel,"meff"),meff)
     h5write(outputfile,joinpath(ensemble,channel,"eigvals"),eigvals)
     h5write(outputfile,joinpath(ensemble,channel,"Delta_meff"),Δmeff)
