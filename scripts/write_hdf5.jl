@@ -6,7 +6,7 @@ function _copy_lattice_parameters(outfile,infile,ensemble;group="")
         h5write(outfile,label,read(file,entry))
     end
 end
-function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true)
+function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true,channels=["g5","g0g5","g1","g2","g3","id"])
     h5file = joinpath(hdf5path,"singlets_smeared.hdf5")
 
     input = readdlm(parameterfile,';',skipstart=1)
@@ -16,7 +16,6 @@ function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true)
 
         fileCONN = joinpath(path,dir,fileCONN)
         fileDISC = joinpath(path,dir,fileDISC)
-        channels=["g5","g0g5","g1","g2","g3","id"]
 
         @show dir
         writehdf5_spectrum_with_regexp(fileCONN,h5file,Regex(typeCONN),h5group="$name/$rep/CONN";filter_channels,channels)

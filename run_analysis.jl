@@ -26,7 +26,8 @@ ispath(hdf5file_path) || mkpath(hdf5file_path)
 NsmearFUN = collect(0:50:200)
 NsmearAS  = collect(0:60:180)
 
-start_from_logs    && main_write_hdf5_logs(logfiles_path,hdf5file_path,parameterfile;filter_channels=!write_all_channes_to_hdf5)
+channels=["g5","id"]
+start_from_logs    && main_write_hdf5_logs(logfiles_path,hdf5file_path,parameterfile;channels,filter_channels=!write_all_channes_to_hdf5)
 write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5file_path)
 write_gevp_results && write_eigenvalues(parameters_gevp,hdf5file_path)
 

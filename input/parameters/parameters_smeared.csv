@@ -1,3 +1,3 @@
 outputdir;typeDISC;typeCONN;fileDISC;fileCONN;nhits;Nmax;rep;name
-Lt96Ls20beta6.5mf0.71mas1.01AS;DISCON_SEMWALL smear_N[0-9]+ SINGLET;source_N[0-9]+_sink_N[0-9]+ TRIPLET;out/out_spectrum_smeared_discon_full;out/out_spectrum_smeared_full;64;80;AS;M3
-Lt96Ls20beta6.5mf0.71mas1.01FUN;DISCON_SEMWALL smear_N[0-9]+ SINGLET;source_N[0-9]+_sink_N[0-9]+ TRIPLET;out/out_spectrum_smeared_discon_full;out/out_spectrum_smeared_full;64;80;FUN;M3
+Lt96Ls20beta6.5mf0.71mas1.01AS;DISCON_SEMWALL smear_N[0-9]+ SINGLET;source_N[0-9]+_sink_N[0-9]+ TRIPLET;out/out_spectrum_smeared_discon_full;out/out_spectrum_smeared_full;64;AS;M3
+Lt96Ls20beta6.5mf0.71mas1.01FUN;DISCON_SEMWALL smear_N[0-9]+ SINGLET;source_N[0-9]+_sink_N[0-9]+ TRIPLET;out/out_spectrum_smeared_discon_full;out/out_spectrum_smeared_full;100;FUN;M3
