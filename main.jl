@@ -1,10 +1,10 @@
-start_from_logs    = false
-write_correlator   = false
+start_from_logs    = true
+write_correlator   = true
 write_gevp_results = true
 
 logfiles_path  = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurements/"
 logfiles_path  = "/home/fabian/Documents/Physics/Data/DataDiaL/measurements/"
-paramter_path  = "input/parameters_M3/"
+paramter_path  = "input/parameters/"
 hdf5file_path  = "output/hdf5out"
 output_path    = "output/"
 

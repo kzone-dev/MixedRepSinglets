@@ -11,18 +11,14 @@ using LinearAlgebra
 include("scripts/utils.jl")
 include("scripts/write_hdf5.jl")
 include("scripts/plotting.jl")
-include("scripts/tables.jl")
-include("scripts/mixing_angle.jl")
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
 corrfitterpath = joinpath(output_path,"fitresults")
-tablepath      = joinpath(output_path,"tables")
 plotpath       = joinpath(output_path,"plots")
 
 parameterfile      = joinpath(paramter_path,"parameters_smeared.csv")
 parameters_fitting = joinpath(paramter_path,"parameters_corrfitter.csv")
 parameters_gevp    = joinpath(paramter_path,"parameters_gevp.csv")
-gradient_flow_results = joinpath(paramter_path,"gradient_flow_results.csv")
 
 ispath(corrfitterpath) || mkpath(corrfitterpath)
 ispath(hdf5file_path) || mkpath(hdf5file_path) 
@@ -46,7 +42,3 @@ end
 
 run_corrfitter(parameters_fitting,hdf5file_path;resample=false)
 plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5file_path,plotpath;only_singlet=false)
-#write_all_tables(Nsmear,parameters_gevp,parameters_fitting,corrfitterpath,tablepath)
-#write_tex_tables(tablepath,tablepath)
-#plot_spectrum(tablepath,plotpath,gradient_flow_results)
-#plot_and_write_mixing_angles(parameters_gevp,hdf5file_path,tablepath,tablepath,plotpath)

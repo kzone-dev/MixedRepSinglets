@@ -12,7 +12,7 @@ function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true)
     input = readdlm(parameterfile,';',skipstart=1)
     for prm in eachrow(input)
 
-        dir, typeCONN, typeDISC, fileCONN, fileDISC, nhits, rep, name = prm
+        dir, typeDISC, typeCONN, fileDISC, fileCONN, nhits, rep, name = prm
 
         fileCONN = joinpath(path,dir,fileCONN)
         fileDISC = joinpath(path,dir,fileDISC)
