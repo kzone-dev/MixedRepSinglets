@@ -1,3 +1,4 @@
 ensemble;channel;tmin1;tmin2;tmax1;tmax2;tp;Nmax;
-M3;g5_singlet;9;7;14;11;0;1;
+M3;g5_singlet;7;6;11;9;0;1;
 M3;id_singlet;9;7;14;11;0;1;
+M3;id_mvev_singlet;9;7;14;11;0;1;

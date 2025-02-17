@@ -1,4 +1,4 @@
 ensemble;channel;t0;binsize;deriv;ops
-M3;g5_singlet;1;1;true;(1,2,3,4,5,6,7,8,9)
-M3;id_singlet;2;1;true;(1,2,3,4,5,6,7,8,9)
-M3;id_mvev_singlet;2;1;false;(1,2,3,4,5,6,7,8,9)
+M3;g5_singlet;1;1;false;(1,2,3,4,5,6,7,8,9)
+M3;id_singlet;2;2;true;(1,2,3,4,5,6,7,8,9)
+M3;id_mvev_singlet;2;2;false;(1,2,3,4,5,6,7,8,9)

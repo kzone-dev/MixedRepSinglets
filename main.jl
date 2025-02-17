@@ -1,4 +1,4 @@
-start_from_logs    = true
+start_from_logs    = false
 write_correlator   = true
 write_gevp_results = true
 
