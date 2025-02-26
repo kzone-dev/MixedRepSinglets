@@ -37,6 +37,11 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
         correlation_matrix_singlet_g5   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g5"  ,disc_sign=+1,subtract_vev=false)
         correlation_matrix_singlet_id   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id"  ,disc_sign=-1,subtract_vev=false)
         correlation_matrix_singlet_id_vevsubtract = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id",disc_sign=-1,subtract_vev=true)
+        # add non-singlet correlation matrices
+        correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g5")
+        correlation_matrix_nonsinglet_FUN_id = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="id")
+        correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g5")
+        correlation_matrix_nonsinglet_AS_id = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="id")
         
         function _copy_lattice_parameters(outfile,infile,ensemble)
             fileFUN = h5open(infile)[joinpath(ensemble,"FUN","CONN")]
@@ -57,6 +62,12 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix_singlet_g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_singlet"),correlation_matrix_singlet_id)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_mvev_singlet"),correlation_matrix_singlet_id_vevsubtract)
+        # Add non-singlet correlators here
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g5)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_id)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g5)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_id)
+        # Smearing parameters
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_FUN"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_AS"),NsmearAS)
