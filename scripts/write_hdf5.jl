@@ -6,16 +6,17 @@ function _copy_lattice_parameters(outfile,infile,ensemble;group="")
         h5write(outfile,label,read(file,entry))
     end
 end
-function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true,channels=["g5","g0g5","g1","g2","g3","id"])
+function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true)
     h5file = joinpath(hdf5path,"singlets_smeared.hdf5")
 
     input = readdlm(parameterfile,';',skipstart=1)
     for prm in eachrow(input)
 
-        dir, typeDISC, typeCONN, fileDISC, fileCONN, nhits, rep, name = prm
+        dir, typeCONN, typeDISC, fileCONN, fileDISC, nhits, rep, name = prm
 
         fileCONN = joinpath(path,dir,fileCONN)
         fileDISC = joinpath(path,dir,fileDISC)
+        channels=["g5","g0g5","g1","g2","g3","id"]
 
         @show dir
         writehdf5_spectrum_with_regexp(fileCONN,h5file,Regex(typeCONN),h5group="$name/$rep/CONN";filter_channels,channels)
@@ -32,17 +33,39 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
     ensembles = keys(fid)
     close(fid)
 
+    # I am going to hardcode here the smearing levels for now,
+    # Since in the M4 ensemble the smearing steps are different for FUN rep
+    M3FUN_smear_levels = collect(0:50:200)
+    M3AS_smear_levels  = collect(0:60:180)
+    M4FUN_smear_levels = collect(0:40:160)
+    M4AS_smear_levels  = collect(0:60:180)
+
     for ensemble in ensembles
 
+        if ensemble == "M3"
+            NsmearFUN = M3FUN_smear_levels
+            NsmearAS  = M3AS_smear_levels
+        elseif ensemble == "M4"
+            NsmearFUN = M4FUN_smear_levels
+            NsmearAS  = M4AS_smear_levels
+        end
+
         correlation_matrix_singlet_g5   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g5"  ,disc_sign=+1,subtract_vev=false)
+        correlation_matrix_singlet_g0g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g0g5",disc_sign=+1,subtract_vev=false)
         correlation_matrix_singlet_id   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id"  ,disc_sign=-1,subtract_vev=false)
         correlation_matrix_singlet_id_vevsubtract = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id",disc_sign=-1,subtract_vev=true)
-        # add non-singlet correlation matrices
         correlation_matrix_nonsinglet_FUN_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g5")
-        correlation_matrix_nonsinglet_FUN_id = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="id")
+        correlation_matrix_nonsinglet_FUN_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g1")
+        correlation_matrix_nonsinglet_FUN_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g2")
+        correlation_matrix_nonsinglet_FUN_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearFUN,"FUN";channel="g3")
         correlation_matrix_nonsinglet_AS_g5 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g5")
-        correlation_matrix_nonsinglet_AS_id = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="id")
-        
+        correlation_matrix_nonsinglet_AS_g1 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g1")
+        correlation_matrix_nonsinglet_AS_g2 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g2")
+        correlation_matrix_nonsinglet_AS_g3 = _assemble_correlation_matrix_rep_nonsinglet(h5logfiles,ensemble,NsmearAS,"AS";channel="g3")
+
+        correlation_matrix_nonsinglet_FUN_g1 = @. (correlation_matrix_nonsinglet_FUN_g1 + correlation_matrix_nonsinglet_FUN_g2 + correlation_matrix_nonsinglet_FUN_g3)/3
+        correlation_matrix_nonsinglet_AS_g1  = @. (correlation_matrix_nonsinglet_AS_g1  + correlation_matrix_nonsinglet_AS_g2  + correlation_matrix_nonsinglet_AS_g3 )/3
+
         function _copy_lattice_parameters(outfile,infile,ensemble)
             fileFUN = h5open(infile)[joinpath(ensemble,"FUN","CONN")]
             fileAS  = h5open(infile)[joinpath(ensemble,"AS","CONN")]
@@ -60,19 +83,18 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
         _copy_lattice_parameters(h5corrs,h5logfiles,ensemble)
         # NOTE: Note that the entries of the correlation matrix always need to contain the substring "correlation_matrix" 
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_singlet"),correlation_matrix_singlet_g5)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g0g5_singlet"),correlation_matrix_singlet_g0g5)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_singlet"),correlation_matrix_singlet_id)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_mvev_singlet"),correlation_matrix_singlet_id_vevsubtract)
-        # Add non-singlet correlators here
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g5)
-        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_id)
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_FUN"),correlation_matrix_nonsinglet_FUN_g1)
         h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g5_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g5)
-        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_id_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_id)
-        # Smearing parameters
+        h5write(h5corrs,joinpath(ensemble,"correlation_matrix_g1_nonsinglet_AS"),correlation_matrix_nonsinglet_AS_g1)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_FUN"),NsmearFUN)
         h5write(h5corrs,joinpath(ensemble,"Wuppertal_levels_AS"),NsmearAS)
         # write single disconnected loops to hdf5 file for analysis of the glueball mixing
-        for channel in ["g5","id"] 
+        for channel in ["g5","g0g5","id"] 
             discFUN = stack(_get_disconnected_at_smearing_level(h5logfiles,N,channel,"FUN";ensemble) for N in NsmearFUN)
             discAS  = stack(_get_disconnected_at_smearing_level(h5logfiles,N,channel,"AS";ensemble)  for N in NsmearAS)
             # match the layout of the correlation matrix
