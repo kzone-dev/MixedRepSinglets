@@ -24,7 +24,20 @@ function _assemble_correlation_matrix_mixed(h5file,ensemble,NsmearFUN,NsmearAS;c
     connAS  = [_get_connected_at_smearing_level(h5file,N1,N2,channel,"AS";ensemble) for N1 in NsmearAS, N2 in NsmearAS ]
 
     # number of configurations and lattice size
-    N   = size(first(discFUN))[1]
+    # Let's find all the configs across the arrays and pick the smallest one, and truncate to that
+    NdiscFUN = size(first(discFUN))[1]
+    NdiscAS  = size(first(discAS))[1]
+    NconnFUN = size(first(connFUN))[1]
+    NconnAS  = size(first(connAS))[1]
+
+    N = minimum( (NdiscFUN, NdiscAS, NconnFUN, NconnAS) )
+
+    # Truncate 
+    discFUN = [d[1:N,:,:] for d in discFUN]
+    discAS  = [d[1:N,:,:] for d in discAS]
+    connFUN = [d[1:N,:,:] for d in connFUN]
+    connAS  = [d[1:N,:,:] for d in connAS]
+
     T,L = h5read(h5file,joinpath(ensemble,"FUN","CONN","lattice"))[1:2]
     NF  = length(NsmearFUN)
     NA  = length(NsmearAS)
