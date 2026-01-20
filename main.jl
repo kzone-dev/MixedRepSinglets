@@ -1,12 +1,22 @@
-start_from_logs    = false
-write_correlator   = true
-write_gevp_results = true
+using Pkg; Pkg.resolve(); Pkg.instantiate(); Pkg.update(); Pkg.precompile(); Pkg.activate(".")
+Pkg.add("ArgParse")
+using ArgParse
 
-logfiles_path  = "/home/fabian/Dokumente/Physics/Data/DataDiaL/measurements/"
-logfiles_path  = "/home/fabian/Documents/Physics/Data/DataDiaL/measurements/"
+function parse_commandline()
+    s = ArgParseSettings()
+    @add_arg_table s begin
+        "--hdf5_folder"
+            help = "Path to the directory with the HDF5 files."
+            required = true
+    end
+    return parse_args(s)
+end
+
+write_correlator   = true
 paramter_path  = "input/parameters/"
-hdf5file_path  = "output/hdf5out"
-output_path    = "output/"
+
+args = parse_commandline()
+hdf5file_path = args["hdf5_folder"] * "/"
 
 # In order to repsect the dataset size limit on zenodo, only_singlet
 # the relevant channels (γ5, γ0γ5, γi) are written to hdf5 file sizes. 

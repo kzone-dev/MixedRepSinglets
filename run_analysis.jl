@@ -13,33 +13,12 @@ include("scripts/write_hdf5.jl")
 include("scripts/plotting.jl")
 pgfplotsx(legend=:topright, frame=:box, legendfontsize=14, tickfontsize=14, labelfontsize=14, titlefontsize=16,  markersize=5)
 
-corrfitterpath = joinpath(output_path,"fitresults")
-plotpath       = joinpath(output_path,"plots")
-
 parameterfile      = joinpath(paramter_path,"parameters_smeared.csv")
-parameters_fitting = joinpath(paramter_path,"parameters_corrfitter.csv")
-parameters_gevp    = joinpath(paramter_path,"parameters_gevp.csv")
 
-ispath(corrfitterpath) || mkpath(corrfitterpath)
 ispath(hdf5file_path) || mkpath(hdf5file_path) 
 
 NsmearFUN = collect(0:50:200)
 NsmearAS  = collect(0:60:180)
 
 channels=["g5","id"]
-start_from_logs    && main_write_hdf5_logs(logfiles_path,hdf5file_path,parameterfile;channels,filter_channels=!write_all_channes_to_hdf5)
 write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5file_path)
-write_gevp_results && write_eigenvalues(parameters_gevp,hdf5file_path)
-
-function run_corrfitter(parameters_fitting,hdf5file_path;resample)
-    resample = resample ? "True" : "False"
-    args = `$(abspath(parameters_fitting)) $(abspath(hdf5file_path)) $(abspath(corrfitterpath)) $resample`
-    try
-        run(`python3 scripts/fitting_eigenvalues.py $args`)
-    catch
-        run(`python  scripts/fitting_eigenvalues.py $args`)
-    end
-end
-
-run_corrfitter(parameters_fitting,hdf5file_path;resample=false)
-plot_all_masses_with_fitting(parameters_gevp,parameters_fitting,corrfitterpath,hdf5file_path,plotpath;only_singlet=false)
