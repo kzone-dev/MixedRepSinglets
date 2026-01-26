@@ -33,12 +33,11 @@ function main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5path)
     ensembles = keys(fid)
     close(fid)
 
-    # I am going to hardcode here the smearing levels for now,
     # Since in the M4 ensemble the smearing steps are different for FUN rep
     M3FUN_smear_levels = collect(0:50:200)
     M3AS_smear_levels  = collect(0:60:180)
-    M4FUN_smear_levels = collect(0:40:160)
-    M4AS_smear_levels  = collect(0:60:180)
+    M4FUN_smear_levels = collect(0:20:200)
+    M4AS_smear_levels  = collect(0:20:200)
 
     for ensemble in ensembles
 
