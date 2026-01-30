@@ -7,3 +7,4 @@
 input/*
 !input/parameters
 !input/parameters/*.csv
+Manifest.toml
