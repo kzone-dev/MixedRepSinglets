@@ -8,6 +8,9 @@ function parse_commandline()
         "--hdf5_folder"
             help = "Path to the directory with the HDF5 files."
             required = true
+        "--ensemble"
+            help = "Name of the ensemble to be analyzed."
+            required = true
     end
     return parse_args(s)
 end
@@ -17,6 +20,7 @@ paramter_path  = "input/parameters/"
 
 args = parse_commandline()
 hdf5file_path = args["hdf5_folder"] * "/"
+ensemble = args["ensemble"]
 
 # In order to repsect the dataset size limit on zenodo, only_singlet
 # the relevant channels (γ5, γ0γ5, γi) are written to hdf5 file sizes. 

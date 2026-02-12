@@ -21,4 +21,4 @@ NsmearFUN = collect(0:50:200)
 NsmearAS  = collect(0:60:180)
 
 channels=["g5","id"]
-write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5file_path)
+write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5file_path, ensemble)
