@@ -23,9 +23,9 @@ function main_write_hdf5_logs(path,hdf5path,parameterfile;filter_channels=true)
         writehdf5_spectrum_disconnected_with_regexp(fileDISC,h5file,Regex(typeDISC),nhits,h5group="$name/$rep/DISC";filter_channels,channels)
     end    
 end
-function main_write_correlator_matrices(NsmearFUN, NsmearAS, hdf5path, ensemble)
+function main_write_correlator_matrices(NsmearFUN, NsmearAS, hdf5path, hdf5corrpath, ensemble)
     h5logfiles = joinpath(hdf5path, ensemble*"_spectrum.hdf5")
-    h5corrs    = joinpath(hdf5path, ensemble*"_singlets_smeared_correlators.hdf5")
+    h5corrs    = joinpath(hdf5corrpath, ensemble*"_singlets_smeared_correlators.hdf5")
     isfile(h5corrs) && rm(h5corrs)
     
     # get names of ensembles from hdf5 file
