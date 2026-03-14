@@ -33,20 +33,6 @@ function main_write_correlator_matrices(NsmearFUN, NsmearAS, hdf5path, hdf5corrp
     #ensembles = keys(fid)
     #close(fid)
 
-    # Since in the M4 ensemble the smearing steps are different for FUN rep
-    M3FUN_smear_levels = collect(0:50:200)
-    M3AS_smear_levels  = collect(0:60:180)
-    M4FUN_smear_levels = collect(0:20:200)
-    M4AS_smear_levels  = collect(0:20:200)
-
-    if ensemble == "M3"
-        NsmearFUN = M3FUN_smear_levels
-        NsmearAS  = M3AS_smear_levels
-    elseif ensemble == "M4"
-        NsmearFUN = M4FUN_smear_levels
-        NsmearAS  = M4AS_smear_levels
-    end
-
     correlation_matrix_singlet_g5   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g5"  ,disc_sign=+1,subtract_vev=false)
     correlation_matrix_singlet_g0g5 = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="g0g5",disc_sign=+1,subtract_vev=false)
     correlation_matrix_singlet_id   = _assemble_correlation_matrix_mixed(h5logfiles,ensemble,NsmearFUN,NsmearAS;channel="id"  ,disc_sign=-1,subtract_vev=false)

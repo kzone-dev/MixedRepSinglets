@@ -17,8 +17,5 @@ parameterfile      = joinpath(paramter_path,"parameters_smeared.csv")
 
 ispath(hdf5out) || mkpath(hdf5out)
 
-NsmearFUN = collect(0:50:200)
-NsmearAS  = collect(0:60:180)
-
 channels=["g5","id"]
 write_correlator   && main_write_correlator_matrices(NsmearFUN,NsmearAS,hdf5parse,hdf5out,ensemble)
