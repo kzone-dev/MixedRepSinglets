@@ -1,7 +1,11 @@
-using Pkg; Pkg.activate("."); Pkg.resolve(); Pkg.instantiate(); Pkg.update(); Pkg.precompile() 
+using Pkg; Pkg.activate("."); Pkg.instantiate();
 Pkg.add("ArgParse")
 using ArgParse
-using YAML
+
+Pkg.add("CSV")
+Pkg.add("DataFrames")
+using CSV
+using DataFrames
 
 function parse_commandline()
     s = ArgParseSettings()
@@ -11,41 +15,37 @@ function parse_commandline()
             required = true
         "--hdf5output"
             help = "Path to the output HDF5 with the meson correlators (MixedRepSinglets)"
+            required = true
         "--ensemble"
             help = "Name of the ensemble to be analyzed."
             required = true
-        "--config_yaml"
-            help = "Path to the YAML configuration file."
+        "--meson_measurements_metadata"
+            help = "Path to the metadata file containing meson measurements information."
             required = true
     end
     return parse_args(s)
 end
 
 write_correlator   = true
-paramter_path  = "input/parameters/"
 
 args = parse_commandline()
 hdf5parse = args["hdf5parse"] * "/"
 hdf5out = args["hdf5output"] * "/"
 ensemble = args["ensemble"]
-config_yaml = args["config_yaml"]
-config = YAML.load_file(config_yaml)
 
-NsmearFUN_ini = config["ensembles"][ensemble]["rep"]["FUN"]["smear_lvl_ini"]
-NsmearFUN_step = config["ensembles"][ensemble]["rep"]["FUN"]["smear_lvl_step"]
-NsmearFUN_end = config["ensembles"][ensemble]["rep"]["FUN"]["smear_lvl_end"]
+meson_measurements_metadata = args["meson_measurements_metadata"]
+meson_measurements_df = CSV.read(meson_measurements_metadata, DataFrame)
+
+ensemble_fun_rows = filter(row -> row.ensemble_name == ensemble && row.representation == "FUN", meson_measurements_df)
+NsmearFUN_ini = ensemble_fun_rows[1, :wuppertal_lvl_ini]
+NsmearFUN_step = ensemble_fun_rows[1, :wuppertal_lvl_step]
+NsmearFUN_end = ensemble_fun_rows[1, :wuppertal_lvl_end]
 NsmearFUN = collect(NsmearFUN_ini:NsmearFUN_step:NsmearFUN_end)
 
-NsmearAS_ini = config["ensembles"][ensemble]["rep"]["AS"]["smear_lvl_ini"]
-NsmearAS_step = config["ensembles"][ensemble]["rep"]["AS"]["smear_lvl_step"]
-NsmearAS_end = config["ensembles"][ensemble]["rep"]["AS"]["smear_lvl_end"]
+ensemble_as_rows = filter(row -> row.ensemble_name == ensemble && row.representation == "AS", meson_measurements_df)
+NsmearAS_ini = ensemble_as_rows[1, :wuppertal_lvl_ini]
+NsmearAS_step = ensemble_as_rows[1, :wuppertal_lvl_step]
+NsmearAS_end = ensemble_as_rows[1, :wuppertal_lvl_end]
 NsmearAS = collect(NsmearAS_ini:NsmearAS_step:NsmearAS_end)
-
-
-# In order to repsect the dataset size limit on zenodo, only_singlet
-# the relevant channels (γ5, γ0γ5, γi) are written to hdf5 file sizes. 
-# In order to write all channels to the hdf5 file, set the following
-# variable 'write_all_channes_to_hdf5' to 'true'
-write_all_channes_to_hdf5 = false
 
 include("run_analysis.jl")  
