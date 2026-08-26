@@ -1,11 +1,13 @@
 name = "MixedRepSinglets"
 uuid = "994c13d8-e705-4670-a9b5-c2c4798695a3"
-authors = ["Fabian Zierler <fabian.zierler@a1.net>"]
 version = "0.1.0"
+authors = ["Fabian Zierler <fabian.zierler@a1.net>"]
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
 HiRepParsing = "c7cc7de0-aa5c-4db3-979c-e9fc59cba489"
@@ -25,6 +27,8 @@ LatticeUtils = {rev = "main", url = "https://github.com/fzierler/LatticeUtils"}
 
 [compat]
 ArgParse = "1.2.0"
+CSV = "0.10.17"
+DataFrames = "1.8.2"
 HiRepParsing = "0.1.0"
 LatticeUtils = "0.1.0"
 PlotlyJS = "0.18.15"
