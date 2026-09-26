@@ -1,9 +1,6 @@
-using Pkg; Pkg.activate("."); Pkg.instantiate();
-Pkg.add("ArgParse")
+using Pkg
+Pkg.activate(".")
 using ArgParse
-
-Pkg.add("CSV")
-Pkg.add("DataFrames")
 using CSV
 using DataFrames
 
